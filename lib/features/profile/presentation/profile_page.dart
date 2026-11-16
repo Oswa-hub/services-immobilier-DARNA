@@ -12,8 +12,7 @@ import 'edit_profile_page.dart';
 import 'security_page.dart';
 import 'notifications_page.dart';
 import 'profile_avatar.dart';
-import 'package:go_router/go_router.dart';
-import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../property_discovery/domain/publish_permission.dart';
 
 class UserProfilePage extends ConsumerStatefulWidget {
@@ -29,9 +28,9 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
   // Created once (a new stream on every build would re-subscribe each time).
   Stream<Map<String, dynamic>?>? _profileStream;
 
-  static const Color navy = Color(0xFF10244A);
-  static const Color blue = Color(0xFF1769F4);
-  static const Color background = Color(0xFFF8FAFC);
+  static const Color navy = AppColors.navy;
+  static const Color blue = AppColors.primary;
+  static const Color background = AppColors.background;
 
   bool _loggingOut = false;
 
@@ -151,7 +150,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: const BorderSide(
-          color: Color(0xFFE8EDF5),
+          color: AppColors.line,
         ),
       ),
       child: ListTile(
@@ -397,7 +396,8 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                   _profileItem(
                     icon: Icons.favorite_outline,
                     title: 'Favorites',
-                    unavailable: true, // TODO(Module 07): onTap -> Routes.favorites
+                    subtitle: 'Properties you saved',
+                    onTap: () => context.go(Routes.favorites),
                   ),
 
                   _profileItem(

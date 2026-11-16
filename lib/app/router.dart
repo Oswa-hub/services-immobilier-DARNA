@@ -28,6 +28,7 @@ import '../features/properties/presentation/pages/property_details_page.dart'; /
 import '../features/property_discovery/presentation/screens/home_discovery_screen.dart';
 import '../features/search/presentation/pages/search_page.dart'; // Module 04
 import '../features/favorites/presentation/pages/favorites_page.dart'; // Module 07
+import '../core/widgets/guest_gate.dart';
 import '../features/publishing/presentation/pages/publish_page.dart'; // Module 08
 
 import '../features/listings/presentation/pages/my_listings_page.dart'; // Module 09
@@ -84,11 +85,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.favorites,
-              builder: (_, __) => const FavoritesPage(), // Module 07
+              builder: (_, __) => const GuestGate.favorites(child: FavoritesPage()), // Module 07
             ),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: Routes.profile, builder: (_, __) => const UserProfilePage()), // Module 02
+            GoRoute(path: Routes.profile, builder: (_, __) => const GuestGate.profile(child: UserProfilePage())), // Module 02
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.messages,
+              builder: (_, __) => const GuestGate.messages(child: ComingSoonPage(title: 'Messages', module: 'a future module')),
+            ),
           ]),
         ],
       ),

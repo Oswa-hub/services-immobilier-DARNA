@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/theme/app_colors.dart';
 
 import '../../../core/services/cloudinary_service.dart';
 import '../../../core/utils/cloudinary_url.dart';
@@ -18,7 +19,7 @@ class ProfileAvatar extends StatefulWidget {
 }
 
 class _ProfileAvatarState extends State<ProfileAvatar> {
-  static const _blue = Color(0xFF1769F4);
+  static const _blue = AppColors.primary;
 
   final _picker = ImagePicker();
   final _cloudinary = CloudinaryService();
@@ -67,7 +68,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         children: [
           CircleAvatar(
             radius: 48,
-            backgroundColor: const Color(0xFFE1EAFF),
+            backgroundColor: AppColors.chip,
             backgroundImage:
                 hasPhoto ? NetworkImage(CloudinaryUrl.optimized(widget.photoUrl, width: 240, height: 240)) : null,
             child: _uploading

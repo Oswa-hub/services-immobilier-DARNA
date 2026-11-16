@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_colors.dart';
 
 import '../../../../app/routes.dart';
 import '../../../../core/widgets/app_logo.dart';
@@ -14,9 +15,9 @@ class WelcomePage extends StatefulWidget {
 
 class _WelcomePageState extends State<WelcomePage>
     with SingleTickerProviderStateMixin {
-  static const Color navy = Color(0xFF102653);
-  static const Color blue = Color(0xFF1769F4);
-  static const Color background = Color(0xFFF5F7FB);
+  static const Color navy = AppColors.navy;
+  static const Color blue = AppColors.primary;
+  static const Color background = AppColors.background;
 
   late final AnimationController _controller;
   late final Animation<double> _animation;
@@ -188,7 +189,7 @@ class _WelcomePageState extends State<WelcomePage>
         gradient: LinearGradient(
           colors: [
             navy,
-            Color(0xFF1B3A7A),
+            AppColors.primaryDark,
           ],
         ),
       ),
@@ -225,6 +226,25 @@ class _WelcomePageState extends State<WelcomePage>
               _buildCategory(Icons.home_outlined, 'Houses'),
               _buildCategory(Icons.business, 'Buildings'),
             ],
+          ),
+          const SizedBox(height: 28),
+          SizedBox(
+            width: 260,
+            child: FilledButton.icon(
+              onPressed: () => context.go(Routes.home),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: navy,
+              ),
+              icon: const Icon(Icons.search_rounded),
+              label: const Text('Explorer les biens'),
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextButton(
+            onPressed: () => context.push(Routes.login),
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            child: const Text('Se connecter'),
           ),
         ],
       ),
@@ -317,7 +337,7 @@ class _WelcomePageState extends State<WelcomePage>
             errorBuilder: (context, error, stackTrace) {
               return Container(
                 height: 190,
-                color: const Color(0xFFE1EAFF),
+                color: AppColors.chip,
                 child: const Center(
                   child: Icon(
                     Icons.apartment,
@@ -359,7 +379,7 @@ class _WelcomePageState extends State<WelcomePage>
   Widget _buildAboutSection() {
     return Container(
       width: double.infinity,
-      color: const Color(0xFFE8EFFC),
+      color: AppColors.chip,
       padding: const EdgeInsets.all(32),
       child: const Column(
         children: [

@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/app_colors.dart';
 
 import '../../../core/constants/tunisia_governorates.dart';
 import '../../../core/utils/validators.dart';
@@ -28,8 +29,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   bool _saving = false;
   String? _error;
 
-  static const navy = Color(0xFF10244A);
-  static const blue = Color(0xFF1769F4);
+  static const navy = AppColors.navy;
+  static const blue = AppColors.primary;
 
   // Single source of truth shared with Home and Search (core/constants).
   static const List<String> tunisianGovernorates = tunisiaGovernorates;
@@ -172,7 +173,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Edit Profile'),
         backgroundColor: Colors.white,
@@ -220,7 +221,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                             const CircleAvatar(
                               radius: 44,
                               backgroundColor:
-                                  Color(0xFFE1EAFF),
+                                  AppColors.chip,
                               child: Icon(
                                 Icons.person,
                                 size: 48,

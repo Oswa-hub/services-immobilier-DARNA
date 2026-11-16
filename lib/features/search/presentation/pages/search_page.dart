@@ -116,7 +116,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             : '$count${s.hasMore ? '+' : ''} ${count == 1 && !s.hasMore ? 'property' : 'properties'}';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FD),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(children: [
           // ---- search box + filters button ----

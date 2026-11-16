@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router_guard.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
@@ -48,6 +49,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    // The login/register page may be pushed on top of Home (guest flow), so the
+    // router redirect alone can leave it on screen. Leave it explicitly once signed in.
+    ref.listen<AuthState>(authControllerProvider, (_, next) {
+      if (next is AuthAuthenticated) context.go(homeFor(next.user));
+    });
+
     final loading = ref.watch(authControllerProvider) is AuthAuthenticating;
     final controller = ref.read(authControllerProvider.notifier);
 

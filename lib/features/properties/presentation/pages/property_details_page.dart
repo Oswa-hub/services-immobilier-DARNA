@@ -223,6 +223,34 @@ class _ActionBarState extends ConsumerState<_ActionBar> {
   @override
   Widget build(BuildContext context) {
     final me = ref.watch(currentUserProvider)?.id;
+
+    // Guests can browse freely; an account is only needed to go further.
+    if (me == null) {
+      return SafeArea(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
+          decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: AppColors.line))),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () => context.push(Routes.login),
+                icon: const Icon(Icons.event_available_outlined),
+                label: const Text('Se connecter pour voir la disponibilité'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: TextButton(
+                onPressed: () => context.push(Routes.register),
+                child: const Text('Pas de compte ? Créer un compte'),
+              ),
+            ),
+          ]),
+        ),
+      );
+    }
+
     final recipient = ConversationRepository.recipientOf(widget.property);
     final isOwn = me != null && me == recipient;
     final enabled = PropertyActionsConfig.messagingEnabled && !isOwn && !_busy;

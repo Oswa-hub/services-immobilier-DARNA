@@ -1,6 +1,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_colors.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -16,8 +17,8 @@ class _SecurityPageState extends State<SecurityPage> {
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  static const Color navy = Color(0xFF10244A);
-  static const Color blue = Color(0xFF1769F4);
+  static const Color navy = AppColors.navy;
+  static const Color blue = AppColors.primary;
 
   bool _saving = false;
   bool _showCurrentPassword = false;
@@ -171,7 +172,7 @@ class _SecurityPageState extends State<SecurityPage> {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Security'),
         backgroundColor: Colors.white,
@@ -186,7 +187,7 @@ class _SecurityPageState extends State<SecurityPage> {
               const SizedBox(height: 12),
               const CircleAvatar(
                 radius: 44,
-                backgroundColor: Color(0xFFE1EAFF),
+                backgroundColor: AppColors.chip,
                 child: Icon(
                   Icons.shield_outlined,
                   color: blue,
