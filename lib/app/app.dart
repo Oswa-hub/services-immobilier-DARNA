@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/app_theme.dart';
+import 'notification_bootstrap.dart';
 import 'router.dart';
 
 class ImmoFindApp extends ConsumerWidget {
@@ -9,6 +10,7 @@ class ImmoFindApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(notificationBootstrapProvider); // Module 12: push registration + tap routing
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'ImmoFind',

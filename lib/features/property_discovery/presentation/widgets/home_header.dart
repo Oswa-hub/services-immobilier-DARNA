@@ -6,6 +6,7 @@ import '../../../../app/routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/providers/auth_provider.dart';
+import '../../../notifications/presentation/widgets/notification_bell.dart';
 
 /// First name for the greeting, or null (generic greeting). Never hardcoded.
 String? greetingName(AuthUser? user) {
@@ -65,7 +66,9 @@ class HomeHeader extends ConsumerWidget {
               ),
             ),
           )
-        else
+        else ...[
+          const NotificationBell(), // Module 12: unread badge
+          const SizedBox(width: 4),
           Semantics(
             button: true,
             label: 'Ouvrir le profil',
@@ -80,6 +83,7 @@ class HomeHeader extends ConsumerWidget {
               ),
             ),
           ),
+        ],
       ]),
       const SizedBox(height: 12),
       const Text("Trouvez votre lieu d'exception.",

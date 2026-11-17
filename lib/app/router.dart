@@ -32,6 +32,8 @@ import '../core/widgets/guest_gate.dart';
 import '../features/publishing/presentation/pages/publish_page.dart'; // Module 08
 
 import '../features/listings/presentation/pages/my_listings_page.dart'; // Module 09
+import '../features/notifications/presentation/pages/notification_center_page.dart'; // Module 12
+import '../features/notifications/presentation/pages/notification_settings_page.dart';
 import 'app_shell.dart';
 import 'placeholder_pages.dart';
 import 'router_guard.dart';
@@ -146,6 +148,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.myListings,
         builder: (_, _) => const MyListingsPage(),
+      ),
+      // ---- Module 12: Notifications ---------------------------------------
+      GoRoute(
+        path: Routes.notifications,
+        builder: (_, _) => const NotificationCenterPage(),
+        routes: [
+          GoRoute(path: 'settings', builder: (_, _) => const NotificationSettingsPage()),
+        ],
       ),
     ],
   );

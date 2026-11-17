@@ -10,10 +10,11 @@ import '../../auth/providers/auth_provider.dart';
 import '../data/profile_repository.dart';
 import 'edit_profile_page.dart';
 import 'security_page.dart';
-import 'notifications_page.dart';
 import 'profile_avatar.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../property_discovery/domain/publish_permission.dart';
+import '../../notifications/presentation/providers/notification_providers.dart';
+import '../../notifications/presentation/providers/push_registration.dart';
 
 class UserProfilePage extends ConsumerStatefulWidget {
   const UserProfilePage({super.key});
@@ -52,13 +53,8 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
     );
   }
 
-  Future<void> _openNotifications() async {
-    await Navigator.of(context, rootNavigator: true).push(
-      MaterialPageRoute(
-        builder: (_) => const NotificationsPage(),
-      ),
-    );
-  }
+  // Module 12: notification center (preferences are one tap away from there).
+  void _openNotifications() => context.push(Routes.notifications);
 
   Future<void> _logout() async {
     if (_loggingOut) return;
@@ -90,6 +86,8 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
     setState(() => _loggingOut = true);
 
     try {
+      // Module 12: stop pushes to this device while we may still delete its token.
+      await ref.read(pushRegistrarProvider).unregister();
       await ref.read(authControllerProvider.notifier).logout();
       // The router guard redirects to Welcome once the session is gone.
     } on FirebaseAuthException catch (_) {
@@ -136,6 +134,13 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
     );
   }
 
+  static String _unreadSubtitle(int unread) => switch (unread) {
+        0 => 'Centre de notifications et préférences',
+        1 => '1 notification non lue',
+        > 99 => '99+ notifications non lues',
+        _ => '$unread notifications non lues',
+      };
+
   Widget _profileItem({
     required IconData icon,
     required String title,
@@ -181,6 +186,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     final authUser = ref.watch(currentUserProvider);
+    final unreadNotifications = ref.watch(unreadBadgeCountProvider); // Module 12
 
     if (authUser == null) {
       return const Scaffold(
@@ -356,6 +362,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                   _profileItem(
                     icon: Icons.notifications_outlined,
                     title: 'Notifications',
+                    subtitle: _unreadSubtitle(unreadNotifications),
                     onTap: _openNotifications,
                   ),
 

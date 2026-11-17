@@ -25,6 +25,10 @@ class Routes {
   static const myListings = '/my-listings'; // Module 09
   static const adminDashboard = '/admin/dashboard';
 
+  // ---- Module 12: Notifications (signed-in users) ---------------------------
+  static const notifications = '/notifications';
+  static const notificationSettings = '/notifications/settings';
+
   // ---- Module 10: Agent / Agency (all require a signed-in user) -------------
   static const agentDashboard = '/agent';
   static const agentSetup = '/agent/setup';

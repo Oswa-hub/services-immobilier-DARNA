@@ -12,6 +12,9 @@ import 'package:team_app/features/property_discovery/presentation/providers/prop
 import 'package:team_app/features/property_discovery/presentation/screens/home_discovery_screen.dart';
 import 'package:team_app/features/property_discovery/presentation/widgets/property_card.dart';
 
+import 'package:team_app/features/notifications/presentation/providers/notification_providers.dart';
+
+import 'features/notifications/fakes.dart';
 import 'support_properties.dart';
 
 class FakeDiscoveryRepository implements PropertyDiscoveryRepository {
@@ -38,6 +41,8 @@ Future<void> pumpHome(
     overrides: [
       discoveryRepositoryProvider.overrideWithValue(repo),
       currentUserProvider.overrideWithValue(user),
+      // Module 12: the header bell must not reach Firebase in tests.
+      notificationRepositoryProvider.overrideWithValue(FakeNotificationRepository()),
     ],
     child: MaterialApp(theme: AppTheme.light, home: const HomeDiscoveryScreen()),
   ));

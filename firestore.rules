@@ -42,6 +42,20 @@ service cloud.firestore {
         || isAdmin();
 
       allow delete: if false;
+
+      // ---- Module 12: push devices (FCM tokens), one doc per token ------------
+      // Written by the app on sign-in; the server prunes dead tokens and removes a
+      // token from any other account (dedupeDeviceToken function).
+      match /devices/{deviceId} {
+        allow read, delete: if isSelf(uid);
+        allow create, update: if isSelf(uid)
+          && request.resource.data.keys().hasOnly(['token', 'platform', 'createdAt', 'updatedAt'])
+          && request.resource.data.token is string
+          && request.resource.data.token == deviceId
+          && request.resource.data.token.size() > 0 && request.resource.data.token.size() <= 1024
+          && request.resource.data.platform in ['android', 'ios', 'web', 'macos', 'windows', 'linux']
+          && request.resource.data.updatedAt == request.time;
+      }
     }
 
     // ---- Module 08: who may publish + what a NEW listing must look like -------
@@ -304,12 +318,24 @@ service cloud.firestore {
       }
     }
 
-    // ---- Module 10: notifications (functions write; owner reads / marks read) --
+    // ---- Module 12: notifications ---------------------------------------------
+    // Only Cloud Functions create them (Admin SDK bypasses rules). The recipient
+    // reads them, marks them read (read: true, optional readAt = server time) and
+    // may delete them from their notification center.
     match /notifications/{nid} {
       allow read: if signedIn() && resource.data.userId == request.auth.uid;
       allow update: if signedIn() && resource.data.userId == request.auth.uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
-      allow create, delete: if false;
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt'])
+        && request.resource.data.read == true
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['readAt'])
+            || request.resource.data.readAt == request.time);
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if false;
+    }
+
+    // ---- Module 12: email queue (Trigger Email extension) — server only --------
+    match /mail/{id} {
+      allow read, write: if false;
     }
   }
 }
