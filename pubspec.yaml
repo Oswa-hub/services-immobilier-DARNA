@@ -39,6 +39,7 @@ dependencies:
   firebase_core: ^4.15.0
   firebase_auth: ^6.7.0
   cloud_firestore: ^6.10.0
+  firebase_messaging: ^16.7.1 # Module 12: push notifications (FCM)
   url_launcher: ^6.3.3
   google_sign_in: 6.2.1
   geolocator: ^14.1.1
