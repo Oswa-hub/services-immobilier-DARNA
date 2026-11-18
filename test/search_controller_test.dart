@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:team_app/features/search/domain/entities/search_result_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:team_app/core/errors/discovery_failure.dart';
