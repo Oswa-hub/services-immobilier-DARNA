@@ -32,6 +32,12 @@ import '../core/widgets/guest_gate.dart';
 import '../features/publishing/presentation/pages/publish_page.dart'; // Module 08
 
 import '../features/listings/presentation/pages/my_listings_page.dart'; // Module 09
+import '../features/verification/domain/entities/verification_enums.dart'; // Module 13
+import '../features/verification/presentation/admin/verification_queue_page.dart';
+import '../features/verification/presentation/admin/verification_review_page.dart';
+import '../features/verification/presentation/pages/verification_center_page.dart';
+import '../features/verification/presentation/pages/verification_details_page.dart';
+import '../features/verification/presentation/pages/verification_form_page.dart';
 import 'app_shell.dart';
 import 'placeholder_pages.dart';
 import 'router_guard.dart';
@@ -62,6 +68,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.verifyEmail, builder: (_, __) => const VerifyEmailPage()),
       GoRoute(path: Routes.accountStatus, builder: (_, __) => const AccountStatusPage()),
       GoRoute(path: Routes.adminDashboard, builder: (_, __) => const AdminPlaceholderPage()),
+      // Module 13 admin review. Under /admin: the router guard keeps non-admins
+      // out, and the Firestore rules refuse their reads anyway.
+      GoRoute(path: Routes.adminVerification, builder: (_, __) => const VerificationQueuePage()),
+      GoRoute(
+        path: Routes.adminVerificationReviewPattern,
+        builder: (_, state) => VerificationReviewPage(verificationId: state.pathParameters['id'] ?? ''),
+      ),
 
       // ---- Main app: bottom navigation ------------------------------------
       StatefulShellRoute.indexedStack(
@@ -138,6 +151,26 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.chatPattern,
         builder: (_, state) => ChatPage(conversationId: state.pathParameters['conversationId'] ?? ''),
+      ),
+      // ---- Module 13: Verification (applicant) -----------------------------
+      GoRoute(
+        path: Routes.verification,
+        builder: (_, __) => const VerificationCenterPage(),
+        routes: [
+          GoRoute(
+            path: 'new/:type/:targetId',
+            builder: (_, state) {
+              final type = VerificationTargetType.tryParse(state.pathParameters['type']);
+              final targetId = state.pathParameters['targetId'] ?? '';
+              if (type == null) return const VerificationCenterPage();
+              return VerificationFormPage(targetType: type, targetId: targetId);
+            },
+          ),
+          GoRoute(
+            path: ':id',
+            builder: (_, state) => VerificationDetailsPage(verificationId: state.pathParameters['id'] ?? ''),
+          ),
+        ],
       ),
       GoRoute(
         path: Routes.publish,

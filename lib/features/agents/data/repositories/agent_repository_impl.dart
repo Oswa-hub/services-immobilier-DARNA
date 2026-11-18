@@ -161,44 +161,15 @@ class AgentRepositoryImpl implements AgentRepository {
         _ds.watchLatestVerification(agentId).map((raw) => raw == null ? null : VerificationModel.tryFromMap(raw.id, raw.data)),
       );
 
+  /// Superseded by Module 13 (`VerificationRepository.submit`). This legacy path
+  /// wrote the old request shape, which the new rules reject, so it is closed.
   @override
   Future<void> submitVerification({
     required AgentProfile profile,
     required List<VerificationUpload> documents,
   }) async {
-    final uploaded = <String>[];
-    try {
-      final uid = _ds.uid;
-      if (profile.userId != uid) throw const AgentFailure(AgentFailureType.permissionDenied);
-      if (!canSubmitVerification(profile.verificationStatus)) {
-        throw const AgentFailure(AgentFailureType.verificationNotAllowed,
-            detail: 'A verification request is already pending or approved.');
-      }
-      final provided = documents.map((d) => d.category).toSet();
-      final missing = AgentVerificationPolicy.requiredFor(isAgency: profile.isAgency).difference(provided);
-      if (missing.isNotEmpty) {
-        throw AgentFailure(AgentFailureType.verificationNotAllowed,
-            detail: 'Add: ${missing.map((c) => c.label.toLowerCase()).join(', ')}.');
-      }
-      for (var i = 0; i < documents.length; i++) {
-        final d = documents[i];
-        // Private (`authenticated`) Cloudinary file; we keep only its public_id.
-        uploaded.add(await _cloudinary.uploadPrivateDocument(
-          d.bytes,
-          filename: d.fileName,
-          folder: 'verification/$uid/${d.category.name}',
-        ));
-      }
-      await _ds.createVerification(VerificationModel.toCreateMap(uid: uid, storagePaths: uploaded));
-    } catch (e) {
-      // No request is created, so a half-sent upload is unreferenced. The app holds
-      // no Cloudinary secret and cannot delete: purge `verification/` orphans with a
-      // scheduled job if needed.
-      if (e is CloudinaryUploadException) {
-        throw const AgentFailure(AgentFailureType.verificationUploadFailed);
-      }
-      throw toFailure(e, AgentFailureType.verificationUploadFailed);
-    }
+    throw const AgentFailure(AgentFailureType.verificationNotAllowed,
+        detail: 'Verification is now handled by the Verification Center.');
   }
 
   // ---- notifications ----------------------------------------------------

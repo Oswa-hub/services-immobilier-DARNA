@@ -11,8 +11,10 @@ String? routeForNotification(AgentNotification n) {
   return switch (n.type) {
     AgentNotificationType.verificationSubmitted ||
     AgentNotificationType.verificationApproved ||
-    AgentNotificationType.verificationRejected =>
-      Routes.agentVerification,
+    AgentNotificationType.verificationRejected ||
+    AgentNotificationType.verificationExpired =>
+      // Module 13: the Verification Center covers user, owner, agent and listing requests.
+      Routes.verification,
     AgentNotificationType.listingSubmitted ||
     AgentNotificationType.listingApproved ||
     AgentNotificationType.listingRejected ||
@@ -25,6 +27,7 @@ String? routeForNotification(AgentNotification n) {
 
 IconData iconForNotification(AgentNotificationType t) => switch (t) {
       AgentNotificationType.verificationApproved => Icons.verified_rounded,
+      AgentNotificationType.verificationExpired => Icons.history_toggle_off_rounded,
       AgentNotificationType.verificationRejected || AgentNotificationType.listingRejected => Icons.error_outline_rounded,
       AgentNotificationType.verificationSubmitted || AgentNotificationType.listingSubmitted => Icons.send_outlined,
       AgentNotificationType.listingApproved || AgentNotificationType.listingRestored => Icons.check_circle_outline,

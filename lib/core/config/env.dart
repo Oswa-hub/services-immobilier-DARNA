@@ -22,6 +22,12 @@ class Env {
   static bool get cloudinaryVerificationConfigured =>
       _isSet(cloudinaryCloudName) && _isSet(cloudinaryVerificationPreset);
 
+  /// Module 13: HTTPS endpoint of the `verificationDocumentUrl` Cloud Function
+  /// (see backend/verificationDocumentUrl.ts). Without it administrators cannot
+  /// open private documents.
+  static String get verificationDocumentEndpoint => _get('VERIFICATION_DOCUMENT_ENDPOINT');
+  static bool get verificationDocumentEndpointConfigured => _isSet(verificationDocumentEndpoint);
+
   // ---- Map tiles (Module 06) --------------------------------------------------
   /// Empty -> the public OpenStreetMap server (fine for dev / demos). For a real
   /// launch point this at a commercial tile provider (MapTiler, Mapbox, Stadia...).

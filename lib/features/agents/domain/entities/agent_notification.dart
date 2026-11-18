@@ -3,6 +3,7 @@ enum AgentNotificationType {
   verificationSubmitted,
   verificationApproved,
   verificationRejected,
+  verificationExpired,
   listingSubmitted,
   listingApproved,
   listingRejected,

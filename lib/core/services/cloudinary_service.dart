@@ -47,6 +47,20 @@ class CloudinaryService {
   }) =>
       _upload(bytes, filename: filename, folder: folder, preset: Env.cloudinaryVerificationPreset, returnPublicId: true);
 
+  /// Same private upload, but also returns the file `format` (jpg, png...),
+  /// which the backend needs to mint a signed download link (Module 13).
+  Future<({String publicId, String format})> uploadPrivateDocumentDetailed(
+    Uint8List bytes, {
+    required String filename,
+    required String folder,
+  }) async {
+    final body = await _post(bytes, filename: filename, folder: folder, preset: Env.cloudinaryVerificationPreset);
+    final id = body['public_id'];
+    if (id is! String) throw const CloudinaryUploadException('Upload failed.');
+    final format = body['format'];
+    return (publicId: id, format: format is String ? format : '');
+  }
+
   Future<String> _upload(
     Uint8List bytes, {
     required String filename,
@@ -54,6 +68,19 @@ class CloudinaryService {
     String? publicId,
     String? preset,
     bool returnPublicId = false,
+  }) async {
+    final body = await _post(bytes, filename: filename, folder: folder, publicId: publicId, preset: preset);
+    final value = body[returnPublicId ? 'public_id' : 'secure_url'];
+    if (value is String) return value;
+    throw const CloudinaryUploadException('Upload failed.');
+  }
+
+  Future<Map<String, dynamic>> _post(
+    Uint8List bytes, {
+    required String filename,
+    String? folder,
+    String? publicId,
+    String? preset,
   }) async {
     if (!Env.cloudinaryConfigured || (preset != null && !Env.cloudinaryVerificationConfigured)) {
       throw const CloudinaryUploadException('Cloudinary is not configured yet.');
@@ -80,8 +107,7 @@ class CloudinaryService {
       final body = jsonDecode(response.body);
 
       if (response.statusCode == 200 && body is Map) {
-        final key = returnPublicId ? 'public_id' : 'secure_url';
-        if (body[key] is String) return body[key] as String;
+        return Map<String, dynamic>.from(body);
       }
       final apiMessage = body is Map && body['error'] is Map ? (body['error']['message'] ?? '') : '';
       throw CloudinaryUploadException(

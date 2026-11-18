@@ -23,6 +23,11 @@ import '../../domain/usecases/submit_agent_verification.dart';
 import '../../domain/usecases/update_agent_profile.dart';
 import '../../domain/usecases/watch_agent_listings.dart';
 import '../../domain/usecases/watch_agent_profile.dart';
+import '../../../../core/errors/verification_failure.dart';
+import '../../../verification/domain/entities/verification_enums.dart';
+import '../../../verification/domain/entities/verification_submission.dart';
+import '../../../verification/domain/services/verification_policy.dart';
+import '../../../verification/presentation/providers/verification_providers.dart';
 
 // ---- infrastructure (override in tests) -----------------------------------
 final cloudinaryServiceProvider = Provider<CloudinaryService>((_) => CloudinaryService());
@@ -100,10 +105,26 @@ final agentDashboardStatsProvider = Provider.autoDispose<AsyncValue<AgentDashboa
   return AsyncValue.data(AgentStatsCalculator.compute(data, stats.value ?? const {}));
 });
 
+/// Module 13: the agent's request is `verifications/agent_{uid}`. Only what the
+/// agent may see is mapped (document count, never the private references).
 final agentVerificationProvider = StreamProvider.autoDispose<VerificationRequest?>((ref) {
   final uid = _uid(ref);
   if (uid == null) return const Stream.empty();
-  return ref.watch(agentRepositoryProvider).watchLatestVerification(uid);
+  return ref
+      .watch(verificationRepositoryProvider)
+      .watchVerification(VerificationTargetType.agent.docId(uid))
+      .map((r) => r == null
+          ? null
+          : VerificationRequest(
+              id: r.id,
+              targetId: r.targetId,
+              status: r.effectiveStatus(),
+              documentCount: r.documents.length,
+              submittedAt: r.submittedAt,
+              reviewedAt: r.reviewedAt,
+              rejectionReason: r.rejectionReason,
+              expiresAt: r.expiresAt,
+            ));
 });
 
 final agentNotificationsProvider = StreamProvider.autoDispose<List<AgentNotification>>((ref) {
@@ -176,9 +197,44 @@ class AgentProfileFormController extends Notifier<AgentFormState> {
     if (state.isBusy) return false;
     state = const AgentFormState(phase: AgentSavePhase.uploading);
     try {
-      await ref.read(submitAgentVerificationProvider)(profile: profile, documents: documents);
+      // Module 13: one shared submission pipeline (validation, private upload,
+      // request + history + audit + notification in one batch).
+      final files = [
+        for (final d in documents)
+          VerificationFile(
+            documentType: _documentTypeOf(d.category),
+            fileName: d.fileName,
+            bytes: d.bytes,
+            mimeType: VerificationPolicy.mimeTypeFor(d.fileName.split('.').last),
+          ),
+      ];
+      await ref.read(verificationRepositoryProvider).submit(VerificationSubmission(
+            targetType: VerificationTargetType.agent,
+            targetId: profile.userId,
+            isAgency: profile.isAgency,
+            files: files,
+            submittedData: {
+              'fullName': profile.professionalName,
+              'phone': profile.phone,
+              if (profile.isAgency) ...{
+                'agencyName': profile.agencyName ?? profile.professionalName,
+                'agencyAddress': profile.address ?? profile.city,
+              },
+            },
+          ));
       state = const AgentFormState(phase: AgentSavePhase.saved);
       return true;
+    } on VerificationFailure catch (e) {
+      state = AgentFormState(
+        phase: AgentSavePhase.failed,
+        failure: e.type == VerificationFailureType.documentUploadFailed
+            ? const AgentFailure(AgentFailureType.verificationUploadFailed)
+            : AgentFailure(
+                AgentFailureType.verificationNotAllowed,
+                detail: e.fieldErrors.isNotEmpty ? e.fieldErrors.values.first : e.message,
+              ),
+      );
+      return false;
     } on AgentFailure catch (e) {
       state = AgentFormState(phase: AgentSavePhase.failed, failure: e);
       return false;
@@ -189,3 +245,9 @@ class AgentProfileFormController extends Notifier<AgentFormState> {
     }
   }
 }
+
+VerificationDocumentType _documentTypeOf(VerificationCategory c) => switch (c) {
+      VerificationCategory.identity => VerificationDocumentType.identity,
+      VerificationCategory.professional => VerificationDocumentType.professionalDocument,
+      VerificationCategory.agency => VerificationDocumentType.agencyDocument,
+    };

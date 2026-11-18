@@ -1,4 +1,5 @@
 import '../features/properties/domain/entities/property.dart';
+import '../features/verification/domain/entities/verification_enums.dart';
 import '../features/property_discovery/domain/entities/discovery_location.dart';
 
 class Routes {
@@ -38,6 +39,18 @@ class Routes {
 
   /// Public professional profile. Exposes public fields only.
   static const agentPublicPattern = '/agents/:agentId';
+
+  // ---- Module 13: Verification --------------------------------------------
+  static const verification = '/verification'; // applicant: Verification Center
+  static const verificationDetailsPattern = '/verification/:id';
+  static const verificationFormPattern = '/verification/new/:type/:targetId';
+  static const adminVerification = '/admin/verification'; // admin queue
+  static const adminVerificationReviewPattern = '/admin/verification/:id';
+
+  static String verificationDetails(String id) => '/verification/${Uri.encodeComponent(id)}';
+  static String verificationForm(VerificationTargetType type, String targetId) =>
+      '/verification/new/${type.wire}/${Uri.encodeComponent(targetId)}';
+  static String adminVerificationReview(String id) => '/admin/verification/${Uri.encodeComponent(id)}';
 
   /// Shared messaging base (Module 09 extends it).
   static const chatPattern = '/chat/:conversationId';

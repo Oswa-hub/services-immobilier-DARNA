@@ -8,6 +8,7 @@ import '../../../../core/widgets/property_image.dart';
 import '../../../properties/domain/entities/property.dart';
 import '../../domain/listing_actions.dart';
 import '../../providers/my_listings_providers.dart';
+import '../../../verification/domain/entities/verification_enums.dart';
 
 /// Module 09 — owner / agent dashboard of their own listings, grouped by status.
 class MyListingsPage extends ConsumerWidget {
@@ -154,7 +155,7 @@ class _ListingCard extends StatelessWidget {
   }
 }
 
-enum _Action { view, edit, submit, withdraw, toDraft, delete }
+enum _Action { view, edit, verify, submit, withdraw, toDraft, delete }
 
 class _ActionsMenu extends ConsumerWidget {
   const _ActionsMenu({required this.property});
@@ -169,6 +170,12 @@ class _ActionsMenu extends ConsumerWidget {
       itemBuilder: (_) => [
         if (property.isPublic) const PopupMenuItem(value: _Action.view, child: Text('View listing')),
         const PopupMenuItem(value: _Action.edit, enabled: false, child: Text('Edit (coming with Module 08)')),
+        // Module 13: only a listing that is not removed can ask for verification.
+        if (property.status != PropertyStatus.removed && property.status != PropertyStatus.draft)
+          PopupMenuItem(
+            value: _Action.verify,
+            child: Text(property.isVerified ? 'Verification details' : 'Verify this listing'),
+          ),
         if (next.contains(PropertyStatus.pendingReview))
           const PopupMenuItem(value: _Action.submit, child: Text('Submit for review')),
         // Drafts are deleted, not withdrawn.
@@ -192,6 +199,11 @@ class _ActionsMenu extends ConsumerWidget {
           context.push(Routes.propertyDetails(id));
           return;
         case _Action.edit:
+          return;
+        case _Action.verify:
+          // Existing request -> its details; otherwise the submit form. The form
+          // itself refuses a request that is not allowed in the current status.
+          context.push(Routes.verificationForm(VerificationTargetType.property, id));
           return;
         case _Action.submit:
           await repo.setStatus(id, PropertyStatus.pendingReview);

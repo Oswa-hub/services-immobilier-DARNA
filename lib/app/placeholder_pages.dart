@@ -55,6 +55,12 @@ class AdminPlaceholderPage extends ConsumerWidget {
             const SizedBox(height: 20),
             FilledButton(onPressed: () => context.go(Routes.home), child: const Text('Open Home')),
             const SizedBox(height: 10),
+            FilledButton.icon(
+              onPressed: () => context.push(Routes.adminVerification),
+              icon: const Icon(Icons.verified_user_outlined),
+              label: const Text('Verification requests'),
+            ),
+            const SizedBox(height: 10),
             if (kDebugMode) ...[
               OutlinedButton(
                 onPressed: () => _run(context, () => PropertySeeder(ref.read(firestoreProvider)).seed(), 'Sample listings added'),

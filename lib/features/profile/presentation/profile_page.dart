@@ -360,6 +360,13 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                   ),
 
                   _profileItem(
+                    icon: Icons.verified_user_outlined,
+                    title: 'Verification',
+                    subtitle: 'Identity, owner and professional checks',
+                    onTap: () => context.push(Routes.verification),
+                  ),
+
+                  _profileItem(
                     icon: Icons.security_outlined,
                     title: 'Security',
                     onTap: _openSecurity,
