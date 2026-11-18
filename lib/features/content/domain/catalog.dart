@@ -40,13 +40,16 @@ enum CatalogKey {
           ],
         CatalogKey.areas || CatalogKey.tags => const [],
         CatalogKey.verificationCategories => _list(const ['Identité', 'Propriétaire', 'Agent / agence', 'Bien immobilier']),
+        // Spec §36. Ids (slugs) also drive report priority (reports/domain/report.dart).
         CatalogKey.reportReasons => _list(const [
-            'Annonce frauduleuse',
-            'Bien déjà vendu ou loué',
-            'Prix ou informations trompeurs',
-            'Photos inappropriées',
-            'Doublon',
-            'Comportement abusif',
+            'Fraude',
+            'Fausse annonce',
+            'Informations incorrectes',
+            'Arnaque',
+            'Contenu offensant',
+            'Annonce en double',
+            'Prix erroné',
+            'Activité suspecte',
             'Autre',
           ]),
       };

@@ -428,8 +428,9 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
 
                   _profileItem(
                     icon: Icons.flag_outlined,
-                    title: 'Reports',
-                    unavailable: true, // TODO(Module 13)
+                    title: 'Signalements et sécurité',
+                    subtitle: 'Mes signalements, utilisateurs bloqués',
+                    onTap: () => context.push(Routes.myReports), // Module 14
                   ),
 
                   // ---- Module 17: information pages (texts set by the admin) ----

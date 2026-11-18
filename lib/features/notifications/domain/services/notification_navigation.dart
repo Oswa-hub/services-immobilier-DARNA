@@ -31,6 +31,7 @@ String? routeForNotification({
     NotificationType.verificationRejected =>
       hasProperty ? Routes.myListings : Routes.agentVerification,
     NotificationType.newMessage || NotificationType.newInquiry => Routes.messages,
+    NotificationType.reportUpdated => Routes.myReports,
     NotificationType.accountWarning || NotificationType.platformAnnouncement || NotificationType.other => null,
   };
 }

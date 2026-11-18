@@ -78,6 +78,15 @@ class FakeAdminRepository implements AdminRepository {
     return 7;
   }
 
+  Property? property;
+  AdminUser? user;
+
+  @override
+  Future<Property?> loadProperty(String id) async => property;
+
+  @override
+  Future<AdminUser?> loadUser(String id) async => user;
+
   @override
   Stream<List<AuditEntry>> watchAuditLogs({int limit = 100}) => Stream.value(const []);
 

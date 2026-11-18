@@ -22,6 +22,10 @@ abstract class AdminRepository {
 
   Stream<List<Property>> watchProperties({PropertyStatus? status, int limit = 200});
 
+  /// Single documents, e.g. to act on the target of a report (Module 14).
+  Future<Property?> loadProperty(String id);
+  Future<AdminUser?> loadUser(String id);
+
   /// Moves [property] along [action] if it is STILL in the status the admin saw
   /// (transaction), writes the audit log and, when [notifyOwner], the owner's
   /// in-app notification.
@@ -223,6 +227,28 @@ class FirestoreAdminRepository implements AdminRepository {
     return _guard(q.orderBy('createdAt', descending: true).limit(limit).snapshots().map(
           (s) => [for (final d in s.docs) ?PropertyMapper.tryFromMap(d.id, d.data())],
         ));
+  }
+
+  @override
+  Future<Property?> loadProperty(String id) async {
+    try {
+      final snap = await _properties.doc(id).get();
+      final data = snap.data();
+      return data == null ? null : PropertyMapper.tryFromMap(snap.id, data);
+    } catch (e) {
+      throw AdminFailure.from(e);
+    }
+  }
+
+  @override
+  Future<AdminUser?> loadUser(String id) async {
+    try {
+      final snap = await _users.doc(id).get();
+      final data = snap.data();
+      return data == null ? null : AdminUser.tryFromMap(snap.id, data);
+    } catch (e) {
+      throw AdminFailure.from(e);
+    }
   }
 
   @override

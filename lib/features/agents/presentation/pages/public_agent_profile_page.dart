@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/agent_failure.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/providers/auth_provider.dart';
+import '../../../reports/domain/report.dart'; // Module 14
+import '../../../reports/presentation/widgets/report_sheet.dart';
 import '../providers/agent_providers.dart';
 import '../widgets/agent_profile_view.dart';
 import '../widgets/agent_states.dart';
@@ -19,7 +22,17 @@ class PublicAgentProfilePage extends ConsumerWidget {
     final profile = ref.watch(publicAgentProfileProvider(agentId));
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Professional profile')),
+      appBar: AppBar(
+        title: const Text('Professional profile'),
+        actions: [
+          // Module 14: report a professional (not yourself).
+          if (profile.value case final p? when ref.watch(currentUserProvider)?.id != agentId)
+            ReportButton(
+              tooltip: 'Signaler ce profil',
+              target: ReportTarget.user(id: agentId, name: p.displayName, agent: true),
+            ),
+        ],
+      ),
       body: profile.when(
         loading: () => const AgentLoading(),
         error: (e, _) => AgentErrorView(

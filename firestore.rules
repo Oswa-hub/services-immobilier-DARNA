@@ -8,6 +8,11 @@ service cloud.firestore {
       return signedIn() &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
+    // Module 14: suspended / banned / deleted accounts cannot file reports.
+    function isActiveAccount() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('status', 'active') == 'active';
+    }
     function unchanged(keys) {
       return !request.resource.data.diff(resource.data).affectedKeys().hasAny(keys);
     }
@@ -46,6 +51,16 @@ service cloud.firestore {
                 || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status'])));
 
       allow delete: if false;
+
+      // ---- Module 14: users I blocked (they can no longer message me) ---------
+      match /blocked/{otherId} {
+        allow read, delete: if isSelf(uid);
+        allow create, update: if isSelf(uid)
+          && otherId != uid
+          && request.resource.data.keys().hasOnly(['name', 'createdAt'])
+          && request.resource.data.name is string && request.resource.data.name.size() <= 80
+          && request.resource.data.createdAt == request.time;
+      }
 
       // ---- Module 12: push devices (FCM tokens), one doc per token ------------
       // Written by the app on sign-in; the server prunes dead tokens and removes a
@@ -285,6 +300,10 @@ service cloud.firestore {
           || resource.data.recipientId == request.auth.uid;
     }
 
+    function otherParty(convo) {
+      return convo.userId == request.auth.uid ? convo.recipientId : convo.userId;
+    }
+
     match /conversations/{cid} {
       allow list: if signedIn() && isConversationParty();
 
@@ -314,6 +333,8 @@ service cloud.firestore {
           && request.auth.uid in get(/databases/$(database)/documents/conversations/$(cid)).data.participants;
         allow create: if signedIn()
           && request.auth.uid in get(/databases/$(database)/documents/conversations/$(cid)).data.participants
+          // Module 14: not if the other participant blocked me.
+          && !exists(/databases/$(database)/documents/users/$(otherParty(get(/databases/$(database)/documents/conversations/$(cid)).data))/blocked/$(request.auth.uid))
           && request.resource.data.senderId == request.auth.uid
           && request.resource.data.text is string
           && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 2000
@@ -367,6 +388,51 @@ service cloud.firestore {
             || (request.resource.data.actorRole == 'applicant'
                 && request.resource.data.action.matches('verification[.].*')));
       allow update, delete: if false;
+    }
+
+    // ---- Module 14: reports --------------------------------------------------------
+    // Id = {reporterId}_{targetType}_{targetId}: one report per reporter and target.
+    // Reporters create and follow their own; admins run the lifecycle
+    // open -> investigating -> resolved | rejected.
+    match /reports/{rid} {
+      allow get: if signedIn() && (
+           isAdmin()
+        || (resource == null && rid.matches(request.auth.uid + '_.+'))
+        || (resource != null && resource.data.reporterId == request.auth.uid));
+      allow list: if signedIn() && (isAdmin() || resource.data.reporterId == request.auth.uid);
+
+      allow create: if signedIn()
+        && isActiveAccount()
+        && request.resource.data.keys().hasOnly(['reporterId', 'targetType', 'targetId', 'targetLabel',
+             'targetOwnerId', 'conversationId', 'propertyId', 'reason', 'reasonLabel', 'description',
+             'status', 'priority', 'createdAt', 'updatedAt'])
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.targetType in ['property', 'user', 'agent', 'message']
+        && request.resource.data.targetId is string
+        && request.resource.data.targetId != request.auth.uid
+        && rid == request.auth.uid + '_' + request.resource.data.targetType + '_' + request.resource.data.targetId
+        && (!('targetOwnerId' in request.resource.data) || request.resource.data.targetOwnerId != request.auth.uid)
+        && request.resource.data.targetLabel is string && request.resource.data.targetLabel.size() <= 200
+        && request.resource.data.reason is string && request.resource.data.reason.size() <= 60
+        && request.resource.data.reasonLabel is string && request.resource.data.reasonLabel.size() <= 60
+        && request.resource.data.description is string && request.resource.data.description.size() <= 1000
+        && request.resource.data.status == 'open'
+        && request.resource.data.priority in ['high', 'medium', 'low']
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'assignedTo',
+             'resolution', 'resolutionAction', 'closedAt', 'closedBy', 'updatedAt'])
+        && request.resource.data.updatedAt == request.time
+        && (request.resource.data.status == resource.data.status
+            || (resource.data.status == 'open' && request.resource.data.status == 'investigating')
+            || (resource.data.status == 'investigating'
+                && request.resource.data.status in ['resolved', 'rejected']
+                && request.resource.data.resolution is string
+                && request.resource.data.resolution.size() >= 5
+                && request.resource.data.closedBy == request.auth.uid));
+      allow delete: if false;
     }
 
     // ---- Module 16: content lists (catalog/{key}) ------------------------------

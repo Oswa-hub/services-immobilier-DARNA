@@ -36,6 +36,9 @@ class Routes {
   static const adminContent = '/admin/content'; // Module 16
   static const adminSettings = '/admin/settings'; // Module 17
 
+  // ---- Module 14: Reports & Safety (signed-in users) --------------------------
+  static const myReports = '/reports';
+
   // ---- Module 17: public information pages (open to guests) -----------------
   static const legalTerms = '/legal/terms';
   static const legalPrivacy = '/legal/privacy';

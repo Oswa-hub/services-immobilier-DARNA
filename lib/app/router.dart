@@ -54,6 +54,7 @@ import '../features/admin/presentation/pages/admin_users_page.dart';
 import '../features/content/presentation/pages/admin_content_page.dart'; // Module 16
 import '../features/settings/presentation/pages/admin_settings_page.dart'; // Module 17
 import '../features/settings/presentation/pages/legal_pages.dart';
+import '../features/reports/presentation/pages/my_reports_page.dart'; // Module 14
 import 'router_guard.dart';
 import 'routes.dart';
 
@@ -96,6 +97,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: Routes.adminAuditLogs, builder: (_, _) => const AdminAuditLogsPage()),
         ],
       ),
+      // ---- Module 14: Reports & Safety --------------------------------------
+      GoRoute(path: Routes.myReports, builder: (_, _) => const MyReportsPage()),
       // ---- Module 17: public information pages ------------------------------
       GoRoute(path: Routes.legalTerms, builder: (_, _) => const LegalPage(document: LegalDocument.terms)),
       GoRoute(path: Routes.legalPrivacy, builder: (_, _) => const LegalPage(document: LegalDocument.privacy)),

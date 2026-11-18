@@ -8,6 +8,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../dev/property_seeder.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../properties/domain/entities/property.dart';
+import '../../../reports/domain/report.dart'; // Module 14
+import '../../../reports/presentation/providers/report_providers.dart';
 import '../providers/admin_providers.dart';
 import '../widgets/admin_widgets.dart';
 
@@ -21,6 +23,7 @@ class AdminDashboardPage extends ConsumerWidget {
     final pending = ref.watch(adminPropertiesProvider(PropertyStatus.pendingReview));
     final users = ref.watch(adminUsersProvider(null));
     final audit = ref.watch(adminAuditLogsProvider);
+    final reports = ref.watch(adminReportsProvider(ReportStatus.open));
 
     return RefreshIndicator(
       onRefresh: () => ref.refresh(adminKpisProvider.future),
@@ -49,7 +52,8 @@ class AdminDashboardPage extends ConsumerWidget {
                     color: AppColors.accent, onTap: () => context.go(Routes.adminProperties)),
                 StatCard(label: 'Vérifications en attente', value: k.pendingVerifications, icon: Icons.verified_user_outlined,
                     color: AppColors.accent, onTap: () => context.push(Routes.adminVerification)),
-                StatCard(label: 'Signalements ouverts', value: k.openReports, icon: Icons.flag_outlined, color: AppColors.error),
+                StatCard(label: 'Signalements ouverts', value: k.openReports, icon: Icons.flag_outlined,
+                    color: AppColors.error, onTap: () => context.go(Routes.adminReports)),
               ],
             );
           }),
@@ -72,6 +76,28 @@ class AdminDashboardPage extends ConsumerWidget {
                         subtitle: Text('${p.governorate} · ${fmtPrice(p.price, p.currency)} · ${fmtDate(p.createdAt)}'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => context.go(Routes.adminProperties),
+                      ),
+                  ]),
+          ),
+        ),
+        AdminSectionTitle(
+          'Signalements récents',
+          trailing: TextButton(onPressed: () => context.go(Routes.adminReports), child: const Text('Tout voir')),
+        ),
+        AdminCard(
+          child: reports.when(
+            loading: () => const Padding(padding: EdgeInsets.all(16), child: LinearProgressIndicator()),
+            error: (e, _) => AdminMessage.error(e),
+            data: (list) => list.isEmpty
+                ? const ListTile(title: Text('Aucun signalement ouvert.'))
+                : Column(children: [
+                    for (final r in list.take(5))
+                      ListTile(
+                        leading: Icon(Icons.flag_rounded,
+                            color: r.priority == ReportPriority.high ? AppColors.error : AppColors.accent),
+                        title: Text('${r.target.type.label} · ${r.reasonLabel}', maxLines: 1, overflow: TextOverflow.ellipsis),
+                        subtitle: Text('${r.target.label} · ${fmtDate(r.createdAt)}', maxLines: 1, overflow: TextOverflow.ellipsis),
+                        onTap: () => context.go(Routes.adminReports),
                       ),
                   ]),
           ),
