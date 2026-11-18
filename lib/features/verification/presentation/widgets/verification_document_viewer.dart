@@ -46,7 +46,7 @@ class _VerificationDocumentTileState extends ConsumerState<VerificationDocumentT
                   fit: BoxFit.contain,
                   loadingBuilder: (_, child, p) =>
                       p == null ? child : const Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()),
-                  errorBuilder: (_, __, ___) => const Padding(
+                  errorBuilder: (_, _, _) => const Padding(
                     padding: EdgeInsets.all(24),
                     child: Text('The document could not be displayed.'),
                   ),

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../lib/features/map/domain/services/marker_clusterer.dart';
+import 'package:team_app/features/map/domain/services/marker_clusterer.dart';
 import 'test_helpers.dart';
 
 void main() {

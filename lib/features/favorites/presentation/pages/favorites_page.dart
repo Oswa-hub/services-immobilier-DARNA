@@ -29,7 +29,7 @@ class FavoritesPage extends ConsumerWidget {
       appBar: AppBar(title: const Text('Favorites')),
       body: favorites.when(
         loading: () => const _LoadingList(),
-        error: (_, __) => _LoadFailed(onRetry: () => ref.invalidate(favoritesProvider)),
+        error: (_, _) => _LoadFailed(onRetry: () => ref.invalidate(favoritesProvider)),
         data: (items) => items.isEmpty
             ? Center(
                 child: Padding(
@@ -110,7 +110,7 @@ class _FavoriteTile extends ConsumerWidget {
 
     return load.when(
       loading: () => const PropertyCardSkeleton(width: double.infinity),
-      error: (_, __) => _UnavailableTile(
+      error: (_, _) => _UnavailableTile(
         message: 'Something went wrong while loading this property.',
         onRetry: () => ref.invalidate(propertyDetailsProvider(id)),
         onRemove: () => toggleFavoriteWithFeedback(context, ref, id),
@@ -193,8 +193,8 @@ class _LoadingList extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           itemCount: 3,
-          separatorBuilder: (_, __) => const SizedBox(height: 14),
-          itemBuilder: (_, __) => const PropertyCardSkeleton(width: double.infinity),
+          separatorBuilder: (_, _) => const SizedBox(height: 14),
+          itemBuilder: (_, _) => const PropertyCardSkeleton(width: double.infinity),
         ),
       ),
     );

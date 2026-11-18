@@ -252,7 +252,7 @@ class _ActionBarState extends ConsumerState<_ActionBar> {
     }
 
     final recipient = ConversationRepository.recipientOf(widget.property);
-    final isOwn = me != null && me == recipient;
+    final isOwn = me == recipient;
     final enabled = PropertyActionsConfig.messagingEnabled && !isOwn && !_busy;
     return SafeArea(
       child: Container(

@@ -264,7 +264,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 14),
                   child: DropdownButtonFormField<String>(
-                    value: _city,
+                    initialValue: _city,
                     isExpanded: true,
                     decoration: const InputDecoration(labelText: 'City', border: OutlineInputBorder()),
                     items: [for (final g in tunisiaGovernorates) DropdownMenuItem(value: g, child: Text(g))],

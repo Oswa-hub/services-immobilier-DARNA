@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../content/presentation/providers/catalog_providers.dart'; // Module 16
 import '../../../properties/domain/entities/amenity.dart';
 import '../../domain/services/listing_validator.dart';
 import '../providers/publishing_provider.dart';
@@ -15,15 +16,24 @@ class AmenitiesStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(publishingControllerProvider);
     final c = ref.read(publishingControllerProvider.notifier);
+    // Module 16: order, labels and visibility come from the admin catalog.
+    // An amenity hidden later stays visible here if this draft already uses it.
+    final options = ref.watch(amenityOptionsProvider);
+    final shown = {for (final o in options) o.amenity};
+    final chips = [
+      ...options,
+      for (final a in Amenity.values)
+        if (!shown.contains(a) && s.draft.amenities.contains(a.id)) (amenity: a, label: a.label),
+    ];
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const StepHeader(title: 'Amenities', subtitle: 'Select everything the property offers. You can skip this step.'),
       Wrap(spacing: 8, runSpacing: 8, children: [
-        for (final a in Amenity.values)
+        for (final o in chips)
           FilterChip(
-            label: Text(a.label),
-            selected: s.draft.amenities.contains(a.id),
-            onSelected: (_) => c.toggleAmenity(a.id),
+            label: Text(o.label),
+            selected: s.draft.amenities.contains(o.amenity.id),
+            onSelected: (_) => c.toggleAmenity(o.amenity.id),
           ),
       ]),
       FieldError(s.errors[ListingField.amenities]),

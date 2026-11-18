@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../domain/publishing_config.dart';
+import '../../../settings/presentation/providers/platform_settings_providers.dart'; // Module 17
 import '../../domain/services/listing_validator.dart';
 import '../providers/publishing_provider.dart';
 import 'publish_widgets.dart';
@@ -24,7 +24,8 @@ class _PropertyPhotosPickerState extends ConsumerState<PropertyPhotosPicker> {
   Future<void> _add() async {
     if (_picking) return;
     final c = ref.read(publishingControllerProvider.notifier);
-    final remaining = PublishingConfig.maxPhotos - ref.read(publishingControllerProvider).draft.photos.length;
+    final max = ref.read(platformSettingsProvider).effectiveMaxImages;
+    final remaining = max - ref.read(publishingControllerProvider).draft.photos.length;
     setState(() => _picking = true);
     try {
       c.addPhotos(await ref.read(photoPickerProvider).pick(remainingSlots: remaining));
@@ -38,13 +39,15 @@ class _PropertyPhotosPickerState extends ConsumerState<PropertyPhotosPicker> {
     final s = ref.watch(publishingControllerProvider);
     final c = ref.read(publishingControllerProvider.notifier);
     final photos = s.draft.photos;
-    final canAdd = photos.length < PublishingConfig.maxPhotos;
+    final settings = ref.watch(platformSettingsProvider);
+    final maxPhotos = settings.effectiveMaxImages;
+    final canAdd = photos.length < maxPhotos;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       StepHeader(
         title: 'Add photos',
         subtitle:
-            'Up to ${PublishingConfig.maxPhotos} photos (JPG, PNG or WebP, max ${PublishingConfig.maxPhotoBytes ~/ (1024 * 1024)} MB each). The first photo is the cover.',
+            'Up to $maxPhotos photos (JPG, PNG or WebP, max ${settings.maxImageSizeMb.clamp(1, 5)} MB each). The first photo is the cover.',
       ),
       if (s.message != null) MessageBanner(s.message!),
       GridView.count(
@@ -88,7 +91,7 @@ class _PropertyPhotosPickerState extends ConsumerState<PropertyPhotosPicker> {
       ),
       FieldError(s.errors[ListingField.photos]),
       const SizedBox(height: 8),
-      Text('${photos.length} / ${PublishingConfig.maxPhotos} photos', style: const TextStyle(color: AppColors.muted)),
+      Text('${photos.length} / $maxPhotos photos', style: const TextStyle(color: AppColors.muted)),
     ]);
   }
 }

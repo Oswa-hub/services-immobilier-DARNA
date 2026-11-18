@@ -1,126 +1,174 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/legacy_colors.dart';
-import '../data/admin_service.dart';
-import 'admin_login_page.dart';
-import 'audit_logs_page.dart';
-import 'content_page.dart';
-import 'dashboard_page.dart';
-import 'notifications_admin_page.dart';
-import 'properties_page.dart';
-import 'reports_page.dart';
-import 'users_page.dart';
-import 'verification_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class _Section {
+import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../notifications/presentation/providers/push_registration.dart';
+import '../../settings/presentation/providers/platform_settings_providers.dart';
+
+class AdminSection {
+  const AdminSection(this.label, this.icon, this.route, {this.external = false});
+
   final String label;
   final IconData icon;
-  final Widget page;
-  const _Section(this.label, this.icon, this.page);
+  final String route;
+
+  /// Opened as a full page (own app bar) instead of inside the shell.
+  final bool external;
 }
 
-class AdminShell extends StatefulWidget {
-  const AdminShell({super.key});
-  @override
-  State<AdminShell> createState() => _AdminShellState();
-}
+/// Spec §37 — every admin area.
+const adminSections = <AdminSection>[
+  AdminSection('Tableau de bord', Icons.dashboard_outlined, Routes.adminDashboard),
+  AdminSection('Utilisateurs', Icons.people_outline, Routes.adminUsers),
+  AdminSection('Annonces', Icons.home_work_outlined, Routes.adminProperties),
+  AdminSection('Vérification', Icons.verified_user_outlined, Routes.adminVerification, external: true),
+  AdminSection('Signalements', Icons.flag_outlined, Routes.adminReports),
+  AdminSection('Notifications', Icons.campaign_outlined, Routes.adminNotifications),
+  AdminSection('Contenu', Icons.category_outlined, Routes.adminContent),
+  AdminSection('Statistiques', Icons.insights_outlined, Routes.adminAnalytics),
+  AdminSection('Paramètres', Icons.settings_outlined, Routes.adminSettings),
+  AdminSection('Journal d’audit', Icons.history_rounded, Routes.adminAuditLogs),
+];
 
-class _AdminShellState extends State<AdminShell> {
-  final svc = AdminService.instance;
-  int index = 0;
+/// Module 15 — admin layout (go_router ShellRoute). Navigation rail on wide
+/// screens, drawer on phones. Access: router guard (`/admin` = admins only) and
+/// Firestore rules (`isAdmin()`).
+class AdminShell extends ConsumerWidget {
+  const AdminShell({super.key, required this.location, required this.child});
 
-  late final List<_Section> sections = [
-    _Section('Tableau de bord', Icons.dashboard_outlined, DashboardPage(onNavigate: (i) => setState(() => index = i))),
-    const _Section('Utilisateurs', Icons.people_outline, UsersPage()),
-    const _Section('Annonces', Icons.home_work_outlined, PropertiesPage()),
-    const _Section('Signalements', Icons.flag_outlined, ReportsPage()),
-    const _Section('Vérification', Icons.verified_user_outlined, VerificationPage()),
-    const _Section('Notifications', Icons.notifications_none, NotificationsAdminPage()),
-    const _Section('Contenu', Icons.category_outlined, ContentPage()),
-    const _Section('Journal d\'audit', Icons.history, AuditLogsPage()),
-  ];
+  final String location;
+  final Widget child;
 
-  Future<void> _logout() async {
-    svc.logout();
-    if (!mounted) return;
-    Navigator.pushAndRemoveUntil(
-        context, MaterialPageRoute(builder: (_) => const AdminLoginPage()), (_) => false);
+  int get _index {
+    final i = adminSections.indexWhere((s) => location.startsWith(s.route));
+    return i < 0 ? 0 : i;
+  }
+
+  void _open(BuildContext context, AdminSection s) =>
+      s.external ? context.push(s.route) : context.go(s.route);
+
+  Future<void> _logout(WidgetRef ref) async {
+    await ref.read(pushRegistrarProvider).unregister();
+    await ref.read(authControllerProvider.notifier).logout();
   }
 
   @override
-  Widget build(BuildContext context) {
-    // Garde d'accès : sans session admin, retour au login.
-    if (!svc.isAuthenticated) return const AdminLoginPage();
-
-    final wide = MediaQuery.of(context).size.width >= 900;
-    final body = ListenableBuilder(
-      listenable: svc,
-      builder: (_, _) => sections[index].page,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
+    // Keeps `settings/platform` loaded: moderation uses its expiry period and
+    // notification mode (AdminActions reads it synchronously).
+    ref.watch(platformSettingsProvider);
+    final wide = MediaQuery.sizeOf(context).width >= 1000;
+    final current = adminSections[_index];
 
     if (wide) {
       return Scaffold(
+        backgroundColor: AppColors.background,
         body: Row(children: [
           NavigationRail(
             extended: true,
-            selectedIndex: index,
+            minExtendedWidth: 230,
             backgroundColor: Colors.white,
-            onDestinationSelected: (i) => setState(() => index = i),
+            selectedIndex: _index,
+            onDestinationSelected: (i) => _open(context, adminSections[i]),
             leading: const Padding(
               padding: EdgeInsets.symmetric(vertical: 18),
-              child: Text('ImmoFind Admin', style: TextStyle(fontWeight: FontWeight.w900, color: C.navy, fontSize: 17)),
+              child: Text('ImmoFind Admin',
+                  style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.navy, fontSize: 18)),
             ),
             trailing: Expanded(
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.all(12),
-                  child: TextButton.icon(onPressed: _logout, icon: const Icon(Icons.logout), label: const Text('Déconnexion')),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    TextButton.icon(
+                      onPressed: () => context.go(Routes.home),
+                      icon: const Icon(Icons.home_outlined),
+                      label: const Text('Voir l’application'),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => _logout(ref),
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Déconnexion'),
+                    ),
+                  ]),
                 ),
               ),
             ),
             destinations: [
-              for (final s in sections)
-                NavigationRailDestination(icon: Icon(s.icon), label: Text(s.label)),
+              for (final s in adminSections) NavigationRailDestination(icon: Icon(s.icon), label: Text(s.label)),
             ],
           ),
           const VerticalDivider(width: 1),
-          Expanded(child: body),
+          Expanded(
+            child: Column(children: [
+              _TopBar(title: current.label, email: user?.email),
+              Expanded(child: child),
+            ]),
+          ),
         ]),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(sections[index].label, style: const TextStyle(fontWeight: FontWeight.w800)),
-        backgroundColor: Colors.white,
-      ),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(title: Text(current.label, style: const TextStyle(fontWeight: FontWeight.w800))),
       drawer: Drawer(
         child: SafeArea(
           child: Column(children: [
             ListTile(
-              title: const Text('ImmoFind Admin', style: TextStyle(fontWeight: FontWeight.w900, color: C.navy, fontSize: 18)),
-              subtitle: Text(svc.admin?.email ?? ''),
+              title: const Text('ImmoFind Admin',
+                  style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.navy, fontSize: 18)),
+              subtitle: Text(user?.email ?? ''),
             ),
             const Divider(),
             Expanded(
               child: ListView(children: [
-                for (var i = 0; i < sections.length; i++)
+                for (var i = 0; i < adminSections.length; i++)
                   ListTile(
-                    leading: Icon(sections[i].icon),
-                    title: Text(sections[i].label),
-                    selected: i == index,
+                    leading: Icon(adminSections[i].icon),
+                    title: Text(adminSections[i].label),
+                    selected: i == _index,
                     onTap: () {
-                      setState(() => index = i);
-                      Navigator.pop(context);
+                      Navigator.of(context).pop();
+                      _open(context, adminSections[i]);
                     },
                   ),
               ]),
             ),
-            ListTile(leading: const Icon(Icons.logout), title: const Text('Déconnexion'), onTap: _logout),
+            ListTile(
+              leading: const Icon(Icons.home_outlined),
+              title: const Text('Voir l’application'),
+              onTap: () => context.go(Routes.home),
+            ),
+            ListTile(leading: const Icon(Icons.logout), title: const Text('Déconnexion'), onTap: () => _logout(ref)),
           ]),
         ),
       ),
-      body: body,
+      body: child,
     );
   }
+}
+
+class _TopBar extends StatelessWidget {
+  const _TopBar({required this.title, this.email});
+  final String title;
+  final String? email;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 60,
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(children: [
+          Expanded(
+            child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.navy)),
+          ),
+          if (email != null) Text(email!, style: const TextStyle(color: AppColors.muted)),
+        ]),
+      );
 }

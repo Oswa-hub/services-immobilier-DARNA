@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../lib/core/errors/discovery_failure.dart';
-import '../../../lib/features/map/data/map_property_data_source.dart';
-import '../../../lib/features/map/data/map_repository_impl.dart';
-import '../../../lib/features/map/domain/entities/map_viewport.dart';
-import '../../../lib/features/properties/domain/entities/property.dart';
-import '../../../lib/features/search/domain/entities/property_search_filter.dart';
+import 'package:team_app/core/errors/discovery_failure.dart';
+import 'package:team_app/features/map/data/map_property_data_source.dart';
+import 'package:team_app/features/map/data/map_repository_impl.dart';
+import 'package:team_app/features/map/domain/entities/map_viewport.dart';
+import 'package:team_app/features/properties/domain/entities/property.dart';
+import 'package:team_app/features/search/domain/entities/property_search_filter.dart';
 import 'test_helpers.dart';
 
 class FakeDataSource implements MapDataSource {

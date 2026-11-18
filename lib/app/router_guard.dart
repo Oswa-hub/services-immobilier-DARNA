@@ -18,6 +18,9 @@ bool _guestCanOpen(String location) =>
     location == Routes.favorites ||
     location == Routes.messages ||
     location == Routes.profile ||
+    location == Routes.legalTerms || // Module 17
+    location == Routes.legalPrivacy ||
+    location == Routes.contact ||
     location.startsWith('/property/');
 
 /// Pure redirect logic for go_router (spec §31). Returns the location to

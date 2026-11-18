@@ -7,7 +7,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../agents/presentation/widgets/agent_formatters.dart';
 import '../../../agents/presentation/widgets/agent_states.dart';
 import '../../../auth/providers/auth_provider.dart';
-import '../../../properties/domain/entities/property.dart';
 import '../../domain/services/verification_state_machine.dart';
 import '../providers/verification_providers.dart';
 import '../widgets/submitted_data_view.dart';

@@ -1,4 +1,4 @@
-import '../../../lib/features/properties/domain/entities/property.dart';
+import 'package:team_app/features/properties/domain/entities/property.dart';
 
 Property prop(
   String id, {

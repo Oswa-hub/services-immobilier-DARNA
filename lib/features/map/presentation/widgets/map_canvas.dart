@@ -83,7 +83,7 @@ class MapCanvas extends StatelessWidget {
         ),
         onMapReady: onMapReady,
         onPositionChanged: onPositionChanged,
-        onTap: (_, __) => onMapTap(),
+        onTap: (_, _) => onMapTap(),
       ),
       children: [
         TileLayer(
