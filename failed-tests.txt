@@ -1,0 +1,92 @@
+﻿
+00:01 +27 -1: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/test
+/auth_redirect_test.dart: signed out: only public routes [E]
+00:27 +226 -2: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/tes
+t/listing_actions_test.dart: ownerTransitions (Module 09) a draft can only be submitted for 
+review [E]
+00:27 +227 -3: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/tes
+t/listing_actions_test.dart: ownerTransitions (Module 09) rejected and withdrawn listings go 
+back to draft [E]
+00:27 +227 -4: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/tes
+t/listing_actions_test.dart: ownerTransitions (Module 09) pending, suspended and expired 
+listings are locked for the owner [E]
+00:34 +248 -5: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/tes
+t/property_card_test.dart: favorite control has a semantic label [E]
+00:34 +248 -6: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/tes
+t/login_page_test.dart: empty login form shows validation errors and does not call login [E]
+00:34 +248 -7: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/tes
+t/home_discovery_test.dart: shows recommended cards; header works without a profile [E]
+00:35 +248 -8: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/tes
+t/login_page_test.dart: password visibility toggles [E]
+00:35 +248 -9: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/tes
+t/home_discovery_test.dart: greets by first name when the profile has one [E]
+00:36 +248 -10: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/home_discovery_test.dart: empty recommended state [E]
+00:36 +250 -11: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/home_discovery_test.dart: a failing section shows Retry and does not break the screen [E]
+00:36 +250 -12: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/home_discovery_test.dart: Publish CTA follows UI permission state [E]
+00:38 +256 -13: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: first visit loads the default feed once [E]
+00:38 +256 -14: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: no results -> empty state [E]
+00:38 +256 -15: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: failure -> error with a friendly message; retry recovers and 
+keeps the filter [E]
+00:38 +256 -16: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: an older, slower response never overwrites a newer one [E]
+00:38 +256 -17: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_filter_test.dart: copyWith can clear a field with null and keeps it when omitted [E]
+00:38 +257 -18: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: loadMore appends the next page, dedupes and stops at the end [E]
+00:38 +257 -19: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_filter_test.dart: value equality incl. amenity sets [E]
+00:38 +257 -20: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_filter_test.dart: activeFilterCount counts each selected filter and each amenity [E]
+00:38 +257 -21: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: a failed loadMore keeps the results and allows retry [E]
+00:38 +263 -22: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: typing is debounced: one request for a burst of keystrokes [E]
+00:38 +263 -23: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: clearAll removes filters but keeps the sort [E]
+00:38 +263 -24: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: Home shortcut params set the real filter, and the same params do 
+not reload [E]
+00:38 +267 -25: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: Closest sort without any location and with permission denied -> 
+not applied [E]
+00:38 +267 -26: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: Closest sort permission granted -> applied with a real reference 
+location [E]
+00:38 +267 -27: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: Closest sort reuses the device location chosen on Home (no 
+second permission prompt) [E]
+00:38 +267 -28: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_controller_test.dart: Closest sort other sorts never touch location [E]
+00:39 +273 -29: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_matcher_test.dart: price and surface price bounds are inclusive [E]
+00:39 +273 -30: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_matcher_test.dart: price and surface unknown surface never matches a surface filter [E]
+00:39 +281 -31: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_matcher_test.dart: combined filters must ALL hold [E]
+00:39 +283 -32: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_matcher_test.dart: query plan price sorts push the price range to the server; others 
+do not [E]
+00:39 +283 -33: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_matcher_test.dart: query plan surface sort [E]
+00:43 +302 -34: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_page_test.dart: shows the default feed with a count [E]
+00:44 +302 -35: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_page_test.dart: tabs filter for real; empty state offers Clear filters [E]
+00:45 +302 -36: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_page_test.dart: error state keeps the filters and Retry recovers [E]
+00:47 +302 -37: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_page_test.dart: filter sheet validates min/max price and blocks Apply [E]
+00:48 +302 -38: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_page_test.dart: filters can be deselected and removed from the chips [E]
+00:50 +302 -39: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_page_test.dart: sort sheet changes the sort [E]
+00:51 +302 -40: C:/Users/pc2/OneDrive/Bureau/services-immobilier-main/services-immobilier-main/te
+st/search_page_test.dart: map toggle shows the map placeholder and goes back to the same list [E]
+
+

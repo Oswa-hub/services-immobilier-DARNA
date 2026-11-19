@@ -10,7 +10,7 @@ import 'package:team_app/features/property_discovery/domain/entities/discovery_l
 import 'package:team_app/features/property_discovery/domain/repositories/property_discovery_repository.dart';
 import 'package:team_app/features/property_discovery/presentation/providers/property_discovery_providers.dart';
 import 'package:team_app/features/property_discovery/presentation/screens/home_discovery_screen.dart';
-import 'package:team_app/features/property_discovery/presentation/widgets/property_card.dart';
+import 'package:team_app/features/property_discovery/presentation/widgets/darna_property_cards.dart';
 
 import 'package:team_app/features/notifications/presentation/providers/notification_providers.dart';
 
@@ -56,24 +56,24 @@ void main() {
       ..recommended = () async => [makeProperty(id: 'a', title: 'Villa A'), makeProperty(id: 'b', title: 'Flat B')];
     await pumpHome(tester, repo);
 
-    expect(find.text('Hello 👋'), findsOneWidget); // generic greeting, no hardcoded name
+    expect(find.textContaining('Bonjour'), findsNothing); // guest: no greeting, no hardcoded name
     expect(find.text('Villa A'), findsOneWidget);
     expect(find.text('Flat B'), findsOneWidget);
-    expect(find.byType(PropertyCard), findsNWidgets(2));
+    expect(find.byType(FeaturedPropertyCard), findsNWidgets(2));
     // Nearby has no location -> asks for one instead of faking results.
-    expect(find.text('Choose your area'), findsOneWidget);
+    expect(find.text('Choisissez votre zone'), findsOneWidget);
   });
 
   testWidgets('greets by first name when the profile has one', (tester) async {
     await pumpHome(tester, FakeDiscoveryRepository(),
         user: const AuthUser(id: '1', email: 'y@x.co', name: 'Yahya Ben', emailVerified: true));
-    expect(find.text('Hello, Yahya 👋'), findsOneWidget);
+    expect(find.text('Bonjour, Yahya 👋'), findsOneWidget);
   });
 
   testWidgets('empty recommended state', (tester) async {
     await pumpHome(tester, FakeDiscoveryRepository());
-    expect(find.text('No listings yet'), findsOneWidget);
-    expect(find.byType(PropertyCard), findsNothing);
+    expect(find.text('Aucune annonce pour le moment'), findsOneWidget);
+    expect(find.byType(FeaturedPropertyCard), findsNothing);
   });
 
   testWidgets('a failing section shows Retry and does not break the screen', (tester) async {
@@ -85,27 +85,38 @@ void main() {
       };
     await pumpHome(tester, repo);
 
-    expect(find.text("Couldn't load this section"), findsOneWidget);
-    expect(find.text('Explore on the map'), findsOneWidget); // rest of Home still there
-    expect(find.text('Choose your area'), findsOneWidget);
+    expect(find.text('Impossible de charger cette section'), findsOneWidget);
+    expect(find.text('Explorer sur la carte'), findsOneWidget); // rest of Home still there
+    expect(find.text('Choisissez votre zone'), findsOneWidget);
 
     fail = false;
-    await tester.tap(find.text('Retry'));
+    await tester.tap(find.text('Réessayer'));
     await tester.pump();
     await tester.pump();
     expect(find.text('Recovered'), findsOneWidget);
-    expect(find.text("Couldn't load this section"), findsNothing);
+    expect(find.text('Impossible de charger cette section'), findsNothing);
   });
 
   testWidgets('Publish CTA follows UI permission state', (tester) async {
     await pumpHome(tester, FakeDiscoveryRepository(),
         user: const AuthUser(id: '1', email: 'a@b.co', role: UserRole.owner, emailVerified: true));
-    expect(find.text('Have a property to sell or rent?'), findsOneWidget);
+    expect(find.textContaining('Vous avez un bien à vendre'), findsOneWidget);
   });
 
-  testWidgets('Publish CTA hidden for a plain user', (tester) async {
+  testWidgets('Publish CTA invites a verified plain user to become an owner', (tester) async {
     await pumpHome(tester, FakeDiscoveryRepository(),
         user: const AuthUser(id: '1', email: 'a@b.co', emailVerified: true));
-    expect(find.text('Have a property to sell or rent?'), findsNothing);
+    expect(find.textContaining('Vous avez un bien à vendre'), findsOneWidget);
+  });
+
+  testWidgets('Publish CTA hidden for a guest', (tester) async {
+    await pumpHome(tester, FakeDiscoveryRepository());
+    expect(find.textContaining('Vous avez un bien à vendre'), findsNothing);
+  });
+
+  testWidgets('Publish CTA hidden for an unverified user', (tester) async {
+    await pumpHome(tester, FakeDiscoveryRepository(),
+        user: const AuthUser(id: '1', email: 'a@b.co', emailVerified: false));
+    expect(find.textContaining('Vous avez un bien à vendre'), findsNothing);
   });
 }

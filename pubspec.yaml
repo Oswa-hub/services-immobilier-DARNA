@@ -48,12 +48,14 @@ dependencies:
   image_picker: ^1.1.2
   flutter_dotenv: ^6.0.1
   google_fonts: ^9.0.0
+  # Module 06 maps: used by the app itself, so they are real dependencies
+  # (they were listed under dev_dependencies by mistake).
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_map: any
-  latlong2: any
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:team_app/features/auth/providers/auth_provider.dart';
 import 'package:team_app/core/errors/discovery_failure.dart';
 import 'package:team_app/core/theme/app_theme.dart';
 import 'package:team_app/features/properties/domain/entities/property.dart';
@@ -8,6 +9,7 @@ import 'package:team_app/features/property_discovery/presentation/providers/prop
 import 'package:team_app/features/property_discovery/presentation/widgets/property_card.dart';
 import 'package:team_app/features/search/domain/entities/property_search_filter.dart';
 import 'package:team_app/features/search/domain/entities/search_enums.dart';
+import 'package:team_app/features/map/presentation/widgets/map_canvas.dart';
 import 'package:team_app/features/search/presentation/pages/search_page.dart';
 import 'package:team_app/features/search/providers/search_providers.dart';
 
@@ -21,6 +23,8 @@ Future<ProviderContainer> pumpSearch(WidgetTester tester, FakeSearchRepository r
 
   final container = ProviderContainer(overrides: [
     searchRepositoryProvider.overrideWithValue(repo),
+    // Search is user-scoped (it watches the signed-in user): tests run signed out.
+    currentUserProvider.overrideWithValue(null),
     locationServiceProvider.overrideWithValue(FakeLocationService()),
   ]);
   addTearDown(container.dispose);
@@ -139,16 +143,17 @@ void main() {
     expect(repo.calls.last.filter.sort, SortOption.lowestPrice);
   });
 
-  testWidgets('map toggle shows the map placeholder and goes back to the same list', (tester) async {
+  // Module 06 replaced the "coming soon" placeholder with the real map.
+  testWidgets('map toggle shows the map and goes back to the same list', (tester) async {
     final repo = FakeSearchRepository((_, _) async => pageOf([makeProperty(title: 'Villa A')]));
     await pumpSearch(tester, repo);
     final callsBefore = repo.calls.length;
 
     await tester.tap(find.byTooltip('Map'));
-    await tester.pumpAndSettle();
-    expect(find.text('The map view is coming soon'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(MapCanvas), findsOneWidget);
 
-    await tester.tap(find.text('Back to list'));
+    await tester.tap(find.byTooltip('List'));
     await tester.pumpAndSettle();
     expect(find.text('Villa A'), findsOneWidget);
     expect(repo.calls.length, callsBefore); // switching views never re-queries

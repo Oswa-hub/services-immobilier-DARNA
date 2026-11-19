@@ -83,6 +83,8 @@ class PropertySearchFilter {
     Object? referenceLongitude = _unset,
   }) {
     T? pick<T>(Object? v, T? current) => identical(v, _unset) ? current : v as T?;
+    // Numbers: accept any num (an int literal like 100000 must not crash on the VM).
+    double? pickNum(Object? v, double? current) => identical(v, _unset) ? current : (v as num?)?.toDouble();
     return PropertySearchFilter(
       queryText: pick<String>(queryText, this.queryText),
       transactionType: pick<TransactionType>(transactionType, this.transactionType),
@@ -91,16 +93,16 @@ class PropertySearchFilter {
       governorate: pick<String>(governorate, this.governorate),
       city: pick<String>(city, this.city),
       area: pick<String>(area, this.area),
-      minPrice: pick<double>(minPrice, this.minPrice),
-      maxPrice: pick<double>(maxPrice, this.maxPrice),
+      minPrice: pickNum(minPrice, this.minPrice),
+      maxPrice: pickNum(maxPrice, this.maxPrice),
       bedrooms: pick<BedroomChoice>(bedrooms, this.bedrooms),
       bathrooms: pick<BathroomChoice>(bathrooms, this.bathrooms),
-      minSurface: pick<double>(minSurface, this.minSurface),
-      maxSurface: pick<double>(maxSurface, this.maxSurface),
+      minSurface: pickNum(minSurface, this.minSurface),
+      maxSurface: pickNum(maxSurface, this.maxSurface),
       amenities: amenities ?? this.amenities,
       sort: sort ?? this.sort,
-      referenceLatitude: pick<double>(referenceLatitude, this.referenceLatitude),
-      referenceLongitude: pick<double>(referenceLongitude, this.referenceLongitude),
+      referenceLatitude: pickNum(referenceLatitude, this.referenceLatitude),
+      referenceLongitude: pickNum(referenceLongitude, this.referenceLongitude),
     );
   }
 

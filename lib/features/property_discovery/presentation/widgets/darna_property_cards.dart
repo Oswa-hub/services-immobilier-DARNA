@@ -193,7 +193,12 @@ class FeaturedPropertyCard extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(color: const Color(0xFFEEF2FB), borderRadius: BorderRadius.circular(12)),
-                        child: Wrap(spacing: 16, runSpacing: 6, children: [
+                        // One line that shrinks to fit: the card has a fixed height in
+                        // the Home carousel, so a wrapped second line would overflow.
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Row(mainAxisSize: MainAxisSize.min, spacing: 16, children: [
                           for (final f in facts)
                             Row(mainAxisSize: MainAxisSize.min, children: [
                               Icon(f.$1, size: 16, color: AppColors.muted),
@@ -202,6 +207,7 @@ class FeaturedPropertyCard extends StatelessWidget {
                                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.text)),
                             ]),
                         ]),
+                        ),
                       ),
                     ],
                   ]),

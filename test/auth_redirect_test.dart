@@ -17,12 +17,18 @@ void main() {
     expect(authRedirect(const AuthState.initializing(), Routes.splash), isNull);
   });
 
-  test('signed out: only public routes', () {
+  // DARNA redesign: guests browse the app (home, search, details...) and are
+  // sent to the login page only for account features.
+  test('signed out: guests browse, account pages need login', () {
     const s = AuthState.unauthenticated();
     expect(authRedirect(s, Routes.login), isNull);
-    expect(authRedirect(s, Routes.home), Routes.welcome);
-    expect(authRedirect(s, Routes.adminDashboard), Routes.welcome);
-    expect(authRedirect(s, Routes.splash), Routes.welcome);
+    expect(authRedirect(s, Routes.home), isNull);
+    expect(authRedirect(s, Routes.search), isNull);
+    expect(authRedirect(s, Routes.propertyDetails('p1')), isNull);
+    expect(authRedirect(s, Routes.legalTerms), isNull);
+    expect(authRedirect(s, Routes.adminDashboard), Routes.login);
+    expect(authRedirect(s, Routes.notifications), Routes.login);
+    expect(authRedirect(s, Routes.splash), welcomeFirst ? Routes.welcome : Routes.home);
   });
 
   test('reset-password link always allowed', () {

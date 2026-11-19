@@ -7,7 +7,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class Env {
   const Env._();
 
-  static String _get(String key) => (dotenv.maybeGet(key) ?? '').trim();
+  /// Never throws: before `dotenv.load()` (e.g. in widget tests) every key is
+  /// empty, so callers fall back to their defaults.
+  static String _get(String key) => dotenv.isInitialized ? (dotenv.maybeGet(key) ?? '').trim() : '';
 
   /// A key is "set" when it is present and not a `YOUR_...` placeholder.
   static bool _isSet(String v) => v.isNotEmpty && !v.startsWith('YOUR_');

@@ -76,7 +76,10 @@ class PropertyCard extends StatelessWidget {
                       Positioned(
                         right: 4,
                         top: 4,
+                        // container: its own accessibility node, so the label is not
+                        // merged into the card's tap target.
                         child: Semantics(
+                          container: true,
                           button: true,
                           label: isFavorite ? 'Remove from favorites' : 'Add to favorites',
                           child: IconButton(
