@@ -11,6 +11,7 @@ class Conversation {
     required this.recipientId,
     required this.propertyId,
     this.userName,
+    this.recipientName,
     this.propertyTitle,
     this.propertyImage,
     this.lastMessage,
@@ -34,6 +35,10 @@ class Conversation {
 
   /// Public display snapshots, so lists need no extra reads.
   final String? userName;
+
+  /// Display name of the professional / owner (copied from the listing when the
+  /// thread is created). Absent on threads created before Module 11.
+  final String? recipientName;
   final String? propertyTitle;
   final String? propertyImage;
   final String? lastMessage;
@@ -47,6 +52,16 @@ class Conversation {
 
   String otherParticipant(String me) => me == userId ? recipientId : userId;
 
+  /// Name of the person on the other side, seen from [me].
+  String partnerNameFor(String me) => me == userId ? (recipientName ?? 'Advertiser') : (userName ?? 'Interested user');
+
+  /// True when [uid] has opened the conversation at or after [at]. Used for the
+  /// "Seen" indicator under the sender's latest message.
+  bool wasReadBy(String uid, DateTime at) {
+    final read = lastReadAt[uid];
+    return read != null && !read.isBefore(at);
+  }
+
   /// Unread for [me] when the last message is from the other side and newer
   /// than my last read time.
   bool isUnreadFor(String me) {
@@ -59,10 +74,32 @@ class Conversation {
 }
 
 class ChatMessage {
-  const ChatMessage({required this.id, required this.senderId, required this.text, this.createdAt});
+  const ChatMessage({
+    required this.id,
+    required this.senderId,
+    required this.text,
+    this.createdAt,
+    this.pending = false,
+  });
 
   final String id;
   final String senderId;
   final String text;
+
+  /// Null while the server timestamp is still being resolved.
   final DateTime? createdAt;
+
+  /// Written locally, not yet acknowledged by the server (offline / slow link).
+  final bool pending;
+}
+
+/// Result of the conversation-list query. [fromCache] is true while the data
+/// comes from the local cache only (typically: no connection).
+class ConversationList {
+  const ConversationList({required this.items, this.fromCache = false});
+
+  final List<Conversation> items;
+  final bool fromCache;
+
+  int unreadCountFor(String me) => items.where((c) => c.isUnreadFor(me)).length;
 }

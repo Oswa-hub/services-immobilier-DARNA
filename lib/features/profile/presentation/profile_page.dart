@@ -409,7 +409,8 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                   _profileItem(
                     icon: Icons.message_outlined,
                     title: 'Messages',
-                    unavailable: true, // TODO(Module 09)
+                    subtitle: 'Your conversations with owners and agents',
+                    onTap: () => context.push(Routes.messages), // Module 11
                   ),
 
                   _profileItem(

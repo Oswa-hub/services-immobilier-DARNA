@@ -38,8 +38,12 @@ class Routes {
   /// Public professional profile. Exposes public fields only.
   static const agentPublicPattern = '/agents/:agentId';
 
-  /// Shared messaging base (Module 09 extends it).
-  static const chatPattern = '/chat/:conversationId';
+  // ---- Module 11: Messaging (all require a signed-in user) ------------------
+  static const messages = '/messages';
+  static const chatPattern = '/messages/:conversationId';
+
+  /// Old link format, kept so existing links / notifications still work.
+  static const legacyChatPattern = '/chat/:conversationId';
 
   /// go_router pattern for Module 05. Build real links with [propertyDetails].
   static const propertyDetailsPattern = '/property/:id';
@@ -49,7 +53,7 @@ class Routes {
 
   static String agentListing(String propertyId) => '/agent/listings/${Uri.encodeComponent(propertyId)}';
   static String agentPublic(String agentId) => '/agents/${Uri.encodeComponent(agentId)}';
-  static String chat(String conversationId) => '/chat/${Uri.encodeComponent(conversationId)}';
+  static String chat(String conversationId) => '/messages/${Uri.encodeComponent(conversationId)}';
 
   /// Module 08 entry: publish a new property, or edit one (`edit=<propertyId>`).
   static String publishWith({String? editPropertyId}) =>

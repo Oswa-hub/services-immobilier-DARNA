@@ -21,7 +21,8 @@ import '../features/agents/presentation/pages/agent_verification_page.dart';
 import '../features/agents/presentation/pages/edit_agent_profile_page.dart';
 import '../features/agents/presentation/pages/public_agent_profile_page.dart';
 import '../features/auth/providers/auth_provider.dart';
-import '../features/messaging/presentation/pages/chat_page.dart';
+import '../features/messaging/presentation/pages/chat_page.dart'; // Module 11
+import '../features/messaging/presentation/pages/conversations_page.dart';
 import '../features/map/presentation/pages/map_page.dart'; // Module 06
 import '../features/profile/presentation/profile_page.dart'; // Module 02
 import '../features/properties/presentation/pages/property_details_page.dart'; // Module 05
@@ -128,9 +129,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.agentPublicPattern,
         builder: (_, state) => PublicAgentProfilePage(agentId: state.pathParameters['agentId'] ?? ''),
       ),
+      // ---- Module 11: Messaging --------------------------------------------
+      GoRoute(path: Routes.messages, builder: (_, __) => const ConversationsPage()),
       GoRoute(
         path: Routes.chatPattern,
         builder: (_, state) => ChatPage(conversationId: state.pathParameters['conversationId'] ?? ''),
+      ),
+      GoRoute(
+        path: Routes.legacyChatPattern,
+        redirect: (_, state) => Routes.chat(state.pathParameters['conversationId'] ?? ''),
       ),
       GoRoute(
         path: Routes.publish,

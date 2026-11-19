@@ -6,6 +6,7 @@ import '../../../../app/routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/providers/auth_provider.dart';
+import '../../../messaging/presentation/widgets/messages_button.dart';
 
 /// First name for the greeting, or null (generic greeting). Never hardcoded.
 String? greetingName(AuthUser? user) {
@@ -38,6 +39,8 @@ class HomeHeader extends ConsumerWidget {
           const Text('Find your perfect property in Tunisia', style: TextStyle(color: AppColors.muted)),
         ]),
       ),
+      // Module 11: Messages with unread badge.
+      const MessagesButton(),
       // No notification bell: it appears only once Module 12 exists.
       Semantics(
         button: true,
