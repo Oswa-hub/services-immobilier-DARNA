@@ -90,6 +90,9 @@ class MapCanvas extends StatelessWidget {
           urlTemplate: mapTileUrlTemplate,
           userAgentPackageName: mapUserAgentPackageName,
           maxNativeZoom: 19,
+          // A tile that fails (offline, server down) stays blank instead of
+          // reporting an exception for every tile.
+          tileProvider: NetworkTileProvider(silenceExceptions: true),
         ),
         if (user != null)
           MarkerLayer(markers: [

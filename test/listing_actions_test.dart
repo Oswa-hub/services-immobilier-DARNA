@@ -4,23 +4,25 @@ import 'package:team_app/features/properties/domain/entities/property.dart';
 
 void main() {
   group('ownerTransitions (Module 09)', () {
-    test('a draft can only be submitted for review', () {
-      expect(ownerTransitions(PropertyStatus.draft), {PropertyStatus.pendingReview});
+    // Lifecycle fixed in 88ae9e9 (Modules 08-10): owners can also withdraw.
+    test('a draft can be submitted for review or withdrawn', () {
+      expect(ownerTransitions(PropertyStatus.draft), {PropertyStatus.pendingReview, PropertyStatus.removed});
     });
 
     test('a published listing can only be withdrawn', () {
       expect(ownerTransitions(PropertyStatus.published), {PropertyStatus.removed});
     });
 
-    test('rejected and withdrawn listings go back to draft', () {
-      expect(ownerTransitions(PropertyStatus.rejected), {PropertyStatus.draft});
+    test('a rejected listing can be edited, resubmitted or withdrawn; a withdrawn one goes back to draft', () {
+      expect(ownerTransitions(PropertyStatus.rejected),
+          {PropertyStatus.draft, PropertyStatus.pendingReview, PropertyStatus.removed});
       expect(ownerTransitions(PropertyStatus.removed), {PropertyStatus.draft});
     });
 
-    test('pending, suspended and expired listings are locked for the owner', () {
-      for (final s in [PropertyStatus.pendingReview, PropertyStatus.suspended, PropertyStatus.expired]) {
-        expect(ownerTransitions(s), isEmpty, reason: s.name);
-      }
+    test('pending and expired listings can only be withdrawn; suspended ones are locked', () {
+      expect(ownerTransitions(PropertyStatus.pendingReview), {PropertyStatus.removed});
+      expect(ownerTransitions(PropertyStatus.expired), {PropertyStatus.removed});
+      expect(ownerTransitions(PropertyStatus.suspended), isEmpty);
     });
 
     test('an owner can never publish directly', () {

@@ -102,8 +102,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               const OrDivider(),
               GoogleSignInButton(disabled: loading, onPressed: controller.signInWithGoogle),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              // Wrap, not Row: with large accessibility fonts the two parts go
+              // on two lines instead of overflowing.
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   const Text("Don't have an account?", style: TextStyle(color: AppColors.muted)),
                   TextButton(

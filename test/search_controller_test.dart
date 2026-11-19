@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:team_app/features/search/domain/entities/search_result_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:team_app/features/auth/providers/auth_provider.dart';
 import 'package:team_app/core/errors/discovery_failure.dart';
 import 'package:team_app/features/properties/domain/entities/property.dart';
 import 'package:team_app/features/property_discovery/domain/repositories/location_service.dart';
@@ -19,6 +20,8 @@ List<Property> props(String prefix, int n) => [for (var i = 0; i < n; i++) makeP
 ProviderContainer make(FakeSearchRepository repo, {FakeLocationService? location}) {
   final c = ProviderContainer(overrides: [
     searchRepositoryProvider.overrideWithValue(repo),
+    // Search is user-scoped (it watches the signed-in user): tests run signed out.
+    currentUserProvider.overrideWithValue(null),
     locationServiceProvider.overrideWithValue(location ?? FakeLocationService()),
   ]);
   addTearDown(c.dispose);
