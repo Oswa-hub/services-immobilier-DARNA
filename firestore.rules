@@ -249,9 +249,15 @@ service cloud.firestore {
              'website', 'yearsOfExperience', 'languages', 'serviceAreas', 'verificationStatus',
              'showPhone', 'showEmail', 'isPublic', 'createdAt', 'updatedAt']);
 
-      allow update: if isSelf(agentId)
-        && unchanged(['userId', 'agencyId', 'verificationStatus', 'createdAt'])
-        && validProfile(request.resource.data);
+      allow update: if (isSelf(agentId)
+          && unchanged(['userId', 'agencyId', 'verificationStatus', 'createdAt'])
+          && validProfile(request.resource.data))
+        // Module 13: the badge follows the agent's verification request, in the same
+        // admin batch that decides it. Nothing else changes.
+        || (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['verificationStatus'])
+          && getAfter(/databases/$(database)/documents/verifications/$('agent_' + agentId)).data.status
+               == request.resource.data.verificationStatus);
 
       allow delete: if isAdmin();
     }
@@ -272,21 +278,126 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
-    // ---- Module 10: verification (pending-only create; decision = backend) -----
+    // ---- Module 13: verification requests -----------------------------------------
+    // One document per target: `{targetType}_{targetId}`. Every status change is ONE
+    // batch (request + history entry + audit log + notification [+ badge]); the rules
+    // use getAfter()/existsAfter() so a status never changes without its history and
+    // a badge never changes without the matching request.
+    //   applicant: not_submitted -> pending, rejected|expired -> pending
+    //   admin:     pending -> approved|rejected, approved -> expired
+    function verifPath(vid) { return /databases/$(database)/documents/verifications/$(vid); }
+
+    function verifKeys() {
+      return ['id', 'applicantId', 'targetId', 'targetType', 'status', 'submittedData', 'documents',
+              'reviewedBy', 'reviewedAt', 'decision', 'rejectionReason', 'createdAt', 'updatedAt',
+              'submittedAt', 'expiresAt', 'attemptNumber'];
+    }
+
+    // user / owner / agent: always your own account. property: a listing you own or manage.
+    function ownsVerificationTarget(type, targetId) {
+      return (type in ['user', 'owner', 'agent'] && targetId == request.auth.uid)
+        || (type == 'property'
+            && exists(/databases/$(database)/documents/properties/$(targetId))
+            && (get(/databases/$(database)/documents/properties/$(targetId)).data.ownerId == request.auth.uid
+                || get(/databases/$(database)/documents/properties/$(targetId)).data.get('agentId', null) == request.auth.uid));
+    }
+
+    // Fields shared by a first submission and a resubmission: pending, no decision.
+    function validPendingRequest(d) {
+      return d.status == 'pending'
+        && d.submittedData is map
+        && d.documents is list && d.documents.size() > 0 && d.documents.size() <= 12
+        && d.reviewedBy == null && d.reviewedAt == null && d.decision == null
+        && d.rejectionReason == null && d.expiresAt == null
+        && d.attemptNumber is int
+        && d.submittedAt == request.time && d.updatedAt == request.time;
+    }
+
     match /verifications/{id} {
-      allow read: if signedIn() && (resource.data.targetId == request.auth.uid || isAdmin());
+      // `applicantId` lets "my requests" run where('applicantId' == uid).
+      // `targetId` keeps requests made by the Module 10 agent screen readable.
+      // `resource == null`: the app first reads its own `{type}_{target}` id to know
+      // whether a request exists; a missing document reveals nothing.
+      allow read: if signedIn()
+        && (resource == null
+            || resource.data.get('applicantId', null) == request.auth.uid
+            || resource.data.targetId == request.auth.uid
+            || isAdmin());
+
       allow create: if signedIn()
-        && request.resource.data.targetId == request.auth.uid
-        && request.resource.data.targetType == 'agent'
-        && request.resource.data.status == 'pending'
-        && request.resource.data.reviewedBy == null
-        && request.resource.data.reviewedAt == null
-        && request.resource.data.rejectionReason == null
-        && request.resource.data.documentUrls is list
-        && request.resource.data.documentUrls.size() > 0
-        && request.resource.data.documentUrls.size() <= 12
-        && request.resource.data.submittedAt == request.time;
-      allow update, delete: if false;
+        && request.resource.data.keys().hasOnly(verifKeys())
+        && request.resource.data.id == id
+        && request.resource.data.targetType is string
+        && request.resource.data.targetId is string
+        && id == request.resource.data.targetType + '_' + request.resource.data.targetId
+        && request.resource.data.applicantId == request.auth.uid
+        && ownsVerificationTarget(request.resource.data.targetType, request.resource.data.targetId)
+        && validPendingRequest(request.resource.data)
+        && request.resource.data.attemptNumber == 1
+        && request.resource.data.createdAt == request.time
+        && existsAfter(/databases/$(database)/documents/verifications/$(id)/history/1_submitted);
+
+      allow update: if
+        // Applicant resubmits after a rejection or an expiry: a new attempt.
+        (signedIn()
+          && resource.data.get('applicantId', null) == request.auth.uid
+          && resource.data.status in ['rejected', 'expired']
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+               ['status', 'submittedData', 'documents', 'reviewedBy', 'reviewedAt', 'decision',
+                'rejectionReason', 'updatedAt', 'submittedAt', 'expiresAt', 'attemptNumber'])
+          && validPendingRequest(request.resource.data)
+          && request.resource.data.attemptNumber == resource.data.attemptNumber + 1
+          && existsAfter(/databases/$(database)/documents/verifications/$(id)/history/$(string(request.resource.data.attemptNumber) + '_resubmitted')))
+        // Administrator decides a pending request, or expires an approved one.
+        || (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+               ['status', 'updatedAt', 'reviewedBy', 'reviewedAt', 'decision', 'rejectionReason', 'expiresAt'])
+          && request.resource.data.updatedAt == request.time
+          && ((resource.data.status == 'pending'
+                && request.resource.data.status in ['approved', 'rejected']
+                && request.resource.data.decision == request.resource.data.status
+                && request.resource.data.reviewedBy == request.auth.uid
+                && request.resource.data.reviewedAt == request.time
+                && ((request.resource.data.status == 'approved'
+                      && request.resource.data.rejectionReason == null)
+                    || (request.resource.data.status == 'rejected'
+                      && request.resource.data.rejectionReason is string
+                      && request.resource.data.rejectionReason.size() > 0
+                      && request.resource.data.rejectionReason.size() <= 1000)))
+              || (resource.data.status == 'approved'
+                && request.resource.data.status == 'expired'
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])))
+          && existsAfter(/databases/$(database)/documents/verifications/$(id)/history/$(string(resource.data.attemptNumber) + '_' + request.resource.data.status)));
+
+      allow delete: if false;
+
+      // Append-only trail. An entry is accepted only when the request reaches exactly
+      // that status and attempt in the same batch, and only once (fixed ids).
+      match /history/{hid} {
+        allow read: if signedIn()
+          && (get(verifPath(id)).data.get('applicantId', null) == request.auth.uid || isAdmin());
+
+        allow create: if signedIn()
+          && request.resource.data.keys().hasOnly(
+               ['action', 'actorId', 'actorRole', 'previousStatus', 'newStatus', 'reason', 'attemptNumber', 'createdAt'])
+          && request.resource.data.actorId == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.attemptNumber is int
+          && hid == string(request.resource.data.attemptNumber) + '_' + request.resource.data.action
+          && getAfter(verifPath(id)).data.status == request.resource.data.newStatus
+          && getAfter(verifPath(id)).data.attemptNumber == request.resource.data.attemptNumber
+          && ((!exists(verifPath(id)) && request.resource.data.previousStatus == 'not_submitted')
+              || (exists(verifPath(id)) && get(verifPath(id)).data.status == request.resource.data.previousStatus))
+          && ((request.resource.data.actorRole == 'applicant'
+                && request.resource.data.action in ['submitted', 'resubmitted']
+                && getAfter(verifPath(id)).data.applicantId == request.auth.uid)
+              || (request.resource.data.actorRole == 'admin'
+                && request.resource.data.action in ['approved', 'rejected', 'expired']
+                && isAdmin()));
+
+        allow update, delete: if false;
+      }
+
       match /private/{doc} { allow read, write: if isAdmin(); }
     }
 
@@ -305,7 +416,11 @@ service cloud.firestore {
     }
 
     match /conversations/{cid} {
-      allow list: if signedIn() && isConversationParty();
+      // Module 11: the Messages tab lists every thread with
+      // where('participants', arrayContains: uid); `uid in participants` is what
+      // lets the rules prove that query. participants == [userId, recipientId].
+      allow list: if signedIn()
+        && (isConversationParty() || request.auth.uid in resource.data.participants);
 
       // Single read. The id is `{propertyId}_{uid}`: a user may probe their OWN id
       // before the thread exists (openOrCreate does a get() first).

@@ -6,37 +6,54 @@ import 'package:flutter/foundation.dart';
 
 import '../../properties/domain/entities/property.dart';
 import '../domain/conversation.dart';
+import '../domain/message_validator.dart';
 
 enum ConversationFailureType { notSignedIn, ownListing, unavailable, empty, tooLong, permissionDenied, network, unknown }
+
+/// What happened to a message the user just sent.
+enum SendOutcome {
+  /// Acknowledged by the server.
+  sent,
+
+  /// Saved locally and waiting for the connection; Firestore delivers it later.
+  queued,
+}
 
 class ConversationFailure implements Exception {
   const ConversationFailure(this.type);
   final ConversationFailureType type;
 
   String get message => switch (type) {
-        ConversationFailureType.notSignedIn => 'Please sign in to contact the advertiser.',
-        ConversationFailureType.ownListing => 'This is your own listing.',
-        ConversationFailureType.unavailable => 'This property is no longer available.',
-        ConversationFailureType.empty => 'Write a message first.',
-        ConversationFailureType.tooLong => 'Your message is too long.',
-        ConversationFailureType.permissionDenied => 'You are not allowed to perform this action.',
-        ConversationFailureType.network => 'Network problem. Check your connection and try again.',
-        ConversationFailureType.unknown => 'Something went wrong. Please try again.',
+        ConversationFailureType.notSignedIn => 'Connectez-vous pour envoyer des messages.',
+        ConversationFailureType.ownListing => 'C\'est votre propre annonce.',
+        ConversationFailureType.unavailable => 'Ce bien n\'est plus disponible.',
+        ConversationFailureType.empty => 'Écrivez un message avant de l\'envoyer.',
+        ConversationFailureType.tooLong => 'Votre message est trop long (${MessageValidator.maxLength} caractères maximum).',
+        ConversationFailureType.permissionDenied => 'Cette conversation n\'est pas accessible.',
+        ConversationFailureType.network => 'Impossible d\'envoyer le message. Vérifiez votre connexion et réessayez.',
+        ConversationFailureType.unknown => 'Une erreur est survenue. Réessayez.',
       };
 
   @override
   String toString() => 'ConversationFailure($type)';
 }
 
-/// Minimal shared messaging base used by "Contact agent" and the agent's
-/// Inquiries page. Module 09 builds the full inbox on top of these collections.
+/// Messaging repository (Module 11), shared with "Contact agent" and the agent's
+/// Inquiries page. One thread per (property, user); two participants.
 class ConversationRepository {
   ConversationRepository(this._db, this._auth);
 
   final FirebaseFirestore _db;
   final FirebaseAuth _auth;
 
-  static const maxMessageLength = 2000;
+  static const maxMessageLength = MessageValidator.maxLength;
+
+  /// Messages loaded per page (the newest ones first).
+  static const messagesPageSize = 30;
+
+  /// Firestore queues writes while offline and only acknowledges them once the
+  /// server answers. Past this delay the message is reported as [SendOutcome.queued].
+  static const sendAckTimeout = Duration(seconds: 6);
 
   CollectionReference<Map<String, dynamic>> get _conversations => _db.collection('conversations');
 
@@ -53,6 +70,7 @@ class ConversationRepository {
 
   ConversationFailure _map(Object e) {
     if (e is ConversationFailure) return e;
+    if (e is TimeoutException) return const ConversationFailure(ConversationFailureType.network);
     if (e is FirebaseException) {
       debugPrint('Conversation error [${e.code}]: ${e.message}');
       return ConversationFailure(switch (e.code) {
@@ -65,7 +83,9 @@ class ConversationRepository {
     return const ConversationFailure(ConversationFailureType.unknown);
   }
 
-  /// Find or create the thread of ([property], current user). Idempotent.
+  /// Find or create the thread of ([property], current user). Idempotent and
+  /// race-free: the id is deterministic and the read + create run in one
+  /// transaction, so two quick taps can never create two threads.
   Future<Conversation> openOrCreate(Property property, {String? userName}) async {
     try {
       final me = _uid;
@@ -74,34 +94,47 @@ class ConversationRepository {
       if (!property.isPublic) throw const ConversationFailure(ConversationFailureType.unavailable);
 
       final ref = _conversations.doc(idFor(property.id, me));
-      final snap = await ref.get();
-      if (snap.exists && snap.data() != null) return _fromMap(snap.id, snap.data()!)!;
+      final name = _s(userName);
+      // The listing only carries the OWNER's name: when an agent manages it, the
+      // agent is the recipient, so no name is copied (the UI says "Annonceur").
+      final recipientName = property.agentId == null ? _s(property.ownerName) : null;
+      final participants = [me, recipient];
 
-      await ref.set({
-        'participants': [me, recipient],
-        'userId': me,
-        'recipientId': recipient,
-        'propertyId': property.id,
-        'userName': (userName?.trim().isEmpty ?? true) ? null : userName!.trim(),
-        'propertyTitle': property.title,
-        'propertyImage': property.mainImage,
-        'lastMessage': null,
-        'lastMessageAt': null,
-        'lastSenderId': null,
-        'lastReadAt': <String, dynamic>{},
-        'messageCount': 0,
-        'createdAt': FieldValue.serverTimestamp(),
+      return await _db.runTransaction((tx) async {
+        final snap = await tx.get(ref);
+        final existing = snap.data();
+        if (snap.exists && existing != null) {
+          final c = _fromMap(snap.id, existing);
+          if (c != null) return c;
+        }
+        tx.set(ref, {
+          'participants': participants,
+          'userId': me,
+          'recipientId': recipient,
+          'propertyId': property.id,
+          'userName': name,
+          'recipientName': recipientName,
+          'propertyTitle': property.title,
+          'propertyImage': property.mainImage,
+          'lastMessage': null,
+          'lastMessageAt': null,
+          'lastSenderId': null,
+          'lastReadAt': <String, dynamic>{},
+          'messageCount': 0,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+        return Conversation(
+          id: ref.id,
+          participants: participants,
+          userId: me,
+          recipientId: recipient,
+          propertyId: property.id,
+          userName: name,
+          recipientName: recipientName,
+          propertyTitle: property.title,
+          propertyImage: property.mainImage,
+        );
       });
-      return Conversation(
-        id: ref.id,
-        participants: [me, recipient],
-        userId: me,
-        recipientId: recipient,
-        propertyId: property.id,
-        userName: userName,
-        propertyTitle: property.title,
-        propertyImage: property.mainImage,
-      );
     } catch (e) {
       throw _map(e);
     }
@@ -121,21 +154,45 @@ class ConversationRepository {
       .snapshots()
       .map((s) => [for (final d in s.docs) ?_fromMap(d.id, d.data())].where((c) => c.hasMessages).toList());
 
+  /// Every conversation [userId] takes part in, as buyer OR as professional.
+  /// Index: participants ARRAY_CONTAINS, lastMessageAt DESC. Threads without
+  /// messages are hidden. [ConversationList.fromCache] tells the UI it is offline.
+  Stream<ConversationList> watchMine(String userId, {int limit = 50}) => _conversations
+      .where('participants', arrayContains: userId)
+      .orderBy('lastMessageAt', descending: true)
+      .limit(limit)
+      .snapshots(includeMetadataChanges: true)
+      .map((s) => ConversationList(
+            items: [for (final d in s.docs) ?_fromMap(d.id, d.data())].where((c) => c.hasMessages).toList(),
+            fromCache: s.metadata.isFromCache,
+          ));
+
   /// Newest first, so a reversed ListView shows the latest at the bottom.
-  Stream<List<ChatMessage>> watchMessages(String conversationId, {int limit = 100}) => _conversations
+  /// Pagination: raise [limit] to load older messages (the stream re-opens).
+  /// Metadata changes are included so a message not yet acknowledged by the
+  /// server is flagged [ChatMessage.pending].
+  Stream<List<ChatMessage>> watchMessages(String conversationId, {int limit = messagesPageSize}) => _conversations
       .doc(conversationId)
       .collection('messages')
       .orderBy('createdAt', descending: true)
       .limit(limit)
-      .snapshots()
-      .map((s) => [for (final d in s.docs) ?_message(d.id, d.data())]);
+      .snapshots(includeMetadataChanges: true)
+      .map((s) => [for (final d in s.docs) ?_message(d.id, d.data(), pending: d.metadata.hasPendingWrites)]);
 
-  Future<void> sendMessage(String conversationId, String text) async {
+  /// Validates, then writes the message AND the conversation summary in one
+  /// batch. Throws [ConversationFailure] when nothing was saved (the UI keeps
+  /// the text so the user can retry). Returns [SendOutcome.queued] when the
+  /// write is stored locally and will be delivered when the connection returns.
+  Future<SendOutcome> sendMessage(String conversationId, String text) async {
     try {
       final me = _uid;
-      final t = text.trim();
-      if (t.isEmpty) throw const ConversationFailure(ConversationFailureType.empty);
-      if (t.length > maxMessageLength) throw const ConversationFailure(ConversationFailureType.tooLong);
+      final issue = MessageValidator.check(text);
+      if (issue != null) {
+        throw ConversationFailure(
+          issue == MessageIssue.empty ? ConversationFailureType.empty : ConversationFailureType.tooLong,
+        );
+      }
+      final t = MessageValidator.normalize(text);
 
       final convo = _conversations.doc(conversationId);
       final msg = convo.collection('messages').doc();
@@ -147,12 +204,17 @@ class ConversationRepository {
           'createdAt': FieldValue.serverTimestamp(),
         })
         ..update(convo, {
-          'lastMessage': t.length > 140 ? '${t.substring(0, 140)}…' : t,
+          'lastMessage': MessageValidator.preview(t),
           'lastMessageAt': FieldValue.serverTimestamp(),
           'lastSenderId': me,
           'lastReadAt.$me': FieldValue.serverTimestamp(),
         });
-      await batch.commit();
+      try {
+        await batch.commit().timeout(sendAckTimeout);
+        return SendOutcome.sent;
+      } on TimeoutException {
+        return SendOutcome.queued;
+      }
     } catch (e) {
       throw _map(e);
     }
@@ -189,6 +251,7 @@ class ConversationRepository {
       recipientId: recipient,
       propertyId: property,
       userName: _s(d['userName']),
+      recipientName: _s(d['recipientName']),
       propertyTitle: _s(d['propertyTitle']),
       propertyImage: _s(d['propertyImage']),
       lastMessage: _s(d['lastMessage']),
@@ -204,10 +267,10 @@ class ConversationRepository {
     );
   }
 
-  static ChatMessage? _message(String id, Map<String, dynamic> d) {
+  static ChatMessage? _message(String id, Map<String, dynamic> d, {bool pending = false}) {
     final sender = _s(d['senderId']);
     final text = _s(d['text']);
     if (sender == null || text == null) return null;
-    return ChatMessage(id: id, senderId: sender, text: text, createdAt: _date(d['createdAt']));
+    return ChatMessage(id: id, senderId: sender, text: text, createdAt: _date(d['createdAt']), pending: pending);
   }
 }
