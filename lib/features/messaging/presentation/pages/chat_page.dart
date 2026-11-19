@@ -5,18 +5,26 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/property_image.dart';
-import '../../../agents/presentation/widgets/agent_formatters.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../reports/domain/report.dart'; // Module 14
 import '../../../reports/presentation/providers/report_providers.dart';
 import '../../../reports/presentation/widgets/report_sheet.dart';
 import '../../data/conversation_repository.dart';
 import '../../domain/conversation.dart';
+import '../../domain/message_validator.dart';
+import '../../domain/messaging_formatters.dart';
 import '../providers/messaging_providers.dart';
+import '../widgets/conversation_tile.dart';
+import '../widgets/message_bubble.dart';
+import '../widgets/message_input.dart';
 
-/// `/chat/:conversationId`: minimal shared conversation screen. Only the two
-/// participants can read or write it (Firestore Rules); the thread is tied to
+/// `/chat/:conversationId` (Module 11): the conversation screen. Only the two
+/// participants can read or write it (Firestore rules); the thread is tied to
 /// ONE property so the professional knows which listing is discussed.
+///
+/// Older messages load by pages while scrolling up, my latest message shows
+/// "Vu" once the other side opened the thread, a message written offline is
+/// marked as sending and delivered later. Module 14: report / block.
 class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({super.key, required this.conversationId});
 
@@ -28,32 +36,78 @@ class ChatPage extends ConsumerStatefulWidget {
 
 class _ChatPageState extends ConsumerState<ChatPage> {
   final _controller = TextEditingController();
+  final _scroll = ScrollController();
+
   bool _sending = false;
+  int _limit = ConversationRepository.messagesPageSize;
+
+  /// Last list received, shown while a larger page is loading (no flash).
+  List<ChatMessage> _lastItems = const [];
+
+  /// Newest `lastMessageAt` already acknowledged as read (avoids write loops).
+  DateTime? _markedUpTo;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(conversationRepositoryProvider).markRead(widget.conversationId);
-    });
+    _scroll.addListener(_onScroll);
+    // Opening the conversation, and every later message from the other side
+    // while it is open, marks it as read.
+    ref.listenManual<AsyncValue<Conversation?>>(
+      conversationProvider(widget.conversationId),
+      (_, next) => _markReadIfNeeded(next.value),
+      fireImmediately: true,
+    );
   }
 
   @override
   void dispose() {
+    _scroll.dispose();
     _controller.dispose();
     super.dispose();
   }
 
+  void _markReadIfNeeded(Conversation? c) {
+    final me = ref.read(currentUserProvider)?.id;
+    if (c == null || me == null || !c.participants.contains(me) || !c.isUnreadFor(me)) return;
+    final at = c.lastMessageAt;
+    final done = _markedUpTo;
+    if (at == null ? done != null : (done != null && !at.isAfter(done))) return;
+    _markedUpTo = at ?? DateTime.now();
+    ref.read(conversationRepositoryProvider).markRead(c.id);
+  }
+
+  /// Older messages: a full page came back, so there may be more.
+  bool get _hasMore => _lastItems.length >= _limit;
+
+  void _onScroll() {
+    if (!_scroll.hasClients || !_hasMore) return;
+    final p = _scroll.position;
+    if (p.pixels >= p.maxScrollExtent - 240) {
+      setState(() => _limit += ConversationRepository.messagesPageSize);
+    }
+  }
+
   Future<void> _send() async {
-    final text = _controller.text;
-    if (_sending || text.trim().isEmpty) return;
+    if (_sending || MessageValidator.check(_controller.text) != null) return;
     setState(() => _sending = true);
     final messenger = ScaffoldMessenger.of(context);
     try {
-      await ref.read(conversationRepositoryProvider).sendMessage(widget.conversationId, text);
-      if (mounted) _controller.clear();
+      final outcome =
+          await ref.read(conversationRepositoryProvider).sendMessage(widget.conversationId, _controller.text);
+      if (!mounted) return;
+      _controller.clear();
+      if (_scroll.hasClients) _scroll.jumpTo(0);
+      if (outcome == SendOutcome.queued) {
+        messenger.showSnackBar(const SnackBar(
+            content: Text('Pas de connexion. Votre message sera envoyé dès votre retour en ligne.')));
+      }
     } on ConversationFailure catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+      // The text stays in the field so nothing is lost.
+      messenger.showSnackBar(SnackBar(
+        content: Text(e.message),
+        action: e.type == ConversationFailureType.network ? SnackBarAction(label: 'Réessayer', onPressed: _send) : null,
+      ));
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -63,127 +117,183 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   Widget build(BuildContext context) {
     final me = ref.watch(currentUserProvider)?.id ?? '';
     final convo = ref.watch(conversationProvider(widget.conversationId));
-    final messages = ref.watch(chatMessagesProvider(widget.conversationId));
+    final messages = ref.watch(chatMessagesProvider((conversationId: widget.conversationId, limit: _limit)));
 
-    // Mark as read whenever a message from the other side arrives while open.
-    ref.listen(chatMessagesProvider(widget.conversationId), (_, next) {
-      final latest = next.value?.firstOrNull;
-      if (latest != null && latest.senderId != me) {
-        ref.read(conversationRepositoryProvider).markRead(widget.conversationId);
-      }
-    });
+    final live = messages.value;
+    if (live != null) _lastItems = live;
+
+    final current = convo.value;
+    final party = (current != null && current.participants.contains(me)) ? current : null;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(convo.value?.userId == me ? 'Advertiser' : (convo.value?.userName ?? 'Conversation')),
-        actions: [
-          if (convo.value case final c? when c.participants.contains(me)) _SafetyMenu(conversation: c, me: me),
-        ],
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        titleSpacing: 0,
+        title: party != null ? _ChatTitle(conversation: party, me: me) : const Text('Conversation'),
+        actions: [if (party != null) _SafetyMenu(conversation: party, me: me)],
       ),
       body: convo.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => const Center(child: Text('You are not allowed to open this conversation.')),
+        error: (_, _) => const _Notice('Cette conversation n\'est pas accessible.'),
         data: (c) {
-          if (c == null) return const Center(child: Text('This conversation does not exist.'));
-          if (!c.participants.contains(me)) {
-            return const Center(child: Text('You are not allowed to open this conversation.'));
-          }
+          if (c == null) return const _Notice('Cette conversation n\'existe pas.');
+          if (!c.participants.contains(me)) return const _Notice('Cette conversation n\'est pas accessible.');
+          final other = c.otherParticipant(me);
           return Column(children: [
             _PropertyHeader(conversation: c),
-            Expanded(
-              child: messages.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (_, _) => const Center(child: Text('We could not load the messages.')),
-                data: (items) => items.isEmpty
-                    ? const Center(child: Text('Say hello and ask your question.', style: TextStyle(color: AppColors.muted)))
-                    : ListView.builder(
-                        reverse: true,
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                        itemCount: items.length,
-                        itemBuilder: (_, i) => _Bubble(
-                          message: items[i],
-                          mine: items[i].senderId == me,
-                          // Module 14: long-press a received message to report it.
-                          onReport: items[i].senderId == me
-                              ? null
-                              : () => showReportSheet(
-                                    context,
-                                    ref,
-                                    ReportTarget.message(
-                                      messageId: items[i].id,
-                                      conversationId: c.id,
-                                      senderId: items[i].senderId,
-                                      text: items[i].text,
-                                      propertyId: c.propertyId,
-                                    ),
-                                  ),
-                        ),
-                      ),
-              ),
-            ),
-            if (ref.watch(isBlockedProvider(_otherId(c, me))))
-              SafeArea(
-                top: false,
-                child: Container(
-                  width: double.infinity,
-                  color: AppColors.chip,
-                  padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
-                  child: Row(children: [
-                    const Expanded(
-                      child: Text('Vous avez bloqué cet utilisateur : vous ne recevez plus ses messages.',
-                          style: TextStyle(color: AppColors.navy)),
-                    ),
-                    TextButton(
-                      onPressed: () => ref.read(reportActionsProvider).unblock(_otherId(c, me)),
-                      child: const Text('Débloquer'),
-                    ),
-                  ]),
-                ),
-              )
+            Expanded(child: _buildMessages(c, me, messages, live)),
+            if (ref.watch(isBlockedProvider(other)))
+              _BlockedBar(onUnblock: () => ref.read(reportActionsProvider).unblock(other))
             else
-            SafeArea(
-              top: false,
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-                color: Colors.white,
-                child: Row(children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      minLines: 1,
-                      maxLines: 4,
-                      maxLength: ConversationRepository.maxMessageLength,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _send(),
-                      decoration: const InputDecoration(
-                        hintText: 'Write a message',
-                        counterText: '',
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  IconButton.filled(
-                    tooltip: 'Send',
-                    onPressed: _sending ? null : _send,
-                    icon: _sending
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.send_rounded),
-                  ),
-                ]),
-              ),
-            ),
+              MessageInput(controller: _controller, onSend: _send, sending: _sending),
           ]);
         },
       ),
     );
   }
+
+  Widget _buildMessages(Conversation c, String me, AsyncValue<List<ChatMessage>> messages, List<ChatMessage>? live) {
+    if (live == null && _lastItems.isEmpty) {
+      if (messages.hasError) return const _Notice('Impossible de charger les messages.');
+      return const Center(child: CircularProgressIndicator());
+    }
+    final items = live ?? _lastItems;
+    if (items.isEmpty) {
+      return const _Notice('Dites bonjour et posez votre question.');
+    }
+
+    final other = c.otherParticipant(me);
+    // Items are newest first: the first one sent by me is my latest message.
+    final lastMine = items.indexWhere((m) => m.senderId == me);
+    final hasMore = _hasMore;
+
+    DateTime at(ChatMessage m) => (m.createdAt ?? DateTime.now()).toLocal();
+
+    return ListView.builder(
+      controller: _scroll,
+      reverse: true,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      itemCount: items.length + (hasMore ? 1 : 0),
+      itemBuilder: (context, i) {
+        if (i == items.length) {
+          return const Padding(
+            padding: EdgeInsets.all(12),
+            child: Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
+          );
+        }
+        final m = items[i];
+        final mine = m.senderId == me;
+        // Oldest loaded message: label its day only when no older history remains.
+        final first = i == items.length - 1 ? !hasMore : !isSameDay(at(m), at(items[i + 1]));
+        final created = m.createdAt;
+        final seen = mine && i == lastMine && created != null && c.wasReadBy(other, created);
+        return Column(children: [
+          if (first) DateSeparator(date: at(m)),
+          MessageBubble(
+            key: ValueKey(m.id),
+            message: m,
+            mine: mine,
+            seen: seen,
+            // Module 14: long-press a received message to report it.
+            onLongPress: mine ? null : () => _reportMessageMenu(context, c, m),
+          ),
+        ]);
+      },
+    );
+  }
+
+  void _reportMessageMenu(BuildContext context, Conversation c, ChatMessage m) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: ListTile(
+          leading: const Icon(Icons.flag_outlined, color: AppColors.error),
+          title: const Text('Signaler ce message'),
+          onTap: () {
+            Navigator.of(ctx).pop();
+            showReportSheet(
+              context,
+              ref,
+              ReportTarget.message(
+                messageId: m.id,
+                conversationId: c.id,
+                senderId: m.senderId,
+                text: m.text,
+                propertyId: c.propertyId,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 }
 
-/// The participant who is not [me].
-String _otherId(Conversation c, String me) => c.userId == me ? c.recipientId : c.userId;
+class _ChatTitle extends StatelessWidget {
+  const _ChatTitle({required this.conversation, required this.me});
+
+  final Conversation conversation;
+  final String me;
+
+  @override
+  Widget build(BuildContext context) {
+    final name = conversation.partnerNameFor(me);
+    final role = me == conversation.userId ? 'Annonceur' : 'Client intéressé';
+    return Row(children: [
+      ParticipantAvatar(name: name, radius: 18),
+      const SizedBox(width: 10),
+      Expanded(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+          Text(name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.text)),
+          Text(role, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+        ]),
+      ),
+    ]);
+  }
+}
+
+class _Notice extends StatelessWidget {
+  const _Notice(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Text(text, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.muted)),
+        ),
+      );
+}
+
+/// Module 14: replaces the input while the other participant is blocked.
+class _BlockedBar extends StatelessWidget {
+  const _BlockedBar({required this.onUnblock});
+
+  final VoidCallback onUnblock;
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+        top: false,
+        child: Container(
+          width: double.infinity,
+          color: AppColors.chip,
+          padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+          child: Row(children: [
+            const Expanded(
+              child: Text('Vous avez bloqué cet utilisateur : vous ne recevez plus ses messages.',
+                  style: TextStyle(color: AppColors.navy)),
+            ),
+            TextButton(onPressed: onUnblock, child: const Text('Débloquer')),
+          ]),
+        ),
+      );
+}
 
 /// Module 14 — report or block the other participant.
 class _SafetyMenu extends ConsumerWidget {
@@ -195,8 +305,8 @@ class _SafetyMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = conversation;
-    final otherId = _otherId(c, me);
-    final otherName = c.userId == me ? (c.propertyTitle ?? 'Annonceur') : (c.userName ?? 'Utilisateur');
+    final otherId = c.otherParticipant(me);
+    final otherName = c.partnerNameFor(me);
     final blocked = ref.watch(isBlockedProvider(otherId));
 
     return PopupMenuButton<String>(
@@ -250,81 +360,47 @@ class _SafetyMenu extends ConsumerWidget {
   }
 }
 
+/// The listing this thread is about; opens its details.
 class _PropertyHeader extends StatelessWidget {
   const _PropertyHeader({required this.conversation});
 
   final Conversation conversation;
 
   @override
-  Widget build(BuildContext context) => Material(
-        color: Colors.white,
-        child: InkWell(
-          onTap: () => context.push(Routes.propertyDetails(conversation.propertyId)),
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Row(children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: SizedBox(width: 48, height: 48, child: PropertyImage(url: conversation.propertyImage, size: PropertyImageSize.thumb)),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(conversation.propertyTitle ?? 'Property',
-                    maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
-              ),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.muted),
-            ]),
-          ),
-        ),
-      );
-}
-
-class _Bubble extends StatelessWidget {
-  const _Bubble({required this.message, required this.mine, this.onReport});
-
-  final ChatMessage message;
-  final bool mine;
-
-  /// Module 14: long-press menu on received messages.
-  final VoidCallback? onReport;
-
-  @override
-  Widget build(BuildContext context) => Align(
-        alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
-        child: GestureDetector(
-          onLongPress: onReport == null
-              ? null
-              : () => showModalBottomSheet<void>(
-                    context: context,
-                    builder: (ctx) => SafeArea(
-                      child: ListTile(
-                        leading: const Icon(Icons.flag_outlined, color: AppColors.error),
-                        title: const Text('Signaler ce message'),
-                        onTap: () {
-                          Navigator.of(ctx).pop();
-                          onReport!();
-                        },
-                      ),
-                    ),
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+        child: Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => context.push(Routes.propertyDetails(conversation.propertyId)),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: PropertyImage(url: conversation.propertyImage, size: PropertyImageSize.thumb),
                   ),
-          child: Container(
-          constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.78),
-          margin: const EdgeInsets.symmetric(vertical: 3),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: mine ? AppColors.primary : Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: mine ? null : Border.all(color: AppColors.line),
-          ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text(message.text, style: TextStyle(color: mine ? Colors.white : AppColors.text, height: 1.35)),
-            if (message.createdAt != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 3),
-                child: Text(formatRelative(message.createdAt!),
-                    style: TextStyle(fontSize: 10, color: mine ? Colors.white70 : AppColors.muted)),
-              ),
-          ]),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const Text('À propos de l\'annonce',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.accent)),
+                    const SizedBox(height: 2),
+                    Text(conversation.propertyTitle ?? 'Annonce',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.text)),
+                  ]),
+                ),
+                const Icon(Icons.chevron_right_rounded, color: AppColors.muted),
+              ]),
+            ),
           ),
         ),
       );

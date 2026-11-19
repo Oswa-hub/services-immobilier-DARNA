@@ -416,7 +416,11 @@ service cloud.firestore {
     }
 
     match /conversations/{cid} {
-      allow list: if signedIn() && isConversationParty();
+      // Module 11: the Messages tab lists every thread with
+      // where('participants', arrayContains: uid); `uid in participants` is what
+      // lets the rules prove that query. participants == [userId, recipientId].
+      allow list: if signedIn()
+        && (isConversationParty() || request.auth.uid in resource.data.participants);
 
       // Single read. The id is `{propertyId}_{uid}`: a user may probe their OWN id
       // before the thread exists (openOrCreate does a get() first).

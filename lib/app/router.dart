@@ -22,6 +22,7 @@ import '../features/agents/presentation/pages/edit_agent_profile_page.dart';
 import '../features/agents/presentation/pages/public_agent_profile_page.dart';
 import '../features/auth/providers/auth_provider.dart';
 import '../features/messaging/presentation/pages/chat_page.dart';
+import '../features/messaging/presentation/pages/conversations_page.dart'; // Module 11
 import '../features/map/presentation/pages/map_page.dart'; // Module 06
 import '../features/profile/presentation/profile_page.dart'; // Module 02
 import '../features/properties/presentation/pages/property_details_page.dart'; // Module 05
@@ -42,7 +43,6 @@ import '../features/verification/presentation/pages/verification_form_page.dart'
 import '../features/notifications/presentation/pages/notification_center_page.dart'; // Module 12
 import '../features/notifications/presentation/pages/notification_settings_page.dart';
 import 'app_shell.dart';
-import 'placeholder_pages.dart';
 import '../features/admin/presentation/admin_shell.dart'; // Module 15
 import '../features/admin/presentation/pages/admin_analytics_page.dart';
 import '../features/admin/presentation/pages/admin_audit_logs_page.dart';
@@ -142,7 +142,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.messages,
-              builder: (_, _) => const GuestGate.messages(child: ComingSoonPage(title: 'Messages', module: 'a future module')),
+              builder: (_, _) => const GuestGate.messages(child: ConversationsPage()), // Module 11
             ),
           ]),
         ],
