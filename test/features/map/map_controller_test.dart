@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../lib/core/errors/discovery_failure.dart';
-import '../../../lib/features/map/domain/entities/map_query_result.dart';
-import '../../../lib/features/map/domain/entities/map_state.dart';
-import '../../../lib/features/map/domain/entities/map_viewport.dart';
-import '../../../lib/features/map/domain/repositories/map_repository.dart';
-import '../../../lib/features/map/domain/usecases/get_current_location.dart';
-import '../../../lib/features/map/presentation/providers/map_providers.dart';
-import '../../../lib/features/property_discovery/domain/repositories/location_service.dart';
-import '../../../lib/features/property_discovery/presentation/providers/property_discovery_providers.dart';
-import '../../../lib/features/search/domain/entities/property_search_filter.dart';
+import 'package:team_app/core/errors/discovery_failure.dart';
+import 'package:team_app/features/map/domain/entities/map_query_result.dart';
+import 'package:team_app/features/map/domain/entities/map_state.dart';
+import 'package:team_app/features/map/domain/entities/map_viewport.dart';
+import 'package:team_app/features/map/domain/repositories/map_repository.dart';
+import 'package:team_app/features/map/domain/usecases/get_current_location.dart';
+import 'package:team_app/features/map/presentation/providers/map_providers.dart';
+import 'package:team_app/features/property_discovery/domain/repositories/location_service.dart';
+import 'package:team_app/features/property_discovery/presentation/providers/property_discovery_providers.dart';
+import 'package:team_app/features/search/domain/entities/property_search_filter.dart';
 import 'test_helpers.dart';
 
 class FakeMapRepository implements MapRepository {

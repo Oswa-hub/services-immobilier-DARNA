@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../lib/features/map/domain/entities/map_viewport.dart';
+import 'package:team_app/features/map/domain/entities/map_viewport.dart';
 
 void main() {
   const tunis = MapViewport(north: 37, south: 36, east: 11, west: 10, zoom: 9);

@@ -26,7 +26,7 @@ class VerificationHistoryList extends ConsumerWidget {
     final history = ref.watch(verificationHistoryProvider(verificationId));
     return history.when(
       loading: () => const Padding(padding: EdgeInsets.all(12), child: LinearProgressIndicator()),
-      error: (_, __) => const Text('The history could not be loaded.', style: TextStyle(color: AppColors.muted)),
+      error: (_, _) => const Text('The history could not be loaded.', style: TextStyle(color: AppColors.muted)),
       data: (items) {
         if (items.isEmpty) return const Text('No history yet.', style: TextStyle(color: AppColors.muted));
         return Column(children: [

@@ -7,6 +7,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/property_image.dart';
 import '../../../agents/presentation/widgets/agent_formatters.dart';
 import '../../../auth/providers/auth_provider.dart';
+import '../../../reports/domain/report.dart'; // Module 14
+import '../../../reports/presentation/providers/report_providers.dart';
+import '../../../reports/presentation/widgets/report_sheet.dart';
 import '../../data/conversation_repository.dart';
 import '../../domain/conversation.dart';
 import '../providers/messaging_providers.dart';
@@ -72,7 +75,12 @@ class _ChatPageState extends ConsumerState<ChatPage> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: Text(convo.value?.userId == me ? 'Advertiser' : (convo.value?.userName ?? 'Conversation'))),
+      appBar: AppBar(
+        title: Text(convo.value?.userId == me ? 'Advertiser' : (convo.value?.userName ?? 'Conversation')),
+        actions: [
+          if (convo.value case final c? when c.participants.contains(me)) _SafetyMenu(conversation: c, me: me),
+        ],
+      ),
       body: convo.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, _) => const Center(child: Text('You are not allowed to open this conversation.')),
@@ -93,10 +101,47 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                         reverse: true,
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                         itemCount: items.length,
-                        itemBuilder: (_, i) => _Bubble(message: items[i], mine: items[i].senderId == me),
+                        itemBuilder: (_, i) => _Bubble(
+                          message: items[i],
+                          mine: items[i].senderId == me,
+                          // Module 14: long-press a received message to report it.
+                          onReport: items[i].senderId == me
+                              ? null
+                              : () => showReportSheet(
+                                    context,
+                                    ref,
+                                    ReportTarget.message(
+                                      messageId: items[i].id,
+                                      conversationId: c.id,
+                                      senderId: items[i].senderId,
+                                      text: items[i].text,
+                                      propertyId: c.propertyId,
+                                    ),
+                                  ),
+                        ),
                       ),
               ),
             ),
+            if (ref.watch(isBlockedProvider(_otherId(c, me))))
+              SafeArea(
+                top: false,
+                child: Container(
+                  width: double.infinity,
+                  color: AppColors.chip,
+                  padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+                  child: Row(children: [
+                    const Expanded(
+                      child: Text('Vous avez bloqué cet utilisateur : vous ne recevez plus ses messages.',
+                          style: TextStyle(color: AppColors.navy)),
+                    ),
+                    TextButton(
+                      onPressed: () => ref.read(reportActionsProvider).unblock(_otherId(c, me)),
+                      child: const Text('Débloquer'),
+                    ),
+                  ]),
+                ),
+              )
+            else
             SafeArea(
               top: false,
               child: Container(
@@ -137,6 +182,74 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   }
 }
 
+/// The participant who is not [me].
+String _otherId(Conversation c, String me) => c.userId == me ? c.recipientId : c.userId;
+
+/// Module 14 — report or block the other participant.
+class _SafetyMenu extends ConsumerWidget {
+  const _SafetyMenu({required this.conversation, required this.me});
+
+  final Conversation conversation;
+  final String me;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = conversation;
+    final otherId = _otherId(c, me);
+    final otherName = c.userId == me ? (c.propertyTitle ?? 'Annonceur') : (c.userName ?? 'Utilisateur');
+    final blocked = ref.watch(isBlockedProvider(otherId));
+
+    return PopupMenuButton<String>(
+      tooltip: 'Sécurité',
+      onSelected: (choice) async {
+        final messenger = ScaffoldMessenger.of(context);
+        switch (choice) {
+          case 'report':
+            await showReportSheet(
+              context,
+              ref,
+              ReportTarget.user(id: otherId, name: otherName, conversationId: c.id),
+            );
+          case 'block':
+            final ok = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Bloquer cet utilisateur ?'),
+                content: const Text(
+                  'Il ne pourra plus vous envoyer de messages. Vous pourrez le débloquer '
+                  'depuis Profil > Signalements et sécurité.',
+                ),
+                actions: [
+                  TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Annuler')),
+                  FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Bloquer')),
+                ],
+              ),
+            );
+            if (ok != true) return;
+            final f = await ref.read(reportActionsProvider).block(otherId, otherName);
+            messenger.showSnackBar(SnackBar(content: Text(f?.message ?? 'Utilisateur bloqué.')));
+          case 'unblock':
+            final f = await ref.read(reportActionsProvider).unblock(otherId);
+            messenger.showSnackBar(SnackBar(content: Text(f?.message ?? 'Utilisateur débloqué.')));
+        }
+      },
+      itemBuilder: (_) => [
+        const PopupMenuItem(
+          value: 'report',
+          child: ListTile(leading: Icon(Icons.flag_outlined), title: Text('Signaler cet utilisateur')),
+        ),
+        PopupMenuItem(
+          value: blocked ? 'unblock' : 'block',
+          child: ListTile(
+            leading: const Icon(Icons.block),
+            title: Text(blocked ? 'Débloquer' : 'Bloquer'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _PropertyHeader extends StatelessWidget {
   const _PropertyHeader({required this.conversation});
 
@@ -167,15 +280,34 @@ class _PropertyHeader extends StatelessWidget {
 }
 
 class _Bubble extends StatelessWidget {
-  const _Bubble({required this.message, required this.mine});
+  const _Bubble({required this.message, required this.mine, this.onReport});
 
   final ChatMessage message;
   final bool mine;
 
+  /// Module 14: long-press menu on received messages.
+  final VoidCallback? onReport;
+
   @override
   Widget build(BuildContext context) => Align(
         alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
+        child: GestureDetector(
+          onLongPress: onReport == null
+              ? null
+              : () => showModalBottomSheet<void>(
+                    context: context,
+                    builder: (ctx) => SafeArea(
+                      child: ListTile(
+                        leading: const Icon(Icons.flag_outlined, color: AppColors.error),
+                        title: const Text('Signaler ce message'),
+                        onTap: () {
+                          Navigator.of(ctx).pop();
+                          onReport!();
+                        },
+                      ),
+                    ),
+                  ),
+          child: Container(
           constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.78),
           margin: const EdgeInsets.symmetric(vertical: 3),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -193,6 +325,7 @@ class _Bubble extends StatelessWidget {
                     style: TextStyle(fontSize: 10, color: mine ? Colors.white70 : AppColors.muted)),
               ),
           ]),
+          ),
         ),
       );
 }

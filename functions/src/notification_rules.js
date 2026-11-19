@@ -31,6 +31,8 @@ const TYPES = Object.freeze({
   accountWarning: 'accountWarning',
   // Admin broadcast.
   platformAnnouncement: 'platformAnnouncement',
+  // Module 14: a report the user filed was closed.
+  reportUpdated: 'reportUpdated',
 });
 
 /**
@@ -53,6 +55,7 @@ const CATEGORY_BY_TYPE = Object.freeze({
   priceChanged: 'favorites',
   newMatchingProperty: 'alerts',
   platformAnnouncement: 'announcements',
+  reportUpdated: 'account',
 });
 
 /** Preference key (users/{uid}.notificationPreferences) for each optional category. */

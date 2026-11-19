@@ -7,7 +7,6 @@ import '../../../properties/domain/entities/property.dart';
 import '../../data/verification_document_link_service.dart';
 import '../../data/verification_remote_data_source.dart';
 import '../../data/verification_repository_impl.dart';
-import '../../domain/entities/verification_enums.dart';
 import '../../domain/entities/verification_record.dart';
 import '../../domain/entities/verification_submission.dart';
 import '../../domain/repositories/verification_repository.dart';

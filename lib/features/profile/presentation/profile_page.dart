@@ -428,8 +428,30 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
 
                   _profileItem(
                     icon: Icons.flag_outlined,
-                    title: 'Reports',
-                    unavailable: true, // TODO(Module 13)
+                    title: 'Signalements et sécurité',
+                    subtitle: 'Mes signalements, utilisateurs bloqués',
+                    onTap: () => context.push(Routes.myReports), // Module 14
+                  ),
+
+                  // ---- Module 17: information pages (texts set by the admin) ----
+                  _sectionTitle('Information'),
+
+                  _profileItem(
+                    icon: Icons.support_agent_outlined,
+                    title: 'Nous contacter',
+                    onTap: () => context.push(Routes.contact),
+                  ),
+
+                  _profileItem(
+                    icon: Icons.description_outlined,
+                    title: 'Conditions d’utilisation',
+                    onTap: () => context.push(Routes.legalTerms),
+                  ),
+
+                  _profileItem(
+                    icon: Icons.privacy_tip_outlined,
+                    title: 'Politique de confidentialité',
+                    onTap: () => context.push(Routes.legalPrivacy),
                   ),
                 ],
               ),

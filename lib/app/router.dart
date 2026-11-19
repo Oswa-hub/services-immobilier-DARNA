@@ -43,13 +43,25 @@ import '../features/notifications/presentation/pages/notification_center_page.da
 import '../features/notifications/presentation/pages/notification_settings_page.dart';
 import 'app_shell.dart';
 import 'placeholder_pages.dart';
+import '../features/admin/presentation/admin_shell.dart'; // Module 15
+import '../features/admin/presentation/pages/admin_analytics_page.dart';
+import '../features/admin/presentation/pages/admin_audit_logs_page.dart';
+import '../features/admin/presentation/pages/admin_dashboard_page.dart';
+import '../features/admin/presentation/pages/admin_notifications_page.dart';
+import '../features/admin/presentation/pages/admin_properties_page.dart';
+import '../features/admin/presentation/pages/admin_reports_page.dart';
+import '../features/admin/presentation/pages/admin_users_page.dart';
+import '../features/content/presentation/pages/admin_content_page.dart'; // Module 16
+import '../features/settings/presentation/pages/admin_settings_page.dart'; // Module 17
+import '../features/settings/presentation/pages/legal_pages.dart';
+import '../features/reports/presentation/pages/my_reports_page.dart'; // Module 14
 import 'router_guard.dart';
 import 'routes.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Re-run the redirect whenever the auth state changes.
   final refresh = ValueNotifier<int>(0);
-  ref.listen(authControllerProvider, (_, __) => refresh.value++);
+  ref.listen(authControllerProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
   final router = GoRouter(
@@ -59,21 +71,41 @@ final routerProvider = Provider<GoRouter>((ref) {
         authRedirect(ref.read(authControllerProvider), state.matchedLocation),
     routes: [
       // ---- Module 01 -------------------------------------------------------
-      GoRoute(path: Routes.splash, builder: (_, __) => const SplashPage()),
-      GoRoute(path: Routes.welcome, builder: (_, __) => const WelcomePage()),
-      GoRoute(path: Routes.login, builder: (_, __) => const LoginPage()),
-      GoRoute(path: Routes.register, builder: (_, __) => const RegisterPage()),
-      GoRoute(path: Routes.forgotPassword, builder: (_, __) => const ForgotPasswordPage()),
+      GoRoute(path: Routes.splash, builder: (_, _) => const SplashPage()),
+      GoRoute(path: Routes.welcome, builder: (_, _) => const WelcomePage()),
+      GoRoute(path: Routes.login, builder: (_, _) => const LoginPage()),
+      GoRoute(path: Routes.register, builder: (_, _) => const RegisterPage()),
+      GoRoute(path: Routes.forgotPassword, builder: (_, _) => const ForgotPasswordPage()),
       GoRoute(
         path: Routes.resetPassword,
         builder: (_, state) => ResetPasswordPage(code: state.uri.queryParameters['oobCode']),
       ),
-      GoRoute(path: Routes.verifyEmail, builder: (_, __) => const VerifyEmailPage()),
-      GoRoute(path: Routes.accountStatus, builder: (_, __) => const AccountStatusPage()),
-      GoRoute(path: Routes.adminDashboard, builder: (_, __) => const AdminPlaceholderPage()),
+      GoRoute(path: Routes.verifyEmail, builder: (_, _) => const VerifyEmailPage()),
+      GoRoute(path: Routes.accountStatus, builder: (_, _) => const AccountStatusPage()),
+      // ---- Module 15 / 16 / 17: admin panel ---------------------------------
+      ShellRoute(
+        builder: (_, state, child) => AdminShell(location: state.uri.path, child: child),
+        routes: [
+          GoRoute(path: Routes.adminDashboard, builder: (_, _) => const AdminDashboardPage()),
+          GoRoute(path: Routes.adminUsers, builder: (_, _) => const AdminUsersPage()),
+          GoRoute(path: Routes.adminProperties, builder: (_, _) => const AdminPropertiesPage()),
+          GoRoute(path: Routes.adminReports, builder: (_, _) => const AdminReportsPage()),
+          GoRoute(path: Routes.adminNotifications, builder: (_, _) => const AdminNotificationsPage()),
+          GoRoute(path: Routes.adminContent, builder: (_, _) => const AdminContentPage()),
+          GoRoute(path: Routes.adminAnalytics, builder: (_, _) => const AdminAnalyticsPage()),
+          GoRoute(path: Routes.adminSettings, builder: (_, _) => const AdminSettingsPage()),
+          GoRoute(path: Routes.adminAuditLogs, builder: (_, _) => const AdminAuditLogsPage()),
+        ],
+      ),
+      // ---- Module 14: Reports & Safety --------------------------------------
+      GoRoute(path: Routes.myReports, builder: (_, _) => const MyReportsPage()),
+      // ---- Module 17: public information pages ------------------------------
+      GoRoute(path: Routes.legalTerms, builder: (_, _) => const LegalPage(document: LegalDocument.terms)),
+      GoRoute(path: Routes.legalPrivacy, builder: (_, _) => const LegalPage(document: LegalDocument.privacy)),
+      GoRoute(path: Routes.contact, builder: (_, _) => const ContactPage()),
       // Module 13 admin review. Under /admin: the router guard keeps non-admins
       // out, and the Firestore rules refuse their reads anyway.
-      GoRoute(path: Routes.adminVerification, builder: (_, __) => const VerificationQueuePage()),
+      GoRoute(path: Routes.adminVerification, builder: (_, _) => const VerificationQueuePage()),
       GoRoute(
         path: Routes.adminVerificationReviewPattern,
         builder: (_, state) => VerificationReviewPage(verificationId: state.pathParameters['id'] ?? ''),
@@ -81,10 +113,10 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // ---- Main app: bottom navigation ------------------------------------
       StatefulShellRoute.indexedStack(
-        builder: (_, __, shell) => AppShell(shell: shell),
+        builder: (_, _, shell) => AppShell(shell: shell),
         branches: [
           StatefulShellBranch(routes: [
-            GoRoute(path: Routes.home, builder: (_, __) => const HomeDiscoveryScreen()), // Module 03
+            GoRoute(path: Routes.home, builder: (_, _) => const HomeDiscoveryScreen()), // Module 03
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
@@ -101,16 +133,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.favorites,
-              builder: (_, __) => const GuestGate.favorites(child: FavoritesPage()), // Module 07
+              builder: (_, _) => const GuestGate.favorites(child: FavoritesPage()), // Module 07
             ),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: Routes.profile, builder: (_, __) => const GuestGate.profile(child: UserProfilePage())), // Module 02
+            GoRoute(path: Routes.profile, builder: (_, _) => const GuestGate.profile(child: UserProfilePage())), // Module 02
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.messages,
-              builder: (_, __) => const GuestGate.messages(child: ComingSoonPage(title: 'Messages', module: 'a future module')),
+              builder: (_, _) => const GuestGate.messages(child: ComingSoonPage(title: 'Messages', module: 'a future module')),
             ),
           ]),
         ],
@@ -124,17 +156,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ---- Module 10: Agent / Agency ---------------------------------------
       GoRoute(
         path: Routes.agentDashboard,
-        builder: (_, __) => const AgentDashboardPage(),
+        builder: (_, _) => const AgentDashboardPage(),
         routes: [
-          GoRoute(path: 'setup', builder: (_, __) => const EditAgentProfilePage(setup: true)),
+          GoRoute(path: 'setup', builder: (_, _) => const EditAgentProfilePage(setup: true)),
           GoRoute(
             path: 'profile',
-            builder: (_, __) => const AgentProfilePage(),
-            routes: [GoRoute(path: 'edit', builder: (_, __) => const EditAgentProfilePage(setup: false))],
+            builder: (_, _) => const AgentProfilePage(),
+            routes: [GoRoute(path: 'edit', builder: (_, _) => const EditAgentProfilePage(setup: false))],
           ),
           GoRoute(
             path: 'listings',
-            builder: (_, __) => const AgentListingsPage(),
+            builder: (_, _) => const AgentListingsPage(),
             routes: [
               GoRoute(
                 path: ':propertyId',
@@ -142,9 +174,9 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          GoRoute(path: 'inquiries', builder: (_, __) => const AgentInquiriesPage()),
-          GoRoute(path: 'statistics', builder: (_, __) => const AgentStatisticsPage()),
-          GoRoute(path: 'verification', builder: (_, __) => const AgentVerificationPage()),
+          GoRoute(path: 'inquiries', builder: (_, _) => const AgentInquiriesPage()),
+          GoRoute(path: 'statistics', builder: (_, _) => const AgentStatisticsPage()),
+          GoRoute(path: 'verification', builder: (_, _) => const AgentVerificationPage()),
         ],
       ),
       GoRoute(
@@ -158,7 +190,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ---- Module 13: Verification (applicant) -----------------------------
       GoRoute(
         path: Routes.verification,
-        builder: (_, __) => const VerificationCenterPage(),
+        builder: (_, _) => const VerificationCenterPage(),
         routes: [
           GoRoute(
             path: 'new/:type/:targetId',
@@ -177,7 +209,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.publish,
-        builder: (_, __) => const PublishPage(), // Module 08
+        builder: (_, _) => const PublishPage(), // Module 08
       ),
       GoRoute(
         path: Routes.myListings,

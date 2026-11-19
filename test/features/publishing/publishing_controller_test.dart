@@ -5,12 +5,16 @@ import 'package:team_app/features/auth/providers/auth_provider.dart';
 import 'package:team_app/features/properties/domain/entities/property.dart';
 import 'package:team_app/features/publishing/domain/services/listing_validator.dart';
 import 'package:team_app/features/publishing/presentation/providers/publishing_provider.dart';
+import 'package:team_app/features/settings/domain/platform_settings.dart';
+import 'package:team_app/features/settings/presentation/providers/platform_settings_providers.dart';
 import 'test_support.dart';
 
 ProviderContainer _container(FakeListingRepository repo, {user = owner}) {
   final c = ProviderContainer(overrides: [
     listingRepositoryProvider.overrideWithValue(repo),
     currentUserProvider.overrideWithValue(user),
+    // Module 17: limits come from settings/platform; tests use the defaults.
+    platformSettingsProvider.overrideWithValue(PlatformSettings.defaults),
   ]);
   addTearDown(c.dispose);
   return c;

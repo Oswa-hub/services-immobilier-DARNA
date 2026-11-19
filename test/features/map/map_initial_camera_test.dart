@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../lib/features/map/domain/entities/map_initial_camera.dart';
-import '../../../lib/features/map/domain/services/map_filter_resolver.dart';
-import '../../../lib/features/properties/domain/entities/property.dart';
-import '../../../lib/features/search/domain/entities/property_search_filter.dart';
+import 'package:team_app/features/map/domain/entities/map_initial_camera.dart';
+import 'package:team_app/features/map/domain/services/map_filter_resolver.dart';
+import 'package:team_app/features/properties/domain/entities/property.dart';
+import 'package:team_app/features/search/domain/entities/property_search_filter.dart';
 
 void main() {
   test('lat/lng hint wins, then governorate, otherwise no hint', () {

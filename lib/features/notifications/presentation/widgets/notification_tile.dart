@@ -25,6 +25,7 @@ import '../../domain/services/notification_grouping.dart';
       NotificationType.favoriteUpdated => (icon: Icons.favorite_border_rounded, color: AppColors.accent),
       NotificationType.newMatchingProperty => (icon: Icons.home_work_outlined, color: AppColors.primary),
       NotificationType.platformAnnouncement => (icon: Icons.campaign_outlined, color: AppColors.primary),
+      NotificationType.reportUpdated => (icon: Icons.flag_outlined, color: AppColors.primary),
       NotificationType.other => (icon: Icons.notifications_none_rounded, color: AppColors.muted),
     };
 

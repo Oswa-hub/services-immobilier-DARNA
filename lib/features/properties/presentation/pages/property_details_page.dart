@@ -12,6 +12,8 @@ import '../../../auth/providers/auth_provider.dart';
 import '../../../messaging/data/conversation_repository.dart';
 import '../../../property_discovery/domain/entities/discovery_location.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
+import '../../../reports/domain/report.dart'; // Module 14
+import '../../../reports/presentation/widgets/report_sheet.dart';
 import '../../domain/entities/property.dart';
 import '../../providers/property_providers.dart';
 import '../widgets/amenities_section.dart';
@@ -30,7 +32,7 @@ class PropertyActionsConfig {
 
   static const messagingEnabled = true; // Module 09 base, delivered with Module 10
   static const favoritesEnabled = false; // Module 07
-  static const reportsEnabled = false; // Module 13
+  static const reportsEnabled = true; // Module 14
 }
 
 /// Module 05. Always loads the authoritative record by stable id.
@@ -49,7 +51,17 @@ class PropertyDetailsPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Property details'),
         // Heart only once the property is loaded (nothing to favorite otherwise).
-        actions: [if (property != null) FavoriteButton(propertyId: propertyId)],
+        actions: [
+          if (property != null) FavoriteButton(propertyId: propertyId),
+          // Module 14: anyone but the owner may report the listing.
+          if (PropertyActionsConfig.reportsEnabled &&
+              property != null &&
+              ref.watch(currentUserProvider)?.id != property.ownerId)
+            ReportButton(
+              tooltip: 'Signaler l’annonce',
+              target: ReportTarget.property(id: property.id, title: property.title, ownerId: property.ownerId),
+            ),
+        ],
       ),
       body: load.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -252,7 +264,7 @@ class _ActionBarState extends ConsumerState<_ActionBar> {
     }
 
     final recipient = ConversationRepository.recipientOf(widget.property);
-    final isOwn = me != null && me == recipient;
+    final isOwn = me == recipient;
     final enabled = PropertyActionsConfig.messagingEnabled && !isOwn && !_busy;
     return SafeArea(
       child: Container(

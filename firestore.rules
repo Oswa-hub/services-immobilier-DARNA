@@ -8,6 +8,11 @@ service cloud.firestore {
       return signedIn() &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
+    // Module 14: suspended / banned / deleted accounts cannot file reports.
+    function isActiveAccount() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('status', 'active') == 'active';
+    }
     function unchanged(keys) {
       return !request.resource.data.diff(resource.data).affectedKeys().hasAny(keys);
     }
@@ -39,9 +44,23 @@ service cloud.firestore {
             && resource.data.role == 'user'
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role'])
             && request.resource.data.role == 'owner')
-        || isAdmin();
+        // Module 15: admins manage accounts, but never their OWN role / status
+        // (no self-lockout, no silent self-promotion trail).
+        || (isAdmin()
+            && (uid != request.auth.uid
+                || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status'])));
 
       allow delete: if false;
+
+      // ---- Module 14: users I blocked (they can no longer message me) ---------
+      match /blocked/{otherId} {
+        allow read, delete: if isSelf(uid);
+        allow create, update: if isSelf(uid)
+          && otherId != uid
+          && request.resource.data.keys().hasOnly(['name', 'createdAt'])
+          && request.resource.data.name is string && request.resource.data.name.size() <= 80
+          && request.resource.data.createdAt == request.time;
+      }
 
       // ---- Module 12: push devices (FCM tokens), one doc per token ------------
       // Written by the app on sign-in; the server prunes dead tokens and removes a
@@ -281,6 +300,10 @@ service cloud.firestore {
           || resource.data.recipientId == request.auth.uid;
     }
 
+    function otherParty(convo) {
+      return convo.userId == request.auth.uid ? convo.recipientId : convo.userId;
+    }
+
     match /conversations/{cid} {
       allow list: if signedIn() && isConversationParty();
 
@@ -310,6 +333,8 @@ service cloud.firestore {
           && request.auth.uid in get(/databases/$(database)/documents/conversations/$(cid)).data.participants;
         allow create: if signedIn()
           && request.auth.uid in get(/databases/$(database)/documents/conversations/$(cid)).data.participants
+          // Module 14: not if the other participant blocked me.
+          && !exists(/databases/$(database)/documents/users/$(otherParty(get(/databases/$(database)/documents/conversations/$(cid)).data))/blocked/$(request.auth.uid))
           && request.resource.data.senderId == request.auth.uid
           && request.resource.data.text is string
           && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 2000
@@ -330,7 +355,126 @@ service cloud.firestore {
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['readAt'])
             || request.resource.data.readAt == request.time);
       allow delete: if signedIn() && resource.data.userId == request.auth.uid;
-      allow create: if false;
+      // Cloud Functions write with the Admin SDK (no rule needed). On the Spark
+      // plan the admin app writes them itself (Module 15: moderation notices,
+      // announcements); an applicant may notify THEMSELVES of a submitted
+      // verification (Module 13).
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(
+             ['userId', 'type', 'title', 'body', 'read', 'readAt', 'propertyId', 'conversationId', 'targetId', 'data', 'createdAt'])
+        && request.resource.data.userId is string
+        && request.resource.data.title is string && request.resource.data.title.size() <= 120
+        && request.resource.data.body is string && request.resource.data.body.size() <= 1000
+        && request.resource.data.read == false
+        && request.resource.data.createdAt == request.time
+        && (isAdmin()
+            || (request.resource.data.userId == request.auth.uid
+                && request.resource.data.type == 'verificationSubmitted'));
+    }
+
+    // ---- Module 15: audit trail (append-only) ----------------------------------
+    // Admin actions are logged by the admin app; an applicant logs their own
+    // verification submission (Module 13). Nobody edits or deletes an entry.
+    match /audit_logs/{id} {
+      allow read: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(
+             ['actorId', 'actorRole', 'action', 'targetType', 'targetId', 'verificationId',
+              'previousStatus', 'newStatus', 'reason', 'details', 'timestamp'])
+        && request.resource.data.actorId == request.auth.uid
+        && request.resource.data.action is string
+        && request.resource.data.timestamp == request.time
+        && ((request.resource.data.actorRole == 'admin' && isAdmin())
+            || (request.resource.data.actorRole == 'applicant'
+                && request.resource.data.action.matches('verification[.].*')));
+      allow update, delete: if false;
+    }
+
+    // ---- Module 14: reports --------------------------------------------------------
+    // Id = {reporterId}_{targetType}_{targetId}: one report per reporter and target.
+    // Reporters create and follow their own; admins run the lifecycle
+    // open -> investigating -> resolved | rejected.
+    match /reports/{rid} {
+      allow get: if signedIn() && (
+           isAdmin()
+        || (resource == null && rid.matches(request.auth.uid + '_.+'))
+        || (resource != null && resource.data.reporterId == request.auth.uid));
+      allow list: if signedIn() && (isAdmin() || resource.data.reporterId == request.auth.uid);
+
+      allow create: if signedIn()
+        && isActiveAccount()
+        && request.resource.data.keys().hasOnly(['reporterId', 'targetType', 'targetId', 'targetLabel',
+             'targetOwnerId', 'conversationId', 'propertyId', 'reason', 'reasonLabel', 'description',
+             'status', 'priority', 'createdAt', 'updatedAt'])
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.targetType in ['property', 'user', 'agent', 'message']
+        && request.resource.data.targetId is string
+        && request.resource.data.targetId != request.auth.uid
+        && rid == request.auth.uid + '_' + request.resource.data.targetType + '_' + request.resource.data.targetId
+        && (!('targetOwnerId' in request.resource.data) || request.resource.data.targetOwnerId != request.auth.uid)
+        && request.resource.data.targetLabel is string && request.resource.data.targetLabel.size() <= 200
+        && request.resource.data.reason is string && request.resource.data.reason.size() <= 60
+        && request.resource.data.reasonLabel is string && request.resource.data.reasonLabel.size() <= 60
+        && request.resource.data.description is string && request.resource.data.description.size() <= 1000
+        && request.resource.data.status == 'open'
+        && request.resource.data.priority in ['high', 'medium', 'low']
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'assignedTo',
+             'resolution', 'resolutionAction', 'closedAt', 'closedBy', 'updatedAt'])
+        && request.resource.data.updatedAt == request.time
+        && (request.resource.data.status == resource.data.status
+            || (resource.data.status == 'open' && request.resource.data.status == 'investigating')
+            || (resource.data.status == 'investigating'
+                && request.resource.data.status in ['resolved', 'rejected']
+                && request.resource.data.resolution is string
+                && request.resource.data.resolution.size() >= 5
+                && request.resource.data.closedBy == request.auth.uid));
+      allow delete: if false;
+    }
+
+    // ---- Module 16: content lists (catalog/{key}) ------------------------------
+    match /catalog/{key} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && key in ['property_types', 'amenities', 'cities', 'areas', 'tags',
+                   'verification_categories', 'report_reasons']
+        && request.resource.data.keys().hasOnly(['items', 'updatedAt', 'updatedBy'])
+        && request.resource.data.items is list
+        && request.resource.data.items.size() <= 200
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    // ---- Module 17: platform settings (settings/platform) ----------------------
+    // Same bounds as PlatformSettings in Flutter. Change them together.
+    function validPlatformSettings(d) {
+      return d.keys().hasOnly(['maxImages', 'maxImageSizeMb', 'listingExpirationDays',
+               'requireListingReview', 'announcementsEnabled', 'serverNotifications',
+               'supportedCurrencies', 'termsText', 'privacyText',
+               'contactEmail', 'contactPhone', 'contactAddress', 'updatedAt', 'updatedBy'])
+        && d.maxImages is int && d.maxImages >= 1 && d.maxImages <= 10
+        && d.maxImageSizeMb is int && d.maxImageSizeMb >= 1 && d.maxImageSizeMb <= 5
+        && d.listingExpirationDays is int && d.listingExpirationDays >= 7 && d.listingExpirationDays <= 365
+        && d.requireListingReview is bool
+        && d.announcementsEnabled is bool
+        && d.serverNotifications is bool
+        && d.supportedCurrencies is list && d.supportedCurrencies.size() >= 1
+        && d.supportedCurrencies.hasOnly(['TND', 'EUR', 'USD'])
+        && d.termsText is string && d.termsText.size() <= 20000
+        && d.privacyText is string && d.privacyText.size() <= 20000
+        && d.contactEmail is string && d.contactEmail.size() <= 120
+        && d.contactPhone is string && d.contactPhone.size() <= 30
+        && d.contactAddress is string && d.contactAddress.size() <= 200
+        && d.updatedBy == request.auth.uid
+        && d.updatedAt == request.time;
+    }
+
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if isAdmin() && doc == 'platform' && validPlatformSettings(request.resource.data);
     }
 
     // ---- Module 12: email queue (Trigger Email extension) — server only --------

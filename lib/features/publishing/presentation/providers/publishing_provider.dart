@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/services/cloudinary_service.dart';
 import '../../../auth/providers/auth_provider.dart';
+import '../../../settings/presentation/providers/platform_settings_providers.dart'; // Module 17
 import '../../../properties/domain/entities/property.dart';
 import '../../data/listing_remote_data_source.dart';
 import '../../data/listing_repository_impl.dart';
@@ -9,7 +10,6 @@ import '../../data/photo_picker.dart';
 import '../../data/photo_uploader.dart';
 import '../../domain/entities/listing_draft.dart';
 import '../../domain/entities/property_type_rules.dart';
-import '../../domain/publishing_config.dart';
 import '../../domain/publishing_failure.dart';
 import '../../domain/repositories/listing_repository.dart';
 import '../../domain/services/listing_validator.dart';
@@ -156,14 +156,27 @@ class PublishingController extends Notifier<PublishingState> {
   // ---- photos --------------------------------------------------------------------
   void addPhotos(PickedPhotos picked) {
     if (state.isBusy) return;
-    final room = PublishingConfig.maxPhotos - state.draft.photos.length;
-    final accepted = picked.photos.take(room < 0 ? 0 : room).toList();
+    // Module 17: the admin sets both limits (never above PublishingConfig).
+    final settings = ref.read(platformSettingsProvider);
+    final room = settings.effectiveMaxImages - state.draft.photos.length;
+    final problems = [...picked.problems];
+    final sized = [
+      for (final p in picked.photos)
+        if (p.bytes.length <= settings.effectiveMaxImageBytes) p,
+    ];
+    if (sized.length < picked.photos.length) {
+      problems.add('Some photos are larger than ${settings.maxImageSizeMb} MB and were ignored.');
+    }
+    final accepted = sized.take(room < 0 ? 0 : room).toList();
+    if (accepted.length < sized.length) {
+      problems.add('Only ${settings.effectiveMaxImages} photos are allowed: extra photos were ignored.');
+    }
     final draft = state.draft.copyWith(photos: [...state.draft.photos, ...accepted]);
     state = state.copyWith(
       draft: draft,
       errors: state.showErrors ? ListingValidator.validateStep(state.step, draft) : state.errors,
-      message: picked.problems.isEmpty ? null : picked.problems.join('\n'),
-      clearMessage: picked.problems.isEmpty,
+      message: problems.isEmpty ? null : problems.join('\n'),
+      clearMessage: problems.isEmpty,
     );
   }
 

@@ -20,6 +20,9 @@ enum NotificationType {
   accountWarning,
   platformAnnouncement,
 
+  /// Module 14: a report I filed was resolved / rejected.
+  reportUpdated,
+
   /// Anything this app version does not know yet (shown, never crashes).
   other;
 

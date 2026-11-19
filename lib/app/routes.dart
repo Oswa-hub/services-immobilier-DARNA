@@ -26,6 +26,24 @@ class Routes {
   static const myListings = '/my-listings'; // Module 09
   static const adminDashboard = '/admin/dashboard';
 
+  // ---- Module 15: Admin panel (admins only: router guard + rules) ------------
+  static const adminUsers = '/admin/users';
+  static const adminProperties = '/admin/properties';
+  static const adminReports = '/admin/reports';
+  static const adminNotifications = '/admin/notifications';
+  static const adminAnalytics = '/admin/analytics';
+  static const adminAuditLogs = '/admin/audit-logs';
+  static const adminContent = '/admin/content'; // Module 16
+  static const adminSettings = '/admin/settings'; // Module 17
+
+  // ---- Module 14: Reports & Safety (signed-in users) --------------------------
+  static const myReports = '/reports';
+
+  // ---- Module 17: public information pages (open to guests) -----------------
+  static const legalTerms = '/legal/terms';
+  static const legalPrivacy = '/legal/privacy';
+  static const contact = '/contact';
+
   // ---- Module 12: Notifications (signed-in users) ---------------------------
   static const notifications = '/notifications';
   static const notificationSettings = '/notifications/settings';
@@ -71,7 +89,7 @@ class Routes {
 
   /// Module 08 entry: publish a new property, or edit one (`edit=<propertyId>`).
   static String publishWith({String? editPropertyId}) =>
-      _build(publish, {if (editPropertyId != null) 'edit': editPropertyId});
+      _build(publish, {'edit': ?editPropertyId});
 
   /// Module 05 — stable id in the route, never the whole object.
   static String propertyDetails(String id) => '/property/${Uri.encodeComponent(id)}';
@@ -81,7 +99,7 @@ class Routes {
   static String searchWith({TransactionType? transactionType, String? section, DiscoveryLocation? location}) =>
       _build(search, {
         if (transactionType != null) 'transactionType': transactionType.name,
-        if (section != null) 'section': section,
+        'section': ?section,
         ..._locationParams(location),
       });
 
