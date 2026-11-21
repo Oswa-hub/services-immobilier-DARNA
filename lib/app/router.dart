@@ -209,7 +209,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.publish,
-        builder: (_, _) => const PublishPage(), // Module 08
+        builder: (_, state) => PublishPage(editPropertyId: state.uri.queryParameters['edit']), // Module 08
       ),
       GoRoute(
         path: Routes.myListings,

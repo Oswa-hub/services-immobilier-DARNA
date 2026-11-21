@@ -1,10 +1,9 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../settings/presentation/providers/platform_settings_providers.dart'; // Module 17
+import '../../domain/entities/listing_draft.dart';
 import '../../domain/services/listing_validator.dart';
 import '../providers/publishing_provider.dart';
 import 'publish_widgets.dart';
@@ -59,8 +58,7 @@ class _PropertyPhotosPickerState extends ConsumerState<PropertyPhotosPicker> {
         children: [
           for (var i = 0; i < photos.length; i++)
             _Thumb(
-              bytes: photos[i].bytes,
-              name: photos[i].name,
+              photo: photos[i],
               isCover: i == 0,
               failed: s.failedPhotoIds.contains(photos[i].id),
               onRemove: () => c.removePhoto(photos[i].id),
@@ -98,16 +96,14 @@ class _PropertyPhotosPickerState extends ConsumerState<PropertyPhotosPicker> {
 
 class _Thumb extends StatelessWidget {
   const _Thumb({
-    required this.bytes,
-    required this.name,
+    required this.photo,
     required this.isCover,
     required this.failed,
     required this.onRemove,
     required this.onMakeCover,
   });
 
-  final Uint8List bytes;
-  final String name;
+  final ListingPhoto photo;
   final bool isCover;
   final bool failed;
   final VoidCallback onRemove;
@@ -117,7 +113,7 @@ class _Thumb extends StatelessWidget {
   Widget build(BuildContext context) => ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Stack(fit: StackFit.expand, children: [
-          Image.memory(bytes, fit: BoxFit.cover, cacheWidth: 360, gaplessPlayback: true, semanticLabel: name),
+          ListingPhotoImage(photo: photo, cacheWidth: 360, semanticLabel: photo.name),
           if (failed) Container(color: AppColors.error.withValues(alpha: 0.35), child: const Center(child: Icon(Icons.error_outline, color: Colors.white, size: 30))),
           if (isCover)
             Positioned(

@@ -11,6 +11,10 @@ class ListingRemoteDataSource {
   /// `set` with a pre-generated id (not `add`): the same call can be repeated safely.
   Future<void> create(String id, Map<String, dynamic> data) => _col.doc(id).set(data);
 
+  Future<void> update(String id, Map<String, dynamic> data) => _col.doc(id).update(data);
+
+  Future<Map<String, dynamic>?> read(String id) async => (await _col.doc(id).get()).data();
+
   /// True when the document exists ON THE SERVER and belongs to [ownerId]. Used after
   /// a failed/timed-out `create`: the first attempt may actually have reached the server.
   /// Must not read the local cache: with offline persistence a queued (unsent) write is

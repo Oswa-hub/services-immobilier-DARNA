@@ -25,6 +25,7 @@ class SubmitListing {
     required ListingDraft draft,
     required Map<String, String> uploaded,
     void Function(int done, int total)? onProgress,
+    bool isEdit = false,
   }) async {
     if (user == null) throw const PublishingFailure(PublishingFailureType.notAuthenticated);
     if (!canPublishProperty(user)) throw const PublishingFailure(PublishingFailureType.notAllowed);
@@ -32,6 +33,12 @@ class SubmitListing {
     final errors = ListingValidator.validate(draft);
     if (errors.isNotEmpty) {
       throw PublishingFailure(PublishingFailureType.invalidData, fieldErrors: errors);
+    }
+
+    // Photos the listing already has (edit mode) are never uploaded again.
+    for (final p in draft.photos) {
+      final url = p.remoteUrl;
+      if (url != null) uploaded[p.id] = url;
     }
 
     final total = draft.photos.length;
@@ -62,6 +69,10 @@ class SubmitListing {
 
     final urls = [for (final p in draft.photos) uploaded[p.id]!];
     onProgress?.call(total, total);
-    await _repo.createListing(listingId: listingId, draft: draft, user: user, imageUrls: urls);
+    if (isEdit) {
+      await _repo.updateListing(listingId: listingId, draft: draft, imageUrls: urls);
+    } else {
+      await _repo.createListing(listingId: listingId, draft: draft, user: user, imageUrls: urls);
+    }
   }
 }

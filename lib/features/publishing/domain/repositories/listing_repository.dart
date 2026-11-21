@@ -1,4 +1,5 @@
 import '../../../auth/domain/entities/auth_user.dart';
+import '../../../properties/domain/entities/property.dart';
 import '../entities/listing_draft.dart';
 
 /// Write side of properties (Module 08). Throws [PublishingFailure] only.
@@ -18,4 +19,16 @@ abstract interface class ListingRepository {
     required AuthUser user,
     required List<String> imageUrls,
   });
+
+  /// Updates `properties/{listingId}` with the edited content and sends it back
+  /// to moderation (`pending_review`).
+  Future<void> updateListing({
+    required String listingId,
+    required ListingDraft draft,
+    required List<String> imageUrls,
+  });
+
+  /// Reads a listing for edit mode, whatever its status (the rules let its owner
+  /// or agent read it). Null when it does not exist or cannot be read.
+  Future<Property?> loadListing(String listingId);
 }

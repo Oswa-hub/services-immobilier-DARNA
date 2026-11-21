@@ -18,26 +18,86 @@ import '../widgets/property_photos_picker.dart';
 import '../widgets/property_preview.dart';
 import '../widgets/property_type_step.dart';
 
-/// Module 08 entry point (route `/publish`). A 7-screen wizard; the Firestore rules,
-/// not this screen, decide who may really publish.
-class PublishPage extends ConsumerWidget {
-  const PublishPage({super.key});
+/// Module 08 entry point (route `/publish`, `/publish?edit=<id>` to change an
+/// existing listing). A 7-screen wizard; the Firestore rules, not this screen,
+/// decide who may really publish or edit.
+class PublishPage extends ConsumerStatefulWidget {
+  const PublishPage({super.key, this.editPropertyId});
+
+  /// Edit mode: the listing to change. Null = a new listing.
+  final String? editPropertyId;
+
+  @override
+  ConsumerState<PublishPage> createState() => _PublishPageState();
+}
+
+class _PublishPageState extends ConsumerState<PublishPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _prepare());
+  }
+
+  @override
+  void didUpdateWidget(covariant PublishPage old) {
+    super.didUpdateWidget(old);
+    if (old.editPropertyId != widget.editPropertyId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _prepare());
+    }
+  }
+
+  Future<void> _prepare() async {
+    if (!mounted) return;
+    final c = ref.read(publishingControllerProvider.notifier);
+    final s = ref.read(publishingControllerProvider);
+    final id = widget.editPropertyId;
+    if (id == null) {
+      // A new listing must never start from a listing that was being edited.
+      if (s.isEdit) c.reset();
+      return;
+    }
+    if (s.editingId == id && !s.isSuccess) return;
+    if (s.isSuccess) c.reset();
+    final problem = await c.startEditing(id);
+    if (problem != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(problem)));
+      context.canPop() ? context.pop() : context.go(Routes.myListings);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = ref.watch(currentUserProvider);
+    if (!canPublishProperty(user)) return _NotAllowedView(user: user);
+    final s = ref.watch(publishingControllerProvider);
+    final waiting = widget.editPropertyId != null && (s.loadingEdit || s.editingId != widget.editPropertyId) && !s.isSuccess;
+    if (waiting) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Modifier l\'annonce')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    return const _PublishWizard();
+  }
+}
+
+class _PublishWizard extends ConsumerWidget {
+  const _PublishWizard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentUserProvider);
-    if (!canPublishProperty(user)) return _NotAllowedView(user: user);
-
     final s = ref.watch(publishingControllerProvider);
     final c = ref.read(publishingControllerProvider.notifier);
-    if (s.isSuccess) return _SuccessView(onReset: c.reset);
+    if (s.isSuccess) return _SuccessView(onReset: c.reset, edited: s.isEdit);
 
     Future<void> leave() async {
       final go = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Discard this listing?'),
-          content: const Text('The information you entered will be lost.'),
+          title: Text(s.isEdit ? 'Abandonner les modifications ?' : 'Discard this listing?'),
+          content: Text(s.isEdit
+              ? 'Votre annonce reste telle qu\'elle est en ligne.'
+              : 'The information you entered will be lost.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -70,7 +130,7 @@ class PublishPage extends ConsumerWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Publish property'),
+          title: Text(s.isEdit ? 'Modifier l\'annonce' : 'Publish property'),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(4),
             child: LinearProgressIndicator(
@@ -190,7 +250,9 @@ class _BottomBar extends StatelessWidget {
                       isPreview
                           ? (state.message != null
                                 ? 'Try again'
-                                : 'Submit for review')
+                                : state.isEdit
+                                    ? 'Enregistrer et renvoyer'
+                                    : 'Submit for review')
                           : (state.returnToPreview ? 'Done' : 'Continue'),
                     ),
             ),
@@ -202,7 +264,10 @@ class _BottomBar extends StatelessWidget {
 }
 
 class _SuccessView extends StatelessWidget {
-  const _SuccessView({required this.onReset});
+  const _SuccessView({required this.onReset, this.edited = false});
+
+  /// Edit mode: the listing was changed, not created.
+  final bool edited;
 
   /// Clears the form. Also called when the user leaves with the system back button,
   /// so the next visit to /publish starts from an empty form, not this screen.
@@ -228,7 +293,7 @@ class _SuccessView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Listing submitted',
+                  edited ? 'Modifications envoyées' : 'Listing submitted',
                   style: Theme.of(context).textTheme.headlineSmall
                       ?.copyWith(fontWeight: FontWeight.w800),
                 ),
@@ -251,8 +316,10 @@ class _SuccessView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Text(
-                  'Our team will review your listing. It will be visible to other users only after it is approved.',
+                Text(
+                  edited
+                      ? 'Notre équipe vérifie vos modifications. L\'annonce sera de nouveau visible après validation.'
+                      : 'Our team will review your listing. It will be visible to other users only after it is approved.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.muted, height: 1.4),
                 ),
@@ -268,6 +335,18 @@ class _SuccessView extends StatelessWidget {
                   child: const Text('Back to home'),
                 ),
                 const SizedBox(height: 10),
+                if (edited)
+                  OutlinedButton(
+                    onPressed: () {
+                      context.go(Routes.myListings);
+                      Future.microtask(onReset);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
+                    child: const Text('Mes annonces'),
+                  )
+                else
                 OutlinedButton(
                   onPressed: onReset,
                   style: OutlinedButton.styleFrom(
