@@ -42,7 +42,7 @@ Future<void> toggleFavoriteWithFeedback(BuildContext context, WidgetRef ref, Str
         onAction: () => unawaited(toggle(propertyId: propertyId)),
       );
     case FavoriteToggleResult.signInRequired:
-      show('Sign in to save favorites.');
+      show('Connectez-vous pour enregistrer vos favoris.', actionLabel: 'Se connecter', onAction: () => router.push(Routes.login));
     case FavoriteToggleResult.failed:
       show("Couldn't update your favorites. Please try again.");
     case FavoriteToggleResult.busy:

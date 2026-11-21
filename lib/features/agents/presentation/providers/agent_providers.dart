@@ -35,7 +35,6 @@ final cloudinaryServiceProvider = Provider<CloudinaryService>((_) => CloudinaryS
 final agentRepositoryProvider = Provider<AgentRepository>(
   (ref) => AgentRepositoryImpl(
     AgentRemoteDataSource(ref.watch(firestoreProvider), ref.watch(firebaseAuthProvider)),
-    ref.watch(cloudinaryServiceProvider),
   ),
 );
 

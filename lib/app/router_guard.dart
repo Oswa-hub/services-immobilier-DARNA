@@ -21,7 +21,8 @@ bool _guestCanOpen(String location) =>
     location == Routes.legalTerms || // Module 17
     location == Routes.legalPrivacy ||
     location == Routes.contact ||
-    location.startsWith('/property/');
+    location.startsWith('/property/') ||
+    location.startsWith('/agents/'); // public professional profile
 
 /// Pure redirect logic for go_router (spec §31). Returns the location to
 /// redirect to, or null to allow [location]. Unit-tested.

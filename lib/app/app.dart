@@ -13,7 +13,7 @@ class ImmoFindApp extends ConsumerWidget {
     ref.watch(notificationBootstrapProvider); // Module 12: push registration + tap routing
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'ImmoFind',
+      title: 'DARNA',
       theme: AppTheme.light,
       routerConfig: ref.watch(routerProvider),
     );

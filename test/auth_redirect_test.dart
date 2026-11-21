@@ -26,6 +26,8 @@ void main() {
     expect(authRedirect(s, Routes.search), isNull);
     expect(authRedirect(s, Routes.propertyDetails('p1')), isNull);
     expect(authRedirect(s, Routes.legalTerms), isNull);
+    expect(authRedirect(s, Routes.agentPublic('a1')), isNull); // public agent profile
+    expect(authRedirect(s, Routes.agentDashboard), Routes.login);
     expect(authRedirect(s, Routes.adminDashboard), Routes.login);
     expect(authRedirect(s, Routes.notifications), Routes.login);
     expect(authRedirect(s, Routes.splash), welcomeFirst ? Routes.welcome : Routes.home);

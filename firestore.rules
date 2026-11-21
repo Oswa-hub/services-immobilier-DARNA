@@ -439,9 +439,13 @@ service cloud.firestore {
              ? get(/databases/$(database)/documents/properties/$(request.resource.data.propertyId)).data.agentId
              : get(/databases/$(database)/documents/properties/$(request.resource.data.propertyId)).data.ownerId);
 
+      // A participant updates the preview and ONLY their own read time: they can
+      // never mark a thread as seen by the other side.
       allow update: if signedIn() && request.auth.uid in resource.data.participants
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['lastMessage', 'lastMessageAt', 'lastSenderId', 'lastReadAt']);
+             .hasOnly(['lastMessage', 'lastMessageAt', 'lastSenderId', 'lastReadAt'])
+        && request.resource.data.get('lastReadAt', {}).diff(resource.data.get('lastReadAt', {}))
+             .affectedKeys().hasOnly([request.auth.uid]);
 
       match /messages/{mid} {
         allow read: if signedIn()

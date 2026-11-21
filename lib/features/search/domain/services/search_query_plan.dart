@@ -12,7 +12,7 @@ import '../entities/search_enums.dart';
 ///
 /// Index shapes: (status, [transactionType], [governorate], orderField) for the three
 /// order fields publishedAt / price / surface  =>  4 combinations x 3 = 12 indexes
-/// (see firebase/firestore.indexes.json).
+/// (see firestore.indexes.json).
 class SearchQueryPlan {
   const SearchQueryPlan({
     this.transactionType,
