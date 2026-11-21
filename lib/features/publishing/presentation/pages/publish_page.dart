@@ -94,18 +94,18 @@ class _PublishWizard extends ConsumerWidget {
       final go = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text(s.isEdit ? 'Abandonner les modifications ?' : 'Discard this listing?'),
+          title: Text(s.isEdit ? 'Abandonner les modifications ?' : 'Abandonner cette annonce ?'),
           content: Text(s.isEdit
               ? 'Votre annonce reste telle qu\'elle est en ligne.'
-              : 'The information you entered will be lost.'),
+              : 'Les informations saisies seront perdues.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Keep editing'),
+              child: const Text('Continuer'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Discard'),
+              child: const Text('Abandonner'),
             ),
           ],
         ),
@@ -130,7 +130,7 @@ class _PublishWizard extends ConsumerWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(s.isEdit ? 'Modifier l\'annonce' : 'Publish property'),
+          title: Text(s.isEdit ? 'Modifier l\'annonce' : 'Publier un bien'),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(4),
             child: LinearProgressIndicator(
@@ -147,7 +147,7 @@ class _PublishWizard extends ConsumerWidget {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Step ${s.step.index + 1} of ${PublishStep.values.length} · ${s.step.label}',
+                    'Étape ${s.step.index + 1} sur ${PublishStep.values.length} · ${s.step.label}',
                     style: const TextStyle(
                       color: AppColors.muted,
                       fontWeight: FontWeight.w600,
@@ -202,8 +202,8 @@ class _BottomBar extends StatelessWidget {
   final Future<void> Function() onSubmit;
 
   String get _busyLabel => state.phase == PublishPhase.uploading
-      ? 'Uploading photos ${state.uploadDone}/${state.uploadTotal}…'
-      : 'Submitting…';
+      ? 'Envoi des photos ${state.uploadDone}/${state.uploadTotal}…'
+      : 'Envoi…';
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +221,7 @@ class _BottomBar extends StatelessWidget {
             OutlinedButton(
               onPressed: state.isBusy ? null : onBack,
               style: OutlinedButton.styleFrom(minimumSize: const Size(90, 48)),
-              child: const Text('Back'),
+              child: const Text('Retour'),
             ),
             const SizedBox(width: 12),
           ],
@@ -249,11 +249,11 @@ class _BottomBar extends StatelessWidget {
                   : Text(
                       isPreview
                           ? (state.message != null
-                                ? 'Try again'
+                                ? 'Réessayer'
                                 : state.isEdit
                                     ? 'Enregistrer et renvoyer'
-                                    : 'Submit for review')
-                          : (state.returnToPreview ? 'Done' : 'Continue'),
+                                    : 'Envoyer pour vérification')
+                          : (state.returnToPreview ? 'Terminé' : 'Continuer'),
                     ),
             ),
           ),
@@ -293,7 +293,7 @@ class _SuccessView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  edited ? 'Modifications envoyées' : 'Listing submitted',
+                  edited ? 'Modifications envoyées' : 'Annonce envoyée',
                   style: Theme.of(context).textTheme.headlineSmall
                       ?.copyWith(fontWeight: FontWeight.w800),
                 ),
@@ -308,7 +308,7 @@ class _SuccessView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
-                    'Status: pending review',
+                    'Statut : en attente de vérification',
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF8A6100),
@@ -319,7 +319,7 @@ class _SuccessView extends StatelessWidget {
                 Text(
                   edited
                       ? 'Notre équipe vérifie vos modifications. L\'annonce sera de nouveau visible après validation.'
-                      : 'Our team will review your listing. It will be visible to other users only after it is approved.',
+                      : 'Notre équipe va vérifier votre annonce. Elle sera visible après validation.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.muted, height: 1.4),
                 ),
@@ -332,7 +332,7 @@ class _SuccessView extends StatelessWidget {
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(double.infinity, 48),
                   ),
-                  child: const Text('Back to home'),
+                  child: const Text('Retour à l\'accueil'),
                 ),
                 const SizedBox(height: 10),
                 if (edited)
@@ -352,7 +352,7 @@ class _SuccessView extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 48),
                   ),
-                  child: const Text('Publish another property'),
+                  child: const Text('Publier un autre bien'),
                 ),
               ],
             ),
@@ -393,19 +393,19 @@ class _NotAllowedViewState extends ConsumerState<_NotAllowedView> {
 
   String get _reason {
     final user = widget.user;
-    if (user == null) return 'Please sign in to publish a property.';
+    if (user == null) return 'Connectez-vous pour publier un bien.';
     if (!user.emailVerified) {
-      return 'Verify your email address before publishing.';
+      return 'Vérifiez votre adresse e-mail avant de publier.';
     }
     if (canBecomeOwner(user)) {
-      return 'Publish as an owner. Every listing is reviewed by our team before it appears.';
+      return 'Publiez en tant que propriétaire. Chaque annonce est vérifiée par notre équipe avant d\'être en ligne.';
     }
-    return 'Your account is not allowed to publish listings.';
+    return 'Votre compte ne peut pas publier d\'annonces.';
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Publish property')),
+    appBar: AppBar(title: const Text('Publier un bien')),
     body: Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -443,14 +443,14 @@ class _NotAllowedViewState extends ConsumerState<_NotAllowedView> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Become an owner'),
+                    : const Text('Devenir propriétaire'),
               ),
               const SizedBox(height: 10),
             ],
             OutlinedButton(
               onPressed: () =>
                   context.canPop() ? context.pop() : context.go(Routes.home),
-              child: const Text('Go back'),
+              child: const Text('Retour'),
             ),
           ],
         ),

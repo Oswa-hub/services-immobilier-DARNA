@@ -27,7 +27,7 @@ class AmenitiesStep extends ConsumerWidget {
     ];
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const StepHeader(title: 'Amenities', subtitle: 'Select everything the property offers. You can skip this step.'),
+      const StepHeader(title: 'Équipements', subtitle: 'Choisissez tout ce que le bien propose. Vous pouvez passer cette étape.'),
       Wrap(spacing: 8, runSpacing: 8, children: [
         for (final o in chips)
           FilterChip(

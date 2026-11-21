@@ -26,13 +26,13 @@ class OwnerRoleService {
     } on FirebaseException catch (e) {
       throw BecomeOwnerException(switch (e.code) {
         'permission-denied' =>
-          'Your account cannot be switched to owner. Make sure your email is verified, then try again.',
+          'Impossible de passer votre compte en propriétaire. Vérifiez votre e-mail puis réessayez.',
         'unavailable' || 'deadline-exceeded' || 'network-request-failed' =>
-          'Network problem. Check your connection and try again.',
-        _ => 'Could not enable publishing. Please try again.',
+          'Problème de réseau. Vérifiez votre connexion et réessayez.',
+        _ => 'Impossible d\'activer la publication. Réessayez.',
       });
     } catch (_) {
-      throw const BecomeOwnerException('Could not enable publishing. Please try again.');
+      throw const BecomeOwnerException('Impossible d\'activer la publication. Réessayez.');
     }
   }
 }

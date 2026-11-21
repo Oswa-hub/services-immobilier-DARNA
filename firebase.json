@@ -8,7 +8,7 @@
       "android": {
         "default": {
           "projectId": "immofind-556b0",
-          "appId": "1:154527839522:android:1017d363c6a6f20218a17b",
+          "appId": "1:154527839522:android:df4afbcfc5b1c80018a17b",
           "fileOutput": "android/app/google-services.json"
         }
       },
@@ -16,7 +16,7 @@
         "lib/firebase_options.dart": {
           "projectId": "immofind-556b0",
           "configurations": {
-            "android": "1:154527839522:android:1017d363c6a6f20218a17b",
+            "android": "1:154527839522:android:df4afbcfc5b1c80018a17b",
             "ios": "1:154527839522:ios:4a50e4fe03c5dcdb18a17b",
             "macos": "1:154527839522:ios:4a50e4fe03c5dcdb18a17b",
             "web": "1:154527839522:web:b94ec1a5fdbaf5c218a17b",

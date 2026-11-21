@@ -12,22 +12,22 @@ class Validators {
 
   static String? fullName(String? v) {
     final value = v?.trim() ?? '';
-    if (value.isEmpty) return 'Full name is required';
-    if (value.length < 3) return 'Full name is too short';
+    if (value.isEmpty) return 'Le nom complet est obligatoire';
+    if (value.length < 3) return 'Nom complet trop court';
     return null;
   }
 
   static String? email(String? v) {
     final value = v?.trim() ?? '';
-    if (value.isEmpty) return 'Email is required';
-    if (!_email.hasMatch(value)) return 'Enter a valid email address';
+    if (value.isEmpty) return 'L\'e-mail est obligatoire';
+    if (!_email.hasMatch(value)) return 'Saisissez une adresse e-mail valide';
     return null;
   }
 
   static String? phone(String? v) {
     final value = v?.trim() ?? '';
-    if (value.isEmpty) return 'Phone number is required';
-    if (!_tnPhone.hasMatch(_cleanPhone(value))) return 'Enter a valid phone number';
+    if (value.isEmpty) return 'Le numéro de téléphone est obligatoire';
+    if (!_tnPhone.hasMatch(_cleanPhone(value))) return 'Saisissez un numéro valide';
     return null;
   }
 
@@ -39,21 +39,21 @@ class Validators {
 
   static String? password(String? v) {
     final value = v ?? '';
-    if (value.isEmpty) return 'Password is required';
+    if (value.isEmpty) return 'Le mot de passe est obligatoire';
     final r = passwordRules(value);
-    if (!r.minLength) return 'At least $minPasswordLength characters';
-    if (!r.uppercase) return 'Add one uppercase letter';
-    if (!r.number) return 'Add one number';
+    if (!r.minLength) return 'Au moins $minPasswordLength caractères';
+    if (!r.uppercase) return 'Ajoutez une lettre majuscule';
+    if (!r.number) return 'Ajoutez un chiffre';
     return null;
   }
 
   /// Login only checks presence: the server decides whether credentials are valid.
   static String? loginPassword(String? v) =>
-      (v == null || v.isEmpty) ? 'Password is required' : null;
+      (v == null || v.isEmpty) ? 'Le mot de passe est obligatoire' : null;
 
   static String? confirmPassword(String? v, String original) {
-    if (v == null || v.isEmpty) return 'Please confirm your password';
-    if (v != original) return 'Passwords do not match';
+    if (v == null || v.isEmpty) return 'Confirmez votre mot de passe';
+    if (v != original) return 'Les mots de passe ne correspondent pas';
     return null;
   }
 

@@ -23,13 +23,13 @@ class DetailsStep extends ConsumerWidget {
     final studio = (type?.allowsStudio ?? false) && d.isStudio;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const StepHeader(title: 'Price and details'),
+      const StepHeader(title: 'Prix et détails'),
       TextFormField(
         initialValue: d.priceText,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
         decoration: InputDecoration(
-          labelText: rent ? 'Monthly rent' : 'Price',
+          labelText: rent ? 'Loyer mensuel' : 'Prix',
           suffixText: PublishingConfig.currency,
           errorText: s.errors[ListingField.price],
         ),
@@ -48,26 +48,26 @@ class DetailsStep extends ConsumerWidget {
         if (type.allowsStudio)
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('This is a studio'),
-            subtitle: const Text('A studio has no separate bedroom.'),
+            title: const Text('C\'est un studio'),
+            subtitle: const Text('Un studio n\'a pas de chambre séparée.'),
             value: d.isStudio,
             onChanged: c.setStudio,
           ),
         if (type.usesBedrooms && !studio) ...[
-          CounterField(label: 'Bedrooms', value: d.bedrooms, max: PublishingConfig.maxRooms, onChanged: c.setBedrooms, error: s.errors[ListingField.bedrooms]),
+          CounterField(label: 'Chambres', value: d.bedrooms, max: PublishingConfig.maxRooms, onChanged: c.setBedrooms, error: s.errors[ListingField.bedrooms]),
           const SizedBox(height: 12),
         ],
         if (type.usesBathrooms)
-          CounterField(label: 'Bathrooms', value: d.bathrooms, max: PublishingConfig.maxRooms, onChanged: c.setBathrooms, error: s.errors[ListingField.bathrooms]),
+          CounterField(label: 'Salles de bain', value: d.bathrooms, max: PublishingConfig.maxRooms, onChanged: c.setBathrooms, error: s.errors[ListingField.bathrooms]),
       ] else if (type != null) ...[
         const SizedBox(height: 18),
-        Text('Bedrooms and bathrooms do not apply to a ${type.label.toLowerCase()}.', style: const TextStyle(color: Color(0xFF6B7A90))),
+        Text('Chambres et salles de bain ne s\'appliquent pas à : ${type.label.toLowerCase()}.', style: const TextStyle(color: Color(0xFF6B7A90))),
       ],
       const SizedBox(height: 10),
       SwitchListTile(
         contentPadding: EdgeInsets.zero,
-        title: const Text('New build'),
-        subtitle: const Text('Listed under "New" in search.'),
+        title: const Text('Neuf'),
+        subtitle: const Text('Affiché dans « Neuf » dans la recherche.'),
         value: d.isNewBuild,
         onChanged: c.setNewBuild,
       ),

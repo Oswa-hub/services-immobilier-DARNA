@@ -40,7 +40,11 @@ void main() {
 
   test('unverified email -> verify page', () {
     final s = AuthState.emailVerificationRequired(u(verified: false));
-    expect(authRedirect(s, Routes.home), Routes.verifyEmail);
+    // I5: browses like a visitor; signing in lands on the verification page.
+    expect(authRedirect(s, Routes.home), isNull);
+    expect(authRedirect(s, Routes.propertyDetails('p1')), isNull);
+    expect(authRedirect(s, Routes.login), Routes.verifyEmail);
+    expect(authRedirect(s, Routes.publish), Routes.verifyEmail);
     expect(authRedirect(s, Routes.verifyEmail), isNull);
   });
 
@@ -48,6 +52,15 @@ void main() {
     final s = AuthState.authenticated(u());
     expect(authRedirect(s, Routes.login), Routes.home);
     expect(authRedirect(s, Routes.home), isNull);
+  });
+
+  test('after login: back to the page the visitor came from (I4), never outside the app', () {
+    final s = AuthState.authenticated(u());
+    expect(authRedirect(s, Routes.login, from: '/property/p1'), '/property/p1');
+    expect(authRedirect(s, Routes.login, from: 'https://evil.example'), Routes.home);
+    expect(authRedirect(s, Routes.login, from: '//evil.example'), Routes.home);
+    expect(authRedirect(s, Routes.login, from: Routes.adminDashboard), Routes.home);
+    expect(authRedirect(s, Routes.login, from: Routes.login), Routes.home);
   });
 
   test('admin lands on dashboard; non-admin cannot enter /admin', () {

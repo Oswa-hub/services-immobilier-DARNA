@@ -19,12 +19,12 @@ class LocationStep extends ConsumerWidget {
     final d = s.draft;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const StepHeader(title: 'Where is it?', subtitle: 'Search and the map rely on an accurate location.'),
+      const StepHeader(title: 'Où se trouve-t-il ?', subtitle: 'La recherche et la carte dépendent d\'une localisation précise.'),
       DropdownButtonFormField<String>(
         // ignore: deprecated_member_use
         value: d.governorate,
         isExpanded: true,
-        decoration: InputDecoration(labelText: 'Governorate', errorText: s.errors[ListingField.governorate]),
+        decoration: InputDecoration(labelText: 'Gouvernorat', errorText: s.errors[ListingField.governorate]),
         items: [for (final g in tunisiaGovernorates) DropdownMenuItem(value: g, child: Text(g))],
         onChanged: (v) {
           if (v != null) c.setGovernorate(v);
@@ -35,7 +35,7 @@ class LocationStep extends ConsumerWidget {
         initialValue: d.city,
         textCapitalization: TextCapitalization.words,
         maxLength: PublishingConfig.cityMax,
-        decoration: InputDecoration(labelText: 'City', hintText: 'e.g. La Marsa', counterText: '', errorText: s.errors[ListingField.city]),
+        decoration: InputDecoration(labelText: 'Ville', hintText: 'e.g. La Marsa', counterText: '', errorText: s.errors[ListingField.city]),
         onChanged: c.setCity,
       ),
       const SizedBox(height: 14),
@@ -43,7 +43,7 @@ class LocationStep extends ConsumerWidget {
         initialValue: d.area,
         textCapitalization: TextCapitalization.words,
         maxLength: PublishingConfig.areaMax,
-        decoration: InputDecoration(labelText: 'Area / neighbourhood (optional)', hintText: 'e.g. Gammarth', counterText: '', errorText: s.errors[ListingField.area]),
+        decoration: InputDecoration(labelText: 'Quartier (facultatif)', hintText: 'e.g. Gammarth', counterText: '', errorText: s.errors[ListingField.area]),
         onChanged: c.setArea,
       ),
       const SizedBox(height: 22),

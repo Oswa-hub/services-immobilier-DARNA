@@ -24,13 +24,13 @@ enum ListingField {
 /// The wizard screens. The spec's 11 steps are grouped into 7 screens; every
 /// field of the reference journey is still collected.
 enum PublishStep {
-  type('Property type', {ListingField.propertyType, ListingField.transactionType}),
-  location('Location', {ListingField.governorate, ListingField.city, ListingField.area, ListingField.coordinates}),
-  details('Price & details', {ListingField.price, ListingField.surface, ListingField.bedrooms, ListingField.bathrooms}),
-  amenities('Amenities', {ListingField.amenities}),
+  type('Type de bien', {ListingField.propertyType, ListingField.transactionType}),
+  location('Localisation', {ListingField.governorate, ListingField.city, ListingField.area, ListingField.coordinates}),
+  details('Prix et détails', {ListingField.price, ListingField.surface, ListingField.bedrooms, ListingField.bathrooms}),
+  amenities('Équipements', {ListingField.amenities}),
   photos('Photos', {ListingField.photos}),
-  description('Title & description', {ListingField.title, ListingField.description}),
-  preview('Preview', {});
+  description('Titre et description', {ListingField.title, ListingField.description}),
+  preview('Aperçu', {});
 
   const PublishStep(this.label, this.fields);
   final String label;
@@ -68,24 +68,24 @@ class ListingValidator {
     final type = d.propertyType;
 
     if (type == null || !publishablePropertyTypes.contains(type)) {
-      e[ListingField.propertyType] = 'Choose a property type.';
+      e[ListingField.propertyType] = 'Choisissez un type de bien.';
     }
     if (d.transactionType == null) {
-      e[ListingField.transactionType] = 'Choose whether the property is for sale or for rent.';
+      e[ListingField.transactionType] = 'Indiquez si le bien est à vendre ou à louer.';
     }
 
     final gov = d.governorate;
     if (gov == null || !tunisiaGovernorates.contains(gov)) {
-      e[ListingField.governorate] = 'Select the governorate of the property.';
+      e[ListingField.governorate] = 'Choisissez le gouvernorat du bien.';
     }
     final city = d.city.trim();
     if (city.isEmpty) {
-      e[ListingField.city] = 'Please enter the city.';
+      e[ListingField.city] = 'Saisissez la ville.';
     } else if (city.length > PublishingConfig.cityMax) {
-      e[ListingField.city] = 'The city name is too long.';
+      e[ListingField.city] = 'Nom de ville trop long.';
     }
     if (d.area.trim().length > PublishingConfig.areaMax) {
-      e[ListingField.area] = 'The area name is too long.';
+      e[ListingField.area] = 'Nom de quartier trop long.';
     }
     final c = d.coordinates;
     if (c != null &&
@@ -93,75 +93,75 @@ class ListingValidator {
             c.latitude <= PublishingConfig.maxLat &&
             c.longitude >= PublishingConfig.minLng &&
             c.longitude <= PublishingConfig.maxLng)) {
-      e[ListingField.coordinates] = 'The pinned position is outside Tunisia. Move the pin.';
+      e[ListingField.coordinates] = 'Le repère est hors de Tunisie. Déplacez-le.';
     }
 
     final price = parsePrice(d.priceText);
     if (price == null) {
       e[ListingField.price] = d.priceText.trim().isEmpty
-          ? 'Enter the price in TND.'
-          : 'Enter the price as a whole number (digits only).';
+          ? 'Saisissez le prix en TND.'
+          : 'Saisissez un prix entier (chiffres uniquement).';
     } else if (price <= 0) {
-      e[ListingField.price] = 'The price must be greater than zero.';
+      e[ListingField.price] = 'Le prix doit être supérieur à zéro.';
     } else if (price > PublishingConfig.maxPrice) {
-      e[ListingField.price] = 'This price looks too high. Please check it.';
+      e[ListingField.price] = 'Ce prix semble trop élevé. Vérifiez-le.';
     }
 
     final surface = parseSurface(d.surfaceText);
     if (surface == null) {
-      e[ListingField.surface] = 'Please enter a valid surface in m².';
+      e[ListingField.surface] = 'Saisissez une surface valide en m².';
     } else if (surface <= 0) {
-      e[ListingField.surface] = 'The surface must be greater than zero.';
+      e[ListingField.surface] = 'La surface doit être supérieure à zéro.';
     } else if (surface > PublishingConfig.maxSurface) {
-      e[ListingField.surface] = 'This surface looks too large. Please check it.';
+      e[ListingField.surface] = 'Cette surface semble trop grande. Vérifiez-la.';
     }
 
     if (type != null) {
       if (type.usesBedrooms && !(type.allowsStudio && d.isStudio)) {
         if (d.bedrooms < 1) {
           e[ListingField.bedrooms] = type.allowsStudio
-              ? 'Enter the number of bedrooms, or mark the apartment as a studio.'
-              : 'Enter the number of bedrooms.';
+              ? 'Indiquez le nombre de chambres, ou cochez « studio ».'
+              : 'Indiquez le nombre de chambres.';
         } else if (d.bedrooms > PublishingConfig.maxRooms) {
-          e[ListingField.bedrooms] = 'That number of bedrooms looks too high.';
+          e[ListingField.bedrooms] = 'Ce nombre de chambres semble trop élevé.';
         }
       }
       if (type.usesBathrooms) {
         if (type.requiresBathroom && d.bathrooms < 1) {
-          e[ListingField.bathrooms] = 'Enter at least one bathroom.';
+          e[ListingField.bathrooms] = 'Indiquez au moins une salle de bain.';
         } else if (d.bathrooms < 0 || d.bathrooms > PublishingConfig.maxRooms) {
-          e[ListingField.bathrooms] = 'That number of bathrooms looks wrong.';
+          e[ListingField.bathrooms] = 'Ce nombre de salles de bain semble incorrect.';
         }
       }
     }
 
     if (d.amenities.any((a) => Amenity.tryParse(a) == null)) {
-      e[ListingField.amenities] = 'One of the selected amenities is not supported.';
+      e[ListingField.amenities] = 'Un des équipements choisis n\'est pas pris en charge.';
     }
 
     if (d.photos.length < PublishingConfig.minPhotos) {
-      e[ListingField.photos] = 'Add at least one photo of the property.';
+      e[ListingField.photos] = 'Ajoutez au moins une photo du bien.';
     } else if (d.photos.length > PublishingConfig.maxPhotos) {
-      e[ListingField.photos] = 'You can add up to ${PublishingConfig.maxPhotos} photos.';
+      e[ListingField.photos] = 'Vous pouvez ajouter jusqu\'à ${PublishingConfig.maxPhotos} photos.';
     }
 
     final title = d.title.trim();
     if (title.isEmpty) {
-      e[ListingField.title] = 'Please enter a title for your listing.';
+      e[ListingField.title] = 'Saisissez un titre pour votre annonce.';
     } else if (title.length < PublishingConfig.titleMin) {
-      e[ListingField.title] = 'The title is too short (at least ${PublishingConfig.titleMin} characters).';
+      e[ListingField.title] = 'Titre trop court (au moins ${PublishingConfig.titleMin} caractères).';
     } else if (title.length > PublishingConfig.titleMax) {
-      e[ListingField.title] = 'The title is too long (max ${PublishingConfig.titleMax} characters).';
+      e[ListingField.title] = 'Titre trop long (${PublishingConfig.titleMax} caractères maximum).';
     }
 
     final description = d.description.trim();
     if (description.isEmpty) {
-      e[ListingField.description] = 'Please add a description.';
+      e[ListingField.description] = 'Ajoutez une description.';
     } else if (description.length < PublishingConfig.descriptionMin) {
       e[ListingField.description] =
-          'The description is too short (at least ${PublishingConfig.descriptionMin} characters).';
+          'Description trop courte (au moins ${PublishingConfig.descriptionMin} caractères).';
     } else if (description.length > PublishingConfig.descriptionMax) {
-      e[ListingField.description] = 'The description is too long (max ${PublishingConfig.descriptionMax} characters).';
+      e[ListingField.description] = 'Description trop longue (${PublishingConfig.descriptionMax} caractères maximum).';
     }
 
     return e;

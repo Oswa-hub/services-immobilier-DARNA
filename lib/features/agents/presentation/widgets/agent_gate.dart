@@ -38,8 +38,8 @@ class AgentGate extends ConsumerWidget {
             body: AgentEmptyView(
               icon: Icons.badge_outlined,
               message:
-                  'Create your professional profile to present your services and manage your real-estate listings.',
-              actionLabel: 'Create professional profile',
+                  'Créez votre profil professionnel pour présenter vos services et gérer vos annonces.',
+              actionLabel: 'Créer mon profil professionnel',
               onAction: () => context.push(Routes.agentSetup),
             ),
           );

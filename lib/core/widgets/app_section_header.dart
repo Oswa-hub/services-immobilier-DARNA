@@ -7,7 +7,7 @@ class AppSectionHeader extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.onSeeAll,
-    this.seeAllLabel = 'See all',
+    this.seeAllLabel = 'Tout voir',
   });
 
   final String title;

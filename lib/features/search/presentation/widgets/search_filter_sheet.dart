@@ -91,7 +91,7 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
       builder: (ctx) => ListView(
         children: [
           ListTile(
-            title: const Text('Any governorate'),
+            title: const Text('Tous les gouvernorats'),
             trailing: _draft.governorate == null ? const Icon(Icons.check, color: AppColors.primary) : null,
             onTap: () => Navigator.of(ctx).pop(''),
           ),
@@ -117,7 +117,7 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
     InputDecoration dec(String label, String hint, TextEditingController c) => InputDecoration(
           labelText: label,
           hintText: hint,
-          errorText: _parse(c.text).invalid ? 'Invalid number' : null,
+          errorText: _parse(c.text).invalid ? 'Nombre invalide' : null,
         );
 
     return Column(
@@ -126,10 +126,10 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
           padding: const EdgeInsets.fromLTRB(20, 0, 8, 0),
           child: Row(children: [
             const Expanded(
-              child: Text('Filters', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+              child: Text('Filtres', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
             ),
             IconButton(
-              tooltip: 'Close',
+              tooltip: 'Fermer',
               icon: const Icon(Icons.close),
               onPressed: () => Navigator.of(context).pop(),
             ),
@@ -141,7 +141,7 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
             children: [
               FilterSection(
-                title: 'Property type',
+                title: 'Type de bien',
                 child: Wrap(spacing: 8, runSpacing: 4, children: [
                   for (final t in searchablePropertyTypes)
                     ChoiceChip(
@@ -152,15 +152,15 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                 ]),
               ),
               FilterSection(
-                title: 'Location',
+                title: 'Localisation',
                 child: Column(children: [
                   InkWell(
                     borderRadius: BorderRadius.circular(12),
                     onTap: _pickGovernorate,
                     child: InputDecorator(
-                      decoration: const InputDecoration(labelText: 'Governorate'),
+                      decoration: const InputDecoration(labelText: 'Gouvernorat'),
                       child: Row(children: [
-                        Expanded(child: Text(_draft.governorate ?? 'Any governorate')),
+                        Expanded(child: Text(_draft.governorate ?? 'Tous les gouvernorats')),
                         if (_draft.governorate != null)
                           GestureDetector(
                             onTap: () => setState(() => _draft = _draft.copyWith(governorate: null)),
@@ -174,22 +174,22 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                   const SizedBox(height: 10),
                   TextField(
                     controller: _city,
-                    decoration: const InputDecoration(labelText: 'City', hintText: 'La Marsa, Hammamet...'),
+                    decoration: const InputDecoration(labelText: 'Ville', hintText: 'La Marsa, Hammamet…'),
                     onChanged: (v) => setState(
                         () => _draft = _draft.copyWith(city: v.trim().isEmpty ? null : v.trim())),
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: _area,
-                    decoration: const InputDecoration(labelText: 'Area / neighborhood'),
+                    decoration: const InputDecoration(labelText: 'Quartier'),
                     onChanged: (v) => setState(
                         () => _draft = _draft.copyWith(area: v.trim().isEmpty ? null : v.trim())),
                   ),
                 ]),
               ),
               FilterSection(
-                title: 'Price (TND)',
-                hint: 'Rent prices are per month',
+                title: 'Prix (TND)',
+                hint: 'Les loyers sont mensuels',
                 error: errors.price,
                 child: Row(children: [
                   Expanded(
@@ -214,7 +214,7 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                 ]),
               ),
               FilterSection(
-                title: 'Bedrooms',
+                title: 'Chambres',
                 child: Wrap(spacing: 8, runSpacing: 4, children: [
                   for (final b in BedroomChoice.values)
                     ChoiceChip(
@@ -225,7 +225,7 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                 ]),
               ),
               FilterSection(
-                title: 'Bathrooms',
+                title: 'Salles de bain',
                 child: Wrap(spacing: 8, runSpacing: 4, children: [
                   for (final b in BathroomChoice.values)
                     ChoiceChip(
@@ -261,8 +261,8 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                 ]),
               ),
               FilterSection(
-                title: 'Amenities',
-                hint: _draft.amenities.isEmpty ? 'Must have all selected' : '${_draft.amenities.length} selected',
+                title: 'Équipements',
+                hint: _draft.amenities.isEmpty ? 'Tous les équipements choisis' : '${_draft.amenities.length} choisis',
                 child: Wrap(spacing: 8, runSpacing: 4, children: [
                   for (final a in Amenity.values)
                     FilterChip(
@@ -283,13 +283,13 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
           child: Row(children: [
-            Expanded(child: OutlinedButton(onPressed: _reset, child: const Text('Reset'))),
+            Expanded(child: OutlinedButton(onPressed: _reset, child: const Text('Réinitialiser'))),
             const SizedBox(width: 12),
             Expanded(
               flex: 2,
               child: FilledButton(
                 onPressed: canApply ? () => Navigator.of(context).pop(_draft) : null,
-                child: const Text('Apply filters'),
+                child: const Text('Appliquer'),
               ),
             ),
           ]),

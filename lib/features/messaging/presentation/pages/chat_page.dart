@@ -93,8 +93,14 @@ class _ChatPageState extends ConsumerState<ChatPage> {
     setState(() => _sending = true);
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final outcome =
-          await ref.read(conversationRepositoryProvider).sendMessage(widget.conversationId, _controller.text);
+      final me = ref.read(currentUserProvider);
+      final c = ref.read(conversationProvider(widget.conversationId)).value;
+      final outcome = await ref.read(conversationRepositoryProvider).sendMessage(
+            widget.conversationId,
+            _controller.text,
+            notifyUserId: c == null || me == null ? null : c.otherParticipant(me.id),
+            senderName: me?.name,
+          );
       if (!mounted) return;
       _controller.clear();
       if (_scroll.hasClients) _scroll.jumpTo(0);

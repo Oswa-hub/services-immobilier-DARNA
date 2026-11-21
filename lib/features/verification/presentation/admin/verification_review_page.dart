@@ -25,7 +25,7 @@ class VerificationReviewPage extends ConsumerWidget {
     final messenger = ScaffoldMessenger.of(context);
     final ok = await action();
     final state = ref.read(verificationReviewProvider);
-    messenger.showSnackBar(SnackBar(content: Text(ok ? done : (state.failure?.message ?? 'Something went wrong.'))));
+    messenger.showSnackBar(SnackBar(content: Text(ok ? done : (state.failure?.message ?? 'Une erreur est survenue.'))));
     if (ok && context.mounted) context.pop();
   }
 
@@ -38,7 +38,7 @@ class VerificationReviewPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Review request')),
+      appBar: AppBar(title: const Text('Examiner la demande')),
       body: async.when(
         loading: () => const AgentLoading(),
         error: (e, _) => AgentErrorView(
@@ -46,7 +46,7 @@ class VerificationReviewPage extends ConsumerWidget {
           onRetry: () => ref.invalidate(verificationProvider(verificationId)),
         ),
         data: (r) {
-          if (r == null) return const AgentEmptyView(icon: Icons.search_off_rounded, message: 'Request not found.');
+          if (r == null) return const AgentEmptyView(icon: Icons.search_off_rounded, message: 'Demande introuvable.');
           final isOwnRequest = me != null && r.applicantId == me.id;
           final canReview = VerificationStateMachine.canReview(r.status) && !isOwnRequest;
           final canExpire = VerificationStateMachine.canExpire(r.status) && !isOwnRequest;
@@ -59,9 +59,9 @@ class VerificationReviewPage extends ConsumerWidget {
                   VerificationStatusBadge(status: r.effectiveStatus()),
                 ]),
                 const SizedBox(height: 6),
-                SelectableText('Request ${r.id}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
-                SelectableText('Applicant ${r.applicantId}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
-                SelectableText('Target ${r.targetId}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                SelectableText('Demande ${r.id}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                SelectableText('Demandeur ${r.applicantId}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                SelectableText('Cible ${r.targetId}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
                 Text(
                   'Submitted ${r.submittedAt == null ? '-' : formatShortDate(r.submittedAt!)} · attempt ${r.attemptNumber}',
                   style: const TextStyle(fontSize: 12, color: AppColors.muted),
@@ -69,20 +69,20 @@ class VerificationReviewPage extends ConsumerWidget {
                 if (r.reviewedBy != null)
                   Text('Last decision by ${r.reviewedBy} on ${r.reviewedAt == null ? '-' : formatShortDate(r.reviewedAt!)}',
                       style: const TextStyle(fontSize: 12, color: AppColors.muted)),
-                if (r.rejectionReason != null) Text('Reason: ${r.rejectionReason}', style: const TextStyle(fontStyle: FontStyle.italic)),
-                const SectionTitle('Submitted information'),
+                if (r.rejectionReason != null) Text('Motif : ${r.rejectionReason}', style: const TextStyle(fontStyle: FontStyle.italic)),
+                const SectionTitle('Informations envoyées'),
                 SubmittedDataView(type: r.targetType, data: r.submittedData),
                 const SectionTitle('Documents'),
                 const Text(
-                  'Review only what was submitted. Opening a document creates a short-lived private link.',
+                  'Examinez uniquement ce qui a été envoyé.',
                   style: TextStyle(fontSize: 12, color: AppColors.muted),
                 ),
                 for (final d in r.documents) VerificationDocumentTile(verificationId: r.id, document: d),
-                const SectionTitle('History'),
+                const SectionTitle('Historique'),
                 VerificationHistoryList(verificationId: r.id),
                 const SizedBox(height: 20),
                 if (isOwnRequest)
-                  const Text('You cannot review your own request.', style: TextStyle(color: AppColors.muted)),
+                  const Text('Vous ne pouvez pas examiner votre propre demande.', style: TextStyle(color: AppColors.muted)),
                 if (canReview)
                   Row(children: [
                     Expanded(
@@ -91,14 +91,14 @@ class VerificationReviewPage extends ConsumerWidget {
                             ? null
                             : () async {
                                 final ok = await confirmAction(context,
-                                    title: 'Approve request',
-                                    message: 'Confirm that the submitted evidence is sufficient for this request.',
-                                    confirmLabel: 'Approve');
+                                    title: 'Accepter la demande',
+                                    message: 'Confirmez que les justificatifs envoyés suffisent pour cette demande.',
+                                    confirmLabel: 'Accepter');
                                 if (ok && context.mounted) {
-                                  await _run(context, ref, () => controller.approve(r.id), 'Request approved.');
+                                  await _run(context, ref, () => controller.approve(r.id), 'Demande acceptée.');
                                 }
                               },
-                        child: const Text('Approve'),
+                        child: const Text('Accepter'),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -109,10 +109,10 @@ class VerificationReviewPage extends ConsumerWidget {
                             : () async {
                                 final reason = await askRejectionReason(context);
                                 if (reason != null && context.mounted) {
-                                  await _run(context, ref, () => controller.reject(r.id, reason), 'Request rejected.');
+                                  await _run(context, ref, () => controller.reject(r.id, reason), 'Demande refusée.');
                                 }
                               },
-                        child: const Text('Reject'),
+                        child: const Text('Refuser'),
                       ),
                     ),
                   ]),
@@ -122,17 +122,17 @@ class VerificationReviewPage extends ConsumerWidget {
                         ? null
                         : () async {
                             final ok = await confirmAction(context,
-                                title: 'Mark as expired',
-                                message: 'The verified badge will no longer be shown for this target.',
-                                confirmLabel: 'Mark expired');
+                                title: 'Marquer comme expirée',
+                                message: 'Le badge vérifié ne sera plus affiché pour cette cible.',
+                                confirmLabel: 'Marquer expirée');
                             if (ok && context.mounted) {
-                              await _run(context, ref, () => controller.markExpired(r.id), 'Marked as expired.');
+                              await _run(context, ref, () => controller.markExpired(r.id), 'Marquée comme expirée.');
                             }
                           },
-                    child: const Text('Mark as expired'),
+                    child: const Text('Marquer comme expirée'),
                   ),
                 if (!VerificationStateMachine.canReview(r.status) && !canExpire && !isOwnRequest)
-                  const Text('This request is not waiting for review.', style: TextStyle(color: AppColors.muted)),
+                  const Text('Cette demande n\'est pas en attente d\'examen.', style: TextStyle(color: AppColors.muted)),
               ]),
             ),
           );

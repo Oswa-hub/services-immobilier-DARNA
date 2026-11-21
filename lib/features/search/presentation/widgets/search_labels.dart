@@ -5,35 +5,35 @@ import '../../domain/entities/search_enums.dart';
 class SearchStrings {
   SearchStrings._();
 
-  static const emptyTitle = 'No properties match your search';
-  static const emptyMessage = 'Try changing the filters or widening the search area.';
-  static const emptyFeedTitle = 'No listings yet';
-  static const emptyFeedMessage = 'New properties will appear here soon.';
-  static const errorTitle = "The search couldn't be loaded";
-  static const errorFallback = 'Check your connection and try again.';
+  static const emptyTitle = 'Aucun bien ne correspond à votre recherche';
+  static const emptyMessage = 'Modifiez les filtres ou élargissez la zone.';
+  static const emptyFeedTitle = 'Aucune annonce pour le moment';
+  static const emptyFeedMessage = 'Les nouveaux biens apparaîtront ici bientôt.';
+  static const errorTitle = 'Impossible de charger la recherche';
+  static const errorFallback = 'Vérifiez votre connexion et réessayez.';
 }
 
 extension ListingTabLabel on ListingTab {
   String get label => switch (this) {
-        ListingTab.all => 'All',
-        ListingTab.buy => 'Buy',
-        ListingTab.rent => 'Rent',
-        ListingTab.newBuild => 'New',
+        ListingTab.all => 'Toutes',
+        ListingTab.buy => 'Acheter',
+        ListingTab.rent => 'Louer',
+        ListingTab.newBuild => 'Neuf',
       };
 }
 
 extension PropertyTypeLabel on PropertyType {
   String get label => switch (this) {
-        PropertyType.apartment => 'Apartment',
+        PropertyType.apartment => 'Appartement',
         PropertyType.villa => 'Villa',
-        PropertyType.house => 'House',
+        PropertyType.house => 'Maison',
         PropertyType.duplex => 'Duplex',
         PropertyType.triplex => 'Triplex',
-        PropertyType.land => 'Land',
-        PropertyType.office => 'Office',
-        PropertyType.commercial => 'Commercial',
-        PropertyType.industrial => 'Industrial',
-        PropertyType.other => 'Other',
+        PropertyType.land => 'Terrain',
+        PropertyType.office => 'Bureau',
+        PropertyType.commercial => 'Local commercial',
+        PropertyType.industrial => 'Local industriel',
+        PropertyType.other => 'Autre',
       };
 }
 

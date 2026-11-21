@@ -36,7 +36,7 @@ class _PhotoGalleryState extends State<PhotoGallery> {
           : Stack(fit: StackFit.expand, children: [
               Semantics(
                 button: true,
-                label: 'Open photo ${_index + 1} of ${images.length} full screen',
+                label: 'Ouvrir la photo ${_index + 1} sur ${images.length} en plein écran',
                 child: GestureDetector(
                   onTap: _openFullScreen,
                   child: PageView.builder(

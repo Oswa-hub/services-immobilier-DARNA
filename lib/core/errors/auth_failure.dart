@@ -25,23 +25,23 @@ class AuthFailure implements Exception {
 
   /// User-friendly message. Never contains raw backend error text.
   String get message => switch (type) {
-        AuthFailureType.invalidCredentials => 'The email or password is incorrect.',
-        AuthFailureType.emailAlreadyUsed => 'An account already exists with this email.',
-        AuthFailureType.weakPassword => 'This password is too weak. Choose a stronger one.',
-        AuthFailureType.invalidEmail => 'Please enter a valid email address.',
+        AuthFailureType.invalidCredentials => 'E-mail ou mot de passe incorrect.',
+        AuthFailureType.emailAlreadyUsed => 'Un compte existe déjà avec cet e-mail.',
+        AuthFailureType.weakPassword => 'Mot de passe trop faible. Choisissez-en un plus solide.',
+        AuthFailureType.invalidEmail => 'Saisissez une adresse e-mail valide.',
         // Same text as invalidCredentials on purpose: do not reveal which emails exist.
-        AuthFailureType.userNotFound => 'The email or password is incorrect.',
-        AuthFailureType.tooManyRequests => 'Too many attempts. Please wait a moment and try again.',
+        AuthFailureType.userNotFound => 'E-mail ou mot de passe incorrect.',
+        AuthFailureType.tooManyRequests => 'Trop de tentatives. Patientez un moment puis réessayez.',
         AuthFailureType.networkError =>
-          'Unable to connect to the server.\nPlease check your internet connection and try again.',
-        AuthFailureType.verificationRequired => 'Please verify your email address to continue.',
-        AuthFailureType.accountSuspended => 'This account has been suspended.',
-        AuthFailureType.accountBanned => 'This account is no longer allowed to access ImmoFind.',
-        AuthFailureType.googleSignInFailed => 'Google sign-in failed. Please try again.',
-        AuthFailureType.googleCancelled => 'Google sign-in was cancelled.',
+          'Connexion au serveur impossible.\nVérifiez votre connexion internet et réessayez.',
+        AuthFailureType.verificationRequired => 'Vérifiez votre adresse e-mail pour continuer.',
+        AuthFailureType.accountSuspended => 'Ce compte a été suspendu.',
+        AuthFailureType.accountBanned => 'Ce compte n\'a plus accès à DARNA.',
+        AuthFailureType.googleSignInFailed => 'La connexion Google a échoué. Réessayez.',
+        AuthFailureType.googleCancelled => 'Connexion Google annulée.',
         AuthFailureType.invalidResetCode =>
-          'This reset link is invalid or has expired. Please request a new one.',
-        AuthFailureType.unknown => 'Something went wrong. Please try again.',
+          'Ce lien est invalide ou a expiré. Demandez-en un nouveau.',
+        AuthFailureType.unknown => 'Une erreur est survenue. Réessayez.',
       };
 
   @override

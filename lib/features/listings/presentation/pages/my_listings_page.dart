@@ -24,7 +24,7 @@ class MyListingsPage extends ConsumerWidget {
       length: myListingsTabs.length,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('My Listings'),
+          title: const Text('Mes annonces'),
           bottom: TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.start,
@@ -37,16 +37,16 @@ class MyListingsPage extends ConsumerWidget {
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => context.push(Routes.publish),
           icon: const Icon(Icons.add),
-          label: const Text('New listing'),
+          label: const Text('Nouvelle annonce'),
         ),
         body: listings.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => _Message(
             icon: Icons.cloud_off_outlined,
-            text: 'Something went wrong.\nPlease try again.',
+            text: 'Une erreur est survenue.\nRéessayez.',
             action: TextButton(
               onPressed: () => ref.invalidate(myListingsProvider),
-              child: const Text('Retry'),
+              child: const Text('Réessayer'),
             ),
           ),
           data: (items) => TabBarView(
@@ -62,23 +62,23 @@ class MyListingsPage extends ConsumerWidget {
 }
 
 String _label(PropertyStatus s) => switch (s) {
-      PropertyStatus.draft => 'Drafts',
-      PropertyStatus.pendingReview => 'Pending',
-      PropertyStatus.published => 'Published',
-      PropertyStatus.rejected => 'Rejected',
-      PropertyStatus.suspended => 'Suspended',
-      PropertyStatus.removed => 'Withdrawn',
-      PropertyStatus.expired => 'Expired',
+      PropertyStatus.draft => 'Brouillons',
+      PropertyStatus.pendingReview => 'En attente',
+      PropertyStatus.published => 'Publiées',
+      PropertyStatus.rejected => 'Refusées',
+      PropertyStatus.suspended => 'Suspendues',
+      PropertyStatus.removed => 'Retirée',
+      PropertyStatus.expired => 'Expirées',
     };
 
 String _emptyText(PropertyStatus s) => switch (s) {
-      PropertyStatus.draft => 'You have no drafts.',
-      PropertyStatus.pendingReview => 'No listing is waiting for review.',
-      PropertyStatus.published => 'You have no published listings.',
-      PropertyStatus.rejected => 'No rejected listings.',
-      PropertyStatus.suspended => 'No suspended listings.',
-      PropertyStatus.removed => 'No withdrawn listings.',
-      PropertyStatus.expired => 'No expired listings.',
+      PropertyStatus.draft => 'Vous n\'avez aucun brouillon.',
+      PropertyStatus.pendingReview => 'Aucune annonce en attente de vérification.',
+      PropertyStatus.published => 'Vous n\'avez aucune annonce publiée.',
+      PropertyStatus.rejected => 'Aucune annonce refusée.',
+      PropertyStatus.suspended => 'Aucune annonce suspendue.',
+      PropertyStatus.removed => 'Aucune annonce retirée.',
+      PropertyStatus.expired => 'Aucune annonce expirée.',
     };
 
 class _ListingsTab extends StatelessWidget {
@@ -138,6 +138,18 @@ class _ListingCard extends StatelessWidget {
                       style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w700),
                     ),
                     Text(p.locationLabel, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall),
+                    if (p.isExpired) ...[
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text('Expirée : plus visible',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.deepOrange)),
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Row(children: [
                       _Stat(Icons.visibility_outlined, p.views),
@@ -156,7 +168,7 @@ class _ListingCard extends StatelessWidget {
   }
 }
 
-enum _Action { view, edit, verify, submit, withdraw, toDraft, delete }
+enum _Action { view, edit, renew, verify, submit, withdraw, toDraft, delete }
 
 class _ActionsMenu extends ConsumerWidget {
   const _ActionsMenu({required this.property});
@@ -169,7 +181,9 @@ class _ActionsMenu extends ConsumerWidget {
     return PopupMenuButton<_Action>(
       onSelected: (a) => _handle(context, ref, a),
       itemBuilder: (_) => [
-        if (property.isPublic) const PopupMenuItem(value: _Action.view, child: Text('View listing')),
+        if (property.isPublic) const PopupMenuItem(value: _Action.view, child: Text('Voir l\'annonce')),
+        // I2: an expired listing goes back to moderation to be online again.
+        if (property.isExpired) const PopupMenuItem(value: _Action.renew, child: Text('Renouveler')),
         // Edited listings go back to moderation (rules: contentEdit).
         if (PublishingController.editableStatuses.contains(property.status))
           const PopupMenuItem(value: _Action.edit, child: Text('Modifier')),
@@ -177,17 +191,17 @@ class _ActionsMenu extends ConsumerWidget {
         if (property.status != PropertyStatus.removed && property.status != PropertyStatus.draft)
           PopupMenuItem(
             value: _Action.verify,
-            child: Text(property.isVerified ? 'Verification details' : 'Verify this listing'),
+            child: Text(property.isVerified ? 'Détails de la vérification' : 'Vérifier cette annonce'),
           ),
         if (next.contains(PropertyStatus.pendingReview))
-          const PopupMenuItem(value: _Action.submit, child: Text('Submit for review')),
+          const PopupMenuItem(value: _Action.submit, child: Text('Envoyer pour vérification')),
         // Drafts are deleted, not withdrawn.
         if (next.contains(PropertyStatus.removed) && property.status != PropertyStatus.draft)
-          const PopupMenuItem(value: _Action.withdraw, child: Text('Withdraw')),
+          const PopupMenuItem(value: _Action.withdraw, child: Text('Retirer')),
         if (next.contains(PropertyStatus.draft))
-          const PopupMenuItem(value: _Action.toDraft, child: Text('Back to draft')),
+          const PopupMenuItem(value: _Action.toDraft, child: Text('Remettre en brouillon')),
         if (ownerCanDelete(property.status))
-          const PopupMenuItem(value: _Action.delete, child: Text('Delete', style: TextStyle(color: Colors.red))),
+          const PopupMenuItem(value: _Action.delete, child: Text('Supprimer', style: TextStyle(color: Colors.red))),
       ],
     );
   }
@@ -209,6 +223,10 @@ class _ActionsMenu extends ConsumerWidget {
           }
           if (context.mounted) context.push(Routes.publishWith(editPropertyId: id));
           return;
+        case _Action.renew:
+          await repo.setStatus(id, PropertyStatus.pendingReview);
+          messenger.showSnackBar(const SnackBar(content: Text('Annonce renvoyée en vérification.')));
+          return;
         case _Action.verify:
           // Existing request -> its details; otherwise the submit form. The form
           // itself refuses a request that is not allowed in the current status.
@@ -217,17 +235,17 @@ class _ActionsMenu extends ConsumerWidget {
         case _Action.submit:
           await repo.setStatus(id, PropertyStatus.pendingReview);
         case _Action.withdraw:
-          if (!await _confirm(context, 'Withdraw this listing?', 'It will no longer be visible to other users.')) return;
+          if (!await _confirm(context, 'Retirer cette annonce ?', 'Elle ne sera plus visible par les autres utilisateurs.')) return;
           await repo.setStatus(id, PropertyStatus.removed);
         case _Action.toDraft:
           await repo.setStatus(id, PropertyStatus.draft);
         case _Action.delete:
-          if (!await _confirm(context, 'Delete this listing?', 'This cannot be undone.')) return;
+          if (!await _confirm(context, 'Supprimer cette annonce ?', 'Cette action est définitive.')) return;
           await repo.delete(id);
       }
-      messenger.showSnackBar(const SnackBar(content: Text('Listing updated')));
+      messenger.showSnackBar(const SnackBar(content: Text('Annonce mise à jour')));
     } catch (_) {
-      messenger.showSnackBar(const SnackBar(content: Text('Something went wrong. Please try again.')));
+      messenger.showSnackBar(const SnackBar(content: Text('Une erreur est survenue. Réessayez.')));
     }
   }
 }
@@ -239,8 +257,8 @@ Future<bool> _confirm(BuildContext context, String title, String body) async =>
         title: Text(title),
         content: Text(body),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(c, true), child: const Text('Confirm')),
+          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Annuler')),
+          FilledButton(onPressed: () => Navigator.pop(c, true), child: const Text('Confirmer')),
         ],
       ),
     ) ??

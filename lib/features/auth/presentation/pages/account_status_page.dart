@@ -16,14 +16,14 @@ class AccountStatusPage extends ConsumerWidget {
     final status = ref.watch(currentUserProvider)?.status;
     final (title, text) = switch (status) {
       AccountStatus.suspended => (
-          'Account Suspended',
-          'Your account is currently suspended. Please contact support for more information.'
+          'Compte suspendu',
+          'Votre compte est suspendu. Contactez le support pour en savoir plus.'
         ),
       AccountStatus.banned => (
-          'Access Denied',
-          'This account is no longer allowed to access ImmoFind.'
+          'Accès refusé',
+          'Ce compte n\'a plus accès à DARNA.'
         ),
-      _ => ('Account Unavailable', 'This account is no longer available.'),
+      _ => ('Compte indisponible', 'Ce compte n\'est plus disponible.'),
     };
 
     return AuthScaffold(
@@ -41,7 +41,7 @@ class AccountStatusPage extends ConsumerWidget {
           Text(text, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.muted)),
           const SizedBox(height: 32),
           AuthButton(
-            label: 'Log out',
+            label: 'Se déconnecter',
             onPressed: () => ref.read(authControllerProvider.notifier).logout(),
           ),
         ],

@@ -34,17 +34,17 @@ Future<void> toggleFavoriteWithFeedback(BuildContext context, WidgetRef ref, Str
 
   switch (result) {
     case FavoriteToggleResult.added:
-      show('Saved to favorites', actionLabel: 'View', onAction: () => router.go(Routes.favorites));
+      show('Ajouté aux favoris', actionLabel: 'Voir', onAction: () => router.go(Routes.favorites));
     case FavoriteToggleResult.removed:
       show(
-        'Removed from favorites',
-        actionLabel: 'Undo',
+        'Retiré des favoris',
+        actionLabel: 'Annuler',
         onAction: () => unawaited(toggle(propertyId: propertyId)),
       );
     case FavoriteToggleResult.signInRequired:
-      show('Connectez-vous pour enregistrer vos favoris.', actionLabel: 'Se connecter', onAction: () => router.push(Routes.login));
+      show('Connectez-vous pour enregistrer vos favoris.', actionLabel: 'Se connecter', onAction: () => router.push(Routes.loginFrom(router.routerDelegate.currentConfiguration.uri.toString())));
     case FavoriteToggleResult.failed:
-      show("Couldn't update your favorites. Please try again.");
+      show('Impossible de modifier vos favoris. Réessayez.');
     case FavoriteToggleResult.busy:
       break;
   }

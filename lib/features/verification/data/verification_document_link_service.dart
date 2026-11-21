@@ -21,7 +21,7 @@ class VerificationDocumentLinkService {
   Future<Uri> link({required String verificationId, required String documentId}) async {
     if (!Env.verificationDocumentEndpointConfigured) {
       throw const VerificationFailure(VerificationFailureType.documentAccessFailed,
-          detail: 'Document viewing is not configured yet.');
+          detail: 'L\'affichage des documents n\'est pas encore configuré.');
     }
     final token = await _auth.currentUser?.getIdToken();
     if (token == null) throw const VerificationFailure(VerificationFailureType.unauthenticated);

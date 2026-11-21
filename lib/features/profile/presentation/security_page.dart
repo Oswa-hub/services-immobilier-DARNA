@@ -41,13 +41,13 @@ class _SecurityPageState extends State<SecurityPage> {
     final email = user?.email;
 
     if (user == null || email == null || email.isEmpty) {
-      _showMessage('Please log in again.', isError: true);
+      _showMessage('Veuillez vous reconnecter.', isError: true);
       return;
     }
 
     if (!_hasPasswordProvider) {
       _showMessage(
-        'Password change is unavailable for this sign-in method.',
+        'Le changement de mot de passe n\'est pas disponible pour ce mode de connexion.',
         isError: true,
       );
       return;
@@ -73,7 +73,7 @@ class _SecurityPageState extends State<SecurityPage> {
 
       if (!mounted) return;
 
-      _showMessage('Password changed successfully!');
+      _showMessage('Mot de passe modifié !');
 
       Navigator.of(context).pop();
     } on FirebaseAuthException catch (e) {
@@ -84,19 +84,19 @@ class _SecurityPageState extends State<SecurityPage> {
       switch (e.code) {
         case 'wrong-password':
         case 'invalid-credential':
-          message = 'Current password is incorrect.';
+          message = 'Mot de passe actuel incorrect.';
           break;
         case 'weak-password':
-          message = 'The new password is too weak.';
+          message = 'Le nouveau mot de passe est trop faible.';
           break;
         case 'requires-recent-login':
-          message = 'Please log in again and retry.';
+          message = 'Reconnectez-vous puis réessayez.';
           break;
         case 'too-many-requests':
-          message = 'Too many attempts. Please try again later.';
+          message = 'Trop de tentatives. Réessayez plus tard.';
           break;
         default:
-          message = 'Unable to change password. Please try again.';
+          message = 'Impossible de changer le mot de passe. Réessayez.';
       }
 
       _showMessage(message, isError: true);
@@ -104,7 +104,7 @@ class _SecurityPageState extends State<SecurityPage> {
       if (!mounted) return;
 
       _showMessage(
-        'Something went wrong. Please try again.',
+        'Une erreur est survenue. Réessayez.',
         isError: true,
       );
     } finally {
@@ -174,7 +174,7 @@ class _SecurityPageState extends State<SecurityPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Security'),
+        title: const Text('Sécurité'),
         backgroundColor: Colors.white,
         foregroundColor: navy,
       ),
@@ -196,7 +196,7 @@ class _SecurityPageState extends State<SecurityPage> {
               ),
               const SizedBox(height: 20),
               const Text(
-                'Account Security',
+                'Sécurité du compte',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 24,
@@ -206,7 +206,7 @@ class _SecurityPageState extends State<SecurityPage> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Manage your password and account security.',
+                'Gérez votre mot de passe et la sécurité de votre compte.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey),
               ),
@@ -218,15 +218,15 @@ class _SecurityPageState extends State<SecurityPage> {
                     Icons.email_outlined,
                     color: blue,
                   ),
-                  title: const Text('Account Email'),
-                  subtitle: Text(user?.email ?? 'Not available'),
+                  title: const Text('E-mail du compte'),
+                  subtitle: Text(user?.email ?? 'Non disponible'),
                 ),
               ),
               const SizedBox(height: 24),
 
               if (_hasPasswordProvider) ...[
                 const Text(
-                  'Change Password',
+                  'Changer le mot de passe',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -241,7 +241,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _passwordField(
-                        label: 'Current Password',
+                        label: 'Mot de passe actuel',
                         controller: _currentPasswordController,
                         visible: _showCurrentPassword,
                         onToggle: () {
@@ -252,7 +252,7 @@ class _SecurityPageState extends State<SecurityPage> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Enter your current password';
+                            return 'Saisissez votre mot de passe actuel';
                           }
                           return null;
                         },
@@ -260,7 +260,7 @@ class _SecurityPageState extends State<SecurityPage> {
                       const SizedBox(height: 16),
 
                       _passwordField(
-                        label: 'New Password',
+                        label: 'Nouveau mot de passe',
                         controller: _newPasswordController,
                         visible: _showNewPassword,
                         onToggle: () {
@@ -270,14 +270,14 @@ class _SecurityPageState extends State<SecurityPage> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Enter a new password';
+                            return 'Saisissez un nouveau mot de passe';
                           }
                           if (value.length < 8) {
-                            return 'Use at least 8 characters';
+                            return 'Au moins 8 caractères';
                           }
                           if (value ==
                               _currentPasswordController.text) {
-                            return 'Choose a different password';
+                            return 'Choisissez un mot de passe différent';
                           }
                           return null;
                         },
@@ -285,7 +285,7 @@ class _SecurityPageState extends State<SecurityPage> {
                       const SizedBox(height: 16),
 
                       _passwordField(
-                        label: 'Confirm New Password',
+                        label: 'Confirmer le nouveau mot de passe',
                         controller: _confirmPasswordController,
                         visible: _showConfirmPassword,
                         onToggle: () {
@@ -296,10 +296,10 @@ class _SecurityPageState extends State<SecurityPage> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Confirm your new password';
+                            return 'Confirmez votre nouveau mot de passe';
                           }
                           if (value != _newPasswordController.text) {
-                            return 'Passwords do not match';
+                            return 'Les mots de passe ne correspondent pas';
                           }
                           return null;
                         },
@@ -324,8 +324,8 @@ class _SecurityPageState extends State<SecurityPage> {
                             : const Icon(Icons.lock_reset),
                         label: Text(
                           _saving
-                              ? 'Updating...'
-                              : 'Change Password',
+                              ? 'Mise à jour…'
+                              : 'Changer le mot de passe',
                         ),
                       ),
                     ],
@@ -345,7 +345,7 @@ class _SecurityPageState extends State<SecurityPage> {
                         ),
                         const SizedBox(height: 12),
                         const Text(
-                          'Password Management',
+                          'Gestion du mot de passe',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -353,10 +353,10 @@ class _SecurityPageState extends State<SecurityPage> {
                         ),
                         const SizedBox(height: 10),
                         const Text(
-                          'Your account does not currently use an '
-                          'email and password sign-in method. '
-                          'If you signed in with Google, manage '
-                          'your Google password through Google.',
+                          'Votre compte n\'utilise pas de '
+                          'connexion par e-mail et mot de passe. '
+                          'Si vous vous connectez avec Google, gérez '
+                          'votre mot de passe depuis votre compte Google.',
                           textAlign: TextAlign.center,
                         ),
                       ],

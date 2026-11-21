@@ -26,7 +26,7 @@ class AgentErrorView extends StatelessWidget {
             Text(message, textAlign: TextAlign.center),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              FilledButton(onPressed: onRetry, child: const Text('Try again')),
+              FilledButton(onPressed: onRetry, child: const Text('Réessayer')),
             ],
           ]),
         ),

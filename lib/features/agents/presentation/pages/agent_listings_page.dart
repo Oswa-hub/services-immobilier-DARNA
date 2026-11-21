@@ -16,18 +16,18 @@ class AgentListingsPage extends StatelessWidget {
   const AgentListingsPage({super.key});
 
   static const _tabs = <(String, PropertyStatus?)>[
-    ('All', null),
-    ('Drafts', PropertyStatus.draft),
-    ('Pending review', PropertyStatus.pendingReview),
-    ('Published', PropertyStatus.published),
-    ('Rejected', PropertyStatus.rejected),
-    ('Suspended', PropertyStatus.suspended),
-    ('Expired', PropertyStatus.expired),
+    ('Toutes', null),
+    ('Brouillons', PropertyStatus.draft),
+    ('En attente', PropertyStatus.pendingReview),
+    ('Publiées', PropertyStatus.published),
+    ('Refusées', PropertyStatus.rejected),
+    ('Suspendues', PropertyStatus.suspended),
+    ('Expirées', PropertyStatus.expired),
   ];
 
   @override
   Widget build(BuildContext context) => AgentGate(
-        title: 'My listings',
+        title: 'Mes annonces',
         builder: (context, ref, profile) {
           final listings = ref.watch(agentListingsProvider);
           return DefaultTabController(
@@ -35,7 +35,7 @@ class AgentListingsPage extends StatelessWidget {
             child: Scaffold(
               backgroundColor: AppColors.background,
               appBar: AppBar(
-                title: const Text('My listings'),
+                title: const Text('Mes annonces'),
                 bottom: TabBar(isScrollable: true, tabs: [
                   for (final t in _tabs)
                     Tab(
@@ -48,7 +48,7 @@ class AgentListingsPage extends StatelessWidget {
               floatingActionButton: FloatingActionButton.extended(
                 onPressed: () => context.push(Routes.publish),
                 icon: const Icon(Icons.add_home_work_outlined),
-                label: const Text('Publish property'),
+                label: const Text('Publier un bien'),
               ),
               body: listings.when(
                 loading: () => ListView(
@@ -104,9 +104,9 @@ class _ListingListState extends ConsumerState<_ListingList> {
             child: AgentEmptyView(
               icon: Icons.home_work_outlined,
               message: widget.status == null
-                  ? 'You have not published any properties yet. Create your first listing to get started.'
-                  : 'No listings in this status.',
-              actionLabel: widget.status == null ? 'Publish property' : null,
+                  ? 'Vous n\'avez encore publié aucun bien. Créez votre première annonce pour commencer.'
+                  : 'Aucune annonce dans ce statut.',
+              actionLabel: widget.status == null ? 'Publier un bien' : null,
               onAction: widget.status == null ? () => context.push(Routes.publish) : null,
             ),
           ),
@@ -125,7 +125,7 @@ class _ListingListState extends ConsumerState<_ListingList> {
           if (i == visible.length) {
             return OutlinedButton(
               onPressed: () => setState(() => _shown += _pageSize),
-              child: Text('Show more (${items.length - _shown} left)'),
+              child: Text('Voir plus (${items.length - _shown} restantes)'),
             );
           }
           final p = visible[i];

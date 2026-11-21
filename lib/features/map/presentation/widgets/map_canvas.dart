@@ -102,7 +102,7 @@ class MapCanvas extends StatelessWidget {
               height: 24,
               child: IgnorePointer(
                 child: Semantics(
-                  label: 'Your location',
+                  label: 'Votre position',
                   child: Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFF1A73E8),

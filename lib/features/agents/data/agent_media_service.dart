@@ -49,11 +49,11 @@ class AgentMediaService {
     final ext = file.name.contains('.') ? file.name.split('.').last.toLowerCase() : '';
     String? error;
     if (!AgentProfileValidator.allowedImageExtensions.contains(ext)) {
-      error = 'Only JPG, PNG and WebP images are allowed.';
+      error = 'Seules les images JPG, PNG et WebP sont acceptées.';
     } else if (bytes.isEmpty) {
-      error = 'The selected image is empty.';
+      error = 'L\'image choisie est vide.';
     } else if (bytes.length > 5 * 1024 * 1024) {
-      error = 'Document must be smaller than 5 MB.';
+      error = 'Le document doit faire moins de 5 Mo.';
     }
     if (error != null) throw AgentFailure(AgentFailureType.validation, fieldErrors: {'document': error});
     return PickedAgentImage(name: file.name, bytes: bytes);

@@ -36,14 +36,14 @@ class PropertyPreview extends ConsumerWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16))),
-              TextButton(onPressed: s.isBusy ? null : () => c.editFromPreview(step), child: const Text('Edit')),
+              TextButton(onPressed: s.isBusy ? null : () => c.editFromPreview(step), child: const Text('Modifier')),
             ]),
             child,
           ]),
         );
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const StepHeader(title: 'Review your listing', subtitle: 'This is how your listing will look once it has been approved.'),
+      const StepHeader(title: 'Vérifiez votre annonce', subtitle: 'Voici votre annonce telle qu\'elle apparaîtra après validation.'),
       if (s.message != null) MessageBanner(s.message!),
       if (d.photos.isNotEmpty) _Gallery(photos: d.photos),
       const SizedBox(height: 14),
@@ -56,27 +56,27 @@ class PropertyPreview extends ConsumerWidget {
       Wrap(spacing: 8, runSpacing: 6, children: [
         if (tx != null) Chip(label: Text(tx.label)),
         if (type != null) Chip(label: Text(type.label)),
-        if (d.isNewBuild) const Chip(label: Text('New build')),
+        if (d.isNewBuild) const Chip(label: Text('Neuf')),
       ]),
-      section('Location', PublishStep.location, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      section('Localisation', PublishStep.location, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           const Icon(Icons.place_outlined, size: 18, color: AppColors.muted),
           const SizedBox(width: 6),
           Expanded(child: Text(location)),
         ]),
         const SizedBox(height: 4),
-        Text(d.coordinates == null ? 'No map pin: not shown on the map.' : 'Map pin set.',
+        Text(d.coordinates == null ? 'Pas de repère : absente de la carte.' : 'Repère placé sur la carte.',
             style: const TextStyle(color: AppColors.muted, fontSize: 12.5)),
       ])),
-      section('Details', PublishStep.details, Wrap(spacing: 16, runSpacing: 6, children: [
+      section('Détails', PublishStep.details, Wrap(spacing: 16, runSpacing: 6, children: [
         if (surface != null) _Fact(Icons.square_foot, '${_trim(surface)} m²'),
         if (studio) const _Fact(Icons.bed_outlined, 'Studio'),
         if ((type?.usesBedrooms ?? false) && !studio) _Fact(Icons.bed_outlined, '${d.bedrooms} bedrooms'),
         if (type?.usesBathrooms ?? false) _Fact(Icons.bathtub_outlined, '${d.bathrooms} bathrooms'),
       ])),
-      section('Amenities', PublishStep.amenities,
+      section('Équipements', PublishStep.amenities,
           d.amenities.isEmpty
-              ? const Text('None selected', style: TextStyle(color: AppColors.muted))
+              ? const Text('Aucun', style: TextStyle(color: AppColors.muted))
               : Wrap(spacing: 8, runSpacing: 6, children: [
                   for (final id in d.amenities.toList()..sort())
                     Chip(label: Text(Amenity.tryParse(id)?.label ?? id)),
@@ -89,7 +89,7 @@ class PropertyPreview extends ConsumerWidget {
         child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.info_outline, color: AppColors.primary, size: 20),
           SizedBox(width: 8),
-          Expanded(child: Text('After you submit, our team reviews your listing. It becomes visible to others only once it is approved.')),
+          Expanded(child: Text('Après l\'envoi, notre équipe vérifie votre annonce. Elle sera visible après validation.')),
         ]),
       ),
     ]);

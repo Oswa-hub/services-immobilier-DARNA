@@ -24,20 +24,20 @@ class _WelcomePageState extends State<WelcomePage>
 
   final List<Map<String, String>> properties = const [
     {
-      'title': 'Modern Apartments',
-      'subtitle': 'Discover apartments for sale and rent',
+      'title': 'Appartements modernes',
+      'subtitle': 'Des appartements à vendre et à louer',
       'image':
           'https://images.unsplash.com/photo-1460317442991-0ec209397118?w=900',
     },
     {
-      'title': 'Family Houses',
-      'subtitle': 'Find a home that fits your lifestyle',
+      'title': 'Maisons familiales',
+      'subtitle': 'Trouvez la maison qui vous ressemble',
       'image':
           'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900',
     },
     {
-      'title': 'Residential Properties',
-      'subtitle': 'Explore real estate opportunities',
+      'title': 'Biens résidentiels',
+      'subtitle': 'Explorez les opportunités immobilières',
       'image':
           'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=900',
     },
@@ -139,7 +139,7 @@ class _WelcomePageState extends State<WelcomePage>
                   ),
                 ),
                 child: const Text(
-                  'Log In',
+                  'Se connecter',
                   maxLines: 1,
                 ),
               ),
@@ -161,7 +161,7 @@ class _WelcomePageState extends State<WelcomePage>
                     ),
                   ),
                   child: Text(
-                    isMobile ? 'Sign Up' : 'Create Account',
+                    isMobile ? 'S\'inscrire' : 'Créer mon compte',
                     maxLines: 1,
                     softWrap: false,
                     overflow: TextOverflow.ellipsis,
@@ -196,7 +196,7 @@ class _WelcomePageState extends State<WelcomePage>
       child: Column(
         children: [
           Text(
-            'Find Your Dream Property\nin Tunisia',
+            'Trouvez le bien de vos rêves\nen Tunisie',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
@@ -207,8 +207,8 @@ class _WelcomePageState extends State<WelcomePage>
           ),
           const SizedBox(height: 16),
           const Text(
-            'Discover apartments, houses and real estate '
-            'opportunities across Tunisia.',
+            'Appartements, maisons et opportunités '
+            'immobilières partout en Tunisie.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white70,
@@ -222,9 +222,9 @@ class _WelcomePageState extends State<WelcomePage>
             spacing: 12,
             runSpacing: 12,
             children: [
-              _buildCategory(Icons.apartment, 'Apartments'),
-              _buildCategory(Icons.home_outlined, 'Houses'),
-              _buildCategory(Icons.business, 'Buildings'),
+              _buildCategory(Icons.apartment, 'Appartements'),
+              _buildCategory(Icons.home_outlined, 'Maisons'),
+              _buildCategory(Icons.business, 'Immeubles'),
             ],
           ),
           const SizedBox(height: 28),
@@ -284,7 +284,7 @@ class _WelcomePageState extends State<WelcomePage>
       child: Column(
         children: [
           const Text(
-            'Explore Real Estate',
+            'Explorer les biens',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 28,
@@ -294,7 +294,7 @@ class _WelcomePageState extends State<WelcomePage>
           ),
           const SizedBox(height: 10),
           const Text(
-            'Find the right property for your needs.',
+            'Trouvez le bien qui vous correspond.',
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 28),
@@ -390,7 +390,7 @@ class _WelcomePageState extends State<WelcomePage>
           ),
           SizedBox(height: 14),
           Text(
-            'Why Choose ImmoFind?',
+            'Pourquoi DARNA ?',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 25,
@@ -400,8 +400,8 @@ class _WelcomePageState extends State<WelcomePage>
           ),
           SizedBox(height: 12),
           Text(
-            'ImmoFind helps you discover, explore and '
-            'manage real estate properties in Tunisia.',
+            'DARNA vous aide à découvrir, explorer et '
+            'gérer des biens immobiliers en Tunisie.',
             textAlign: TextAlign.center,
           ),
         ],
@@ -415,7 +415,7 @@ class _WelcomePageState extends State<WelcomePage>
       color: navy,
       padding: const EdgeInsets.all(22),
       child: const Text(
-        'ImmoFind - Find Your Next Home',
+        'DARNA - Trouvez votre prochain chez-vous',
         textAlign: TextAlign.center,
         style: TextStyle(color: Colors.white),
       ),

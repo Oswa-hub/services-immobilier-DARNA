@@ -48,7 +48,7 @@ class _VerificationDocumentTileState extends ConsumerState<VerificationDocumentT
                       p == null ? child : const Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()),
                   errorBuilder: (_, _, _) => const Padding(
                     padding: EdgeInsets.all(24),
-                    child: Text('The document could not be displayed.'),
+                    child: Text('Impossible d\'afficher le document.'),
                   ),
                 ),
               ),
@@ -76,7 +76,7 @@ class _VerificationDocumentTileState extends ConsumerState<VerificationDocumentT
       subtitle: Text('${d.fileName} · ${(d.sizeBytes / 1024).round()} KB'),
       trailing: _loading
           ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-          : TextButton(onPressed: _open, child: const Text('View')),
+          : TextButton(onPressed: _open, child: const Text('Voir')),
     );
   }
 }

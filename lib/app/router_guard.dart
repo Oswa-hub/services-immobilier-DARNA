@@ -24,9 +24,30 @@ bool _guestCanOpen(String location) =>
     location.startsWith('/property/') ||
     location.startsWith('/agents/'); // public professional profile
 
+/// I4: where to return after signing in. Only an in-app page a signed-in user
+/// may open: never an external URL, an auth page or (for non-admins) /admin.
+String? _safeReturn(String? from, AuthUser user) {
+  if (from == null || !from.startsWith('/') || from.startsWith('//')) return null;
+  final path = Uri.tryParse(from)?.path ?? from;
+  if (_authPages.contains(path)) return null;
+  if (path.startsWith('/admin') && !user.isAdmin) return null;
+  return from;
+}
+
+const _authPages = {
+  Routes.splash,
+  Routes.welcome,
+  Routes.login,
+  Routes.register,
+  Routes.forgotPassword,
+  Routes.verifyEmail,
+  Routes.accountStatus,
+};
+
 /// Pure redirect logic for go_router (spec §31). Returns the location to
-/// redirect to, or null to allow [location]. Unit-tested.
-String? authRedirect(AuthState state, String location) {
+/// redirect to, or null to allow [location]. [from] is the `?from=` of the
+/// login / register page (I4). Unit-tested.
+String? authRedirect(AuthState state, String location, {String? from}) {
   // The reset link must work whatever the session looks like.
   if (location == Routes.resetPassword) return null;
 
@@ -42,21 +63,19 @@ String? authRedirect(AuthState state, String location) {
 
     case AuthEmailVerificationRequired(:final user):
       if (user.isBlocked) return go(Routes.accountStatus);
-      return go(Routes.verifyEmail);
+      // I5: until the e-mail is verified the account browses like a visitor;
+      // publishing and the professional pages still need the verification.
+      if (location == Routes.verifyEmail) return null;
+      if (location == Routes.splash || location == Routes.login || location == Routes.register) {
+        return Routes.verifyEmail;
+      }
+      if (_authPages.contains(location)) return go(Routes.verifyEmail);
+      return _guestCanOpen(location) ? null : Routes.verifyEmail;
 
     case AuthAuthenticated(:final user):
       if (user.isBlocked) return go(Routes.accountStatus);
 
-      const authOnly = {
-        Routes.splash,
-        Routes.welcome,
-        Routes.login,
-        Routes.register,
-        Routes.forgotPassword,
-        Routes.verifyEmail,
-        Routes.accountStatus,
-      };
-      if (authOnly.contains(location)) return homeFor(user);
+      if (_authPages.contains(location)) return _safeReturn(from, user) ?? homeFor(user);
 
       if (location.startsWith('/admin') && !user.isAdmin) return Routes.home;
       return null;

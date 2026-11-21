@@ -4,7 +4,7 @@ class PasswordField extends StatefulWidget {
   const PasswordField({
     super.key,
     required this.controller,
-    this.hint = 'Password',
+    this.hint = 'Mot de passe',
     this.validator,
     this.textInputAction = TextInputAction.next,
     this.onSubmitted,
@@ -49,7 +49,7 @@ class _PasswordFieldState extends State<PasswordField> {
         hintText: widget.hint,
         prefixIcon: const Icon(Icons.lock_outline, size: 20),
         suffixIcon: IconButton(
-          tooltip: _obscure ? 'Show password' : 'Hide password',
+          tooltip: _obscure ? 'Afficher le mot de passe' : 'Masquer le mot de passe',
           icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 20),
           onPressed: () => setState(() => _obscure = !_obscure),
         ),

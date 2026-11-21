@@ -50,7 +50,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
           .confirmPasswordReset(code: widget.code!, newPassword: _password.text);
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Password updated. You can log in now.')));
+          .showSnackBar(const SnackBar(content: Text('Mot de passe modifié. Vous pouvez vous connecter.')));
       context.go(Routes.login);
     } on AuthFailure catch (e) {
       if (mounted) setState(() => _error = e.message);
@@ -71,8 +71,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               children: [
                 const SizedBox(height: 24),
                 const AuthErrorMessage(
-                    message: 'This reset link is invalid or has expired. Please request a new one.'),
-                AuthButton(label: 'Request a new link', onPressed: () => context.go(Routes.forgotPassword)),
+                    message: 'Ce lien est invalide ou a expiré. Demandez-en un nouveau.'),
+                AuthButton(label: 'Demander un nouveau lien', onPressed: () => context.go(Routes.forgotPassword)),
               ],
             )
           : Form(
@@ -83,17 +83,17 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                   const SizedBox(height: 16),
                   const Icon(Icons.verified_user_outlined, size: 88, color: AppColors.primary),
                   const SizedBox(height: 20),
-                  const Text('Set New Password',
+                  const Text('Nouveau mot de passe',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.text)),
                   const SizedBox(height: 10),
-                  const Text('Choose a strong password to keep your account safe.',
+                  const Text('Choisissez un mot de passe solide pour protéger votre compte.',
                       textAlign: TextAlign.center, style: TextStyle(color: AppColors.muted)),
                   const SizedBox(height: 24),
                   AuthErrorMessage(message: _error),
                   PasswordField(
                     controller: _password,
-                    hint: 'New Password',
+                    hint: 'Nouveau mot de passe',
                     validator: Validators.password,
                     newPassword: true,
                     onChanged: (_) => setState(() {}),
@@ -102,7 +102,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                   const SizedBox(height: 12),
                   PasswordField(
                     controller: _confirm,
-                    hint: 'Confirm Password',
+                    hint: 'Confirmer le mot de passe',
                     validator: (v) => Validators.confirmPassword(v, _password.text),
                     newPassword: true,
                     textInputAction: TextInputAction.done,
@@ -110,11 +110,11 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                     enabled: !_loading,
                   ),
                   const SizedBox(height: 16),
-                  _Rule('At least ${Validators.minPasswordLength} characters', rules.minLength),
-                  _Rule('One uppercase letter', rules.uppercase),
-                  _Rule('One number', rules.number),
+                  _Rule('Au moins ${Validators.minPasswordLength} caractères', rules.minLength),
+                  _Rule('Une lettre majuscule', rules.uppercase),
+                  _Rule('Un chiffre', rules.number),
                   const SizedBox(height: 20),
-                  AuthButton(label: 'Reset Password', loading: _loading, onPressed: _submit),
+                  AuthButton(label: 'Réinitialiser le mot de passe', loading: _loading, onPressed: _submit),
                 ],
               ),
             ),

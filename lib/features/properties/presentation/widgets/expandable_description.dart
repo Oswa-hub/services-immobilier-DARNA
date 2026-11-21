@@ -22,7 +22,7 @@ class _ExpandableDescriptionState extends State<ExpandableDescription> {
     const style = TextStyle(fontSize: 14, height: 1.5, color: AppColors.text);
     final text = widget.text.trim();
     if (text.isEmpty) {
-      return const Text('No description provided.', style: TextStyle(fontSize: 14, color: AppColors.muted));
+      return const Text('Aucune description.', style: TextStyle(fontSize: 14, color: AppColors.muted));
     }
 
     return LayoutBuilder(builder: (context, c) {
@@ -45,7 +45,7 @@ class _ExpandableDescriptionState extends State<ExpandableDescription> {
           TextButton(
             onPressed: () => setState(() => _expanded = !_expanded),
             style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 40)),
-            child: Text(_expanded ? 'Read less' : 'Read more'),
+            child: Text(_expanded ? 'Voir moins' : 'Lire la suite'),
           ),
       ]);
     });

@@ -32,19 +32,19 @@ class CloudinaryPhotoService {
     final fileSize = await image.length();
 
     if (fileSize > maxFileSize) {
-      throw Exception('Image must be smaller than 2 MB.');
+      throw Exception('L\'image doit faire moins de 2 Mo.');
     }
 
     final extension = image.name.split('.').last.toLowerCase();
 
     if (!allowedExtensions.contains(extension)) {
-      throw Exception('Only JPG, PNG and WebP images are allowed.');
+      throw Exception('Seules les images JPG, PNG et WebP sont acceptées.');
     }
 
     final bytes = await image.readAsBytes();
 
     if (bytes.isEmpty) {
-      throw Exception('The selected image is empty.');
+      throw Exception('L\'image choisie est vide.');
     }
 
     final uri = Uri.parse(

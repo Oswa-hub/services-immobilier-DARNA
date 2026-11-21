@@ -23,23 +23,23 @@ class VerificationCenterPage extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Verification')),
+      appBar: AppBar(title: const Text('Vérification')),
       body: user == null
-          ? const AgentEmptyView(icon: Icons.lock_outline, message: 'Sign in to manage your verification.')
+          ? const AgentEmptyView(icon: Icons.lock_outline, message: 'Connectez-vous pour gérer votre vérification.')
           : Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 640),
                 child: ListView(padding: const EdgeInsets.fromLTRB(20, 16, 20, 32), children: [
                   const Text(
-                    'Verification is an administrative review of the information and documents you submit. '
-                    'A badge shows what was reviewed; it is not a guarantee about a property or a transaction.',
+                    'La vérification est un contrôle administratif des informations et documents que vous envoyez. '
+                    'Un badge indique ce qui a été contrôlé ; ce n\'est pas une garantie sur un bien ou une transaction.',
                     style: TextStyle(color: AppColors.muted, height: 1.4, fontSize: 13),
                   ),
                   const SizedBox(height: 14),
                   _Tile(type: VerificationTargetType.user, targetId: user.id),
                   if (user.role == UserRole.owner) _Tile(type: VerificationTargetType.owner, targetId: user.id),
                   if (user.role == UserRole.agent) _Tile(type: VerificationTargetType.agent, targetId: user.id),
-                  const SectionTitle('Listings'),
+                  const SectionTitle('Annonces'),
                   AgentCard(
                     onTap: () => context.push(Routes.myListings),
                     child: const Row(children: [
@@ -47,7 +47,7 @@ class VerificationCenterPage extends ConsumerWidget {
                       SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Property verification is requested from one of your listings. Open My Listings and choose “Verify this listing”.',
+                          'La vérification d\'un bien se demande depuis une de vos annonces : ouvrez Mes annonces et choisissez « Vérifier cette annonce ».',
                           style: TextStyle(fontSize: 13, height: 1.35),
                         ),
                       ),
@@ -90,7 +90,7 @@ class _Tile extends ConsumerWidget {
           if (record.hasError)
             const Padding(
               padding: EdgeInsets.only(top: 6),
-              child: Text('Status could not be loaded.', style: TextStyle(color: AppColors.error, fontSize: 12)),
+              child: Text('Impossible de charger le statut.', style: TextStyle(color: AppColors.error, fontSize: 12)),
             ),
         ]),
       ),

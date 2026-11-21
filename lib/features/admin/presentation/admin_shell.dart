@@ -76,7 +76,7 @@ class AdminShell extends ConsumerWidget {
             onDestinationSelected: (i) => _open(context, adminSections[i]),
             leading: const Padding(
               padding: EdgeInsets.symmetric(vertical: 18),
-              child: Text('ImmoFind Admin',
+              child: Text('DARNA Admin',
                   style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.navy, fontSize: 18)),
             ),
             trailing: Expanded(
@@ -121,7 +121,7 @@ class AdminShell extends ConsumerWidget {
         child: SafeArea(
           child: Column(children: [
             ListTile(
-              title: const Text('ImmoFind Admin',
+              title: const Text('DARNA Admin',
                   style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.navy, fontSize: 18)),
               subtitle: Text(user?.email ?? ''),
             ),

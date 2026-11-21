@@ -33,7 +33,7 @@ void main() {
     });
     test('agency name required only for agencies', () {
       expect(AgentProfileValidator.validate(profile(kind: AgentProfileKind.agency)).containsKey('agencyName'), isTrue);
-      expect(AgentProfileValidator.validate(profile(kind: AgentProfileKind.agency, agency: 'Immo')).isEmpty, isTrue);
+      expect(AgentProfileValidator.validate(profile(kind: AgentProfileKind.agency, agency: 'DAR')).isEmpty, isTrue);
     });
     test('website must be http(s)', () {
       expect(AgentProfileValidator.website('javascript:alert(1)'), isNotNull);
@@ -113,7 +113,7 @@ void main() {
   group('ProfileCompletion', () {
     test('required-only profile is incomplete, full profile is 100%', () {
       expect(ProfileCompletion.of(profile()).percent, 60);
-      final full = profile().copyWith(profileImageUrl: 'x', address: 'y', website: 'https://a.tn', yearsOfExperience: 3, languages: ['French'], serviceAreas: ['Tunis']);
+      final full = profile().copyWith(profileImageUrl: 'x', address: 'y', website: 'https://a.tn', yearsOfExperience: 3, languages: ['Français'], serviceAreas: ['Tunis']);
       expect(ProfileCompletion.of(full).percent, 100);
     });
   });

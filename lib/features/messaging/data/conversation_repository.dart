@@ -53,7 +53,7 @@ class ConversationRepository {
 
   /// Firestore queues writes while offline and only acknowledges them once the
   /// server answers. Past this delay the message is reported as [SendOutcome.queued].
-  static const sendAckTimeout = Duration(seconds: 6);
+  static const sendAckTimeout = Duration(seconds: 15); // M3: slow networks are not "offline"
 
   CollectionReference<Map<String, dynamic>> get _conversations => _db.collection('conversations');
 
@@ -183,7 +183,10 @@ class ConversationRepository {
   /// batch. Throws [ConversationFailure] when nothing was saved (the UI keeps
   /// the text so the user can retry). Returns [SendOutcome.queued] when the
   /// write is stored locally and will be delivered when the connection returns.
-  Future<SendOutcome> sendMessage(String conversationId, String text) async {
+  /// [notifyUserId] (the other participant) receives an in-app notification in
+  /// the same batch (I3, Spark plan: no server function), titled with [senderName].
+  Future<SendOutcome> sendMessage(String conversationId, String text,
+      {String? notifyUserId, String? senderName}) async {
     try {
       final me = _uid;
       final issue = MessageValidator.check(text);
@@ -209,6 +212,18 @@ class ConversationRepository {
           'lastSenderId': me,
           'lastReadAt.$me': FieldValue.serverTimestamp(),
         });
+      if (notifyUserId != null && notifyUserId.isNotEmpty && notifyUserId != me) {
+        final who = (senderName ?? '').trim();
+        batch.set(_db.collection('notifications').doc(), {
+          'userId': notifyUserId,
+          'type': 'newMessage',
+          'title': who.isEmpty ? 'Nouveau message' : 'Nouveau message de ${who.length > 60 ? who.substring(0, 60) : who}',
+          'body': MessageValidator.preview(t),
+          'read': false,
+          'conversationId': conversationId,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
       try {
         await batch.commit().timeout(sendAckTimeout);
         return SendOutcome.sent;

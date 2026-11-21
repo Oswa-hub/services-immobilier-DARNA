@@ -22,7 +22,7 @@ class SimilarProperties extends ConsumerWidget {
     final scale = (MediaQuery.textScalerOf(context).scale(14) / 14).clamp(1.0, 1.4);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const SizedBox(height: 24),
-      const AppSectionHeader(title: 'Similar properties'),
+      const AppSectionHeader(title: 'Biens similaires'),
       const SizedBox(height: 10),
       SizedBox(
         height: 282 * scale,

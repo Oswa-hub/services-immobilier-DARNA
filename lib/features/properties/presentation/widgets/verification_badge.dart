@@ -7,7 +7,7 @@ import '../../domain/entities/property.dart';
 /// (not submitted, pending, rejected, expired) renders nothing.
 /// Icon + text, never colour alone.
 class VerificationBadge extends StatelessWidget {
-  const VerificationBadge({super.key, required this.status, this.label = 'Verified listing'});
+  const VerificationBadge({super.key, required this.status, this.label = 'Annonce vérifiée'});
 
   final VerificationStatus status;
 

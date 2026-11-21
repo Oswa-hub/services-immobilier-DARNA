@@ -24,7 +24,7 @@ class AgentDashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AgentGate(
-        title: 'Agent dashboard',
+        title: 'Espace agent',
         builder: (context, ref, profile) => _Dashboard(profile: profile),
       );
 }
@@ -46,7 +46,7 @@ class _Dashboard extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Agent dashboard')),
+      appBar: AppBar(title: const Text('Espace agent')),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(agentListingsProvider);
@@ -66,7 +66,7 @@ class _Dashboard extends ConsumerWidget {
                   AgentAvatar(name: profile.displayName, imageUrl: profile.profileImageUrl, radius: 26),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text('Welcome, ${profile.displayName}',
+                    child: Text('Bienvenue, ${profile.displayName}',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.text)),
@@ -80,7 +80,7 @@ class _Dashboard extends ConsumerWidget {
                   request: request,
                   onTap: () => context.push(Routes.agentVerification),
                 ),
-                const SectionTitle('Performance'),
+                const SectionTitle('Performances'),
                 stats.when(
                   loading: () => const Column(children: [
                     Row(children: [Expanded(child: SkeletonBox(height: 92)), SizedBox(width: 10), Expanded(child: SkeletonBox(height: 92))]),
@@ -95,7 +95,7 @@ class _Dashboard extends ConsumerWidget {
                       ? AgentCard(
                           child: Column(children: [
                             const Text(
-                              'You have not published any properties yet. Create your first listing to get started.',
+                              'Vous n\'avez encore publié aucun bien. Créez votre première annonce pour commencer.',
                               textAlign: TextAlign.center,
                               style: TextStyle(color: AppColors.muted, height: 1.4),
                             ),
@@ -103,54 +103,54 @@ class _Dashboard extends ConsumerWidget {
                             FilledButton.icon(
                               onPressed: () => context.push(Routes.publish),
                               icon: const Icon(Icons.add_home_work_outlined),
-                              label: const Text('Publish property'),
+                              label: const Text('Publier un bien'),
                             ),
                           ]),
                         )
                       : AgentStatGrid(cards: [
-                          AgentStatCard(icon: Icons.home_work_outlined, label: 'Total listings', value: s.totalListings, onTap: () => context.push(Routes.agentListings)),
-                          AgentStatCard(icon: Icons.check_circle_outline, label: 'Published', value: s.published, onTap: () => context.push(Routes.agentListings)),
-                          AgentStatCard(icon: Icons.hourglass_top_rounded, label: 'Pending review', value: s.pending, onTap: () => context.push(Routes.agentListings)),
-                          AgentStatCard(icon: Icons.visibility_outlined, label: 'Total views', value: s.views, onTap: () => context.push(Routes.agentStatistics)),
-                          AgentStatCard(icon: Icons.chat_bubble_outline_rounded, label: 'Inquiries', value: s.contacts, onTap: () => context.push(Routes.agentInquiries)),
-                          AgentStatCard(icon: Icons.favorite_border, label: 'Favorites', value: s.favorites, onTap: () => context.push(Routes.agentStatistics)),
+                          AgentStatCard(icon: Icons.home_work_outlined, label: 'Annonces', value: s.totalListings, onTap: () => context.push(Routes.agentListings)),
+                          AgentStatCard(icon: Icons.check_circle_outline, label: 'Publiées', value: s.published, onTap: () => context.push(Routes.agentListings)),
+                          AgentStatCard(icon: Icons.hourglass_top_rounded, label: 'En attente', value: s.pending, onTap: () => context.push(Routes.agentListings)),
+                          AgentStatCard(icon: Icons.visibility_outlined, label: 'Vues', value: s.views, onTap: () => context.push(Routes.agentStatistics)),
+                          AgentStatCard(icon: Icons.chat_bubble_outline_rounded, label: 'Demandes', value: s.contacts, onTap: () => context.push(Routes.agentInquiries)),
+                          AgentStatCard(icon: Icons.favorite_border, label: 'Favoris', value: s.favorites, onTap: () => context.push(Routes.agentStatistics)),
                         ]),
                 ),
-                const SectionTitle('Quick actions'),
+                const SectionTitle('Actions rapides'),
                 Wrap(spacing: 10, runSpacing: 10, children: [
                   FilledButton.icon(
                     onPressed: () => context.push(Routes.publish),
                     icon: const Icon(Icons.add_home_work_outlined),
-                    label: const Text('Publish property'),
+                    label: const Text('Publier un bien'),
                   ),
                   OutlinedButton.icon(
                     onPressed: () => context.push(Routes.agentProfileEdit),
                     icon: const Icon(Icons.edit_outlined),
-                    label: const Text('Edit profile'),
+                    label: const Text('Modifier le profil'),
                   ),
                   OutlinedButton.icon(
                     onPressed: () => context.push(Routes.agentListings),
                     icon: const Icon(Icons.list_alt_rounded),
-                    label: const Text('My listings'),
+                    label: const Text('Mes annonces'),
                   ),
                   OutlinedButton.icon(
                     onPressed: () => context.push(Routes.agentStatistics),
                     icon: const Icon(Icons.bar_chart_rounded),
-                    label: const Text('Statistics'),
+                    label: const Text('Statistiques'),
                   ),
                   OutlinedButton.icon(
                     onPressed: () => context.push(Routes.agentProfile),
                     icon: const Icon(Icons.badge_outlined),
-                    label: const Text('Public profile'),
+                    label: const Text('Profil public'),
                   ),
                 ]),
-                SectionTitle('Recent messages',
-                    trailing: TextButton(onPressed: () => context.push(Routes.agentInquiries), child: const Text('See all'))),
+                SectionTitle('Messages récents',
+                    trailing: TextButton(onPressed: () => context.push(Routes.agentInquiries), child: const Text('Tout voir'))),
                 inquiries.when(
                   loading: () => const SkeletonBox(height: 70),
-                  error: (_, _) => const Text('We could not load your messages.', style: TextStyle(color: AppColors.muted)),
+                  error: (_, _) => const Text('Impossible de charger vos messages.', style: TextStyle(color: AppColors.muted)),
                   data: (items) => items.isEmpty
-                      ? const Text('You do not have any inquiries yet. New messages about your properties will appear here.',
+                      ? const Text('Vous n\'avez encore aucune demande. Les nouveaux messages sur vos biens apparaîtront ici.',
                           style: TextStyle(color: AppColors.muted, height: 1.4))
                       : Column(children: [
                           for (final c in items.take(3))
@@ -160,12 +160,12 @@ class _Dashboard extends ConsumerWidget {
                             ),
                         ]),
                 ),
-                const SectionTitle('Recent activity'),
+                const SectionTitle('Activité récente'),
                 notifications.when(
                   loading: () => const SkeletonBox(height: 70),
-                  error: (_, _) => const Text('We could not load your activity.', style: TextStyle(color: AppColors.muted)),
+                  error: (_, _) => const Text('Impossible de charger votre activité.', style: TextStyle(color: AppColors.muted)),
                   data: (items) => items.isEmpty
-                      ? const Text('Nothing new yet.', style: TextStyle(color: AppColors.muted))
+                      ? const Text('Rien de nouveau pour le moment.', style: TextStyle(color: AppColors.muted))
                       : Column(children: [
                           for (final n in items.take(5))
                             NotificationTile(
@@ -198,7 +198,7 @@ class _CompletionCard extends StatelessWidget {
         onTap: completion.isComplete ? null : onTap,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Expanded(child: Text('Profile completion', style: TextStyle(fontWeight: FontWeight.w800))),
+            const Expanded(child: Text('Profil complété', style: TextStyle(fontWeight: FontWeight.w800))),
             Text('${completion.percent}%', style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.primary)),
           ]),
           const SizedBox(height: 8),
@@ -207,7 +207,7 @@ class _CompletionCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: completion.percent / 100,
               minHeight: 8,
-              semanticsLabel: 'Profile completion',
+              semanticsLabel: 'Profil complété',
               semanticsValue: '${completion.percent}%',
             ),
           ),

@@ -28,16 +28,16 @@ class PublishingFailure implements Exception {
   final Set<String> failedPhotoIds;
 
   String get message => switch (type) {
-        PublishingFailureType.notAuthenticated => 'Please sign in to publish a property.',
-        PublishingFailureType.notAllowed => 'Your account is not allowed to publish listings.',
-        PublishingFailureType.invalidData => 'Some information needs to be corrected before you can submit.',
+        PublishingFailureType.notAuthenticated => 'Connectez-vous pour publier un bien.',
+        PublishingFailureType.notAllowed => 'Votre compte ne peut pas publier d\'annonces.',
+        PublishingFailureType.invalidData => 'Certaines informations doivent être corrigées avant l\'envoi.',
         PublishingFailureType.uploadFailed =>
           failedPhotoIds.length > 1
               ? '${failedPhotoIds.length} photos could not be uploaded. Please try again.'
-              : 'A photo could not be uploaded. Please try again.',
-        PublishingFailureType.network => 'Something went wrong. Check your connection and try again.',
-        PublishingFailureType.permissionDenied => "You don't have permission to publish this listing.",
-        PublishingFailureType.unknown => 'Something went wrong while publishing. Please try again.',
+              : 'Une photo n\'a pas pu être envoyée. Réessayez.',
+        PublishingFailureType.network => 'Une erreur est survenue. Vérifiez votre connexion et réessayez.',
+        PublishingFailureType.permissionDenied => 'Vous n\'avez pas le droit de publier cette annonce.',
+        PublishingFailureType.unknown => 'Une erreur est survenue pendant la publication. Réessayez.',
       };
 
   @override

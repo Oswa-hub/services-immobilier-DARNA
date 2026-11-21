@@ -17,12 +17,12 @@ class DescriptionStep extends ConsumerWidget {
     final d = s.draft;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const StepHeader(title: 'Describe your property', subtitle: 'A clear title and a useful description get more answers.'),
+      const StepHeader(title: 'Décrivez votre bien', subtitle: 'Un titre clair et une description utile attirent plus de réponses.'),
       TextFormField(
         initialValue: d.title,
         maxLength: PublishingConfig.titleMax,
         textCapitalization: TextCapitalization.sentences,
-        decoration: InputDecoration(labelText: 'Title', hintText: 'e.g. Bright S+2 apartment in La Marsa', errorText: s.errors[ListingField.title]),
+        decoration: InputDecoration(labelText: 'Titre', hintText: 'e.g. Bright S+2 apartment in La Marsa', errorText: s.errors[ListingField.title]),
         onChanged: c.setTitle,
       ),
       const SizedBox(height: 8),
@@ -35,7 +35,7 @@ class DescriptionStep extends ConsumerWidget {
         decoration: InputDecoration(
           labelText: 'Description',
           alignLabelWithHint: true,
-          hintText: 'Condition, layout, special features, what is nearby...',
+          hintText: 'État, agencement, points forts, à proximité…',
           errorText: s.errors[ListingField.description],
         ),
         onChanged: c.setDescription,

@@ -44,9 +44,9 @@ class _PropertyPhotosPickerState extends ConsumerState<PropertyPhotosPicker> {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       StepHeader(
-        title: 'Add photos',
+        title: 'Ajouter des photos',
         subtitle:
-            'Up to $maxPhotos photos (JPG, PNG or WebP, max ${settings.maxImageSizeMb.clamp(1, 5)} MB each). The first photo is the cover.',
+            'Jusqu\'à $maxPhotos photos (JPG, PNG ou WebP, ${settings.maxImageSizeMb.clamp(1, 5)} Mo max chacune). La première photo est la couverture.',
       ),
       if (s.message != null) MessageBanner(s.message!),
       GridView.count(
@@ -80,7 +80,7 @@ class _PropertyPhotosPickerState extends ConsumerState<PropertyPhotosPicker> {
                       : const Column(mainAxisSize: MainAxisSize.min, children: [
                           Icon(Icons.add_a_photo_outlined, color: AppColors.primary),
                           SizedBox(height: 4),
-                          Text('Add', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
+                          Text('Ajouter', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
                         ]),
                 ),
               ),
@@ -122,14 +122,14 @@ class _Thumb extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(color: AppColors.navy, borderRadius: BorderRadius.circular(8)),
-                child: const Text('Cover', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                child: const Text('Couverture', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
               ),
             ),
           Positioned(
             top: 2,
             right: 2,
             child: IconButton.filled(
-              tooltip: 'Remove photo',
+              tooltip: 'Retirer la photo',
               style: IconButton.styleFrom(backgroundColor: Colors.black54, minimumSize: const Size(32, 32), padding: EdgeInsets.zero),
               onPressed: onRemove,
               icon: const Icon(Icons.close, size: 16, color: Colors.white),
@@ -148,7 +148,7 @@ class _Thumb extends StatelessWidget {
                   textStyle: const TextStyle(fontSize: 11),
                 ),
                 onPressed: onMakeCover,
-                child: const Text('Make cover'),
+                child: const Text('Mettre en couverture'),
               ),
             ),
         ]),

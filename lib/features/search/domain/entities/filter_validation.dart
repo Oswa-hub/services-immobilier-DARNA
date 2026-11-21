@@ -15,14 +15,14 @@ class FilterValidator {
 
   static FilterErrors validate(PropertySearchFilter f) {
     String? range(double? min, double? max, String name) {
-      if ((min != null && min < 0) || (max != null && max < 0)) return '$name cannot be negative';
-      if (min != null && max != null && min > max) return 'Minimum $name must not exceed maximum';
+      if ((min != null && min < 0) || (max != null && max < 0)) return '$name ne peut pas être négatif';
+      if (min != null && max != null && min > max) return '$name minimum supérieur au maximum';
       return null;
     }
 
     return FilterErrors(
-      price: range(f.minPrice, f.maxPrice, 'price'),
-      surface: range(f.minSurface, f.maxSurface, 'surface'),
+      price: range(f.minPrice, f.maxPrice, 'Prix'),
+      surface: range(f.minSurface, f.maxSurface, 'Surface'),
     );
   }
 

@@ -28,12 +28,12 @@ class VerificationDetailsPage extends ConsumerWidget {
   /// to know every enum case.
   static String _nextStep(VerificationStatus status) {
     if (status == VerificationStatus.rejected) {
-      return 'Review the reason below, correct the issues, and resubmit.';
+      return 'Lisez le motif ci-dessous, corrigez puis renvoyez.';
     }
     if (VerificationStateMachine.canSubmit(status)) {
-      return 'You can submit a new verification request.';
+      return 'Vous pouvez envoyer une nouvelle demande de vérification.';
     }
-    return 'Your request is being processed. We will update this page when there is a decision.';
+    return 'Votre demande est en cours de traitement. Cette page sera mise à jour dès qu\'une décision sera prise.';
   }
 
   @override
@@ -41,7 +41,7 @@ class VerificationDetailsPage extends ConsumerWidget {
     final async = ref.watch(verificationProvider(verificationId));
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Verification details')),
+      appBar: AppBar(title: const Text('Détails de la vérification')),
       body: async.when(
         loading: () => const AgentLoading(),
         error: (e, _) => AgentErrorView(
@@ -50,7 +50,7 @@ class VerificationDetailsPage extends ConsumerWidget {
         ),
         data: (r) {
           if (r == null) {
-            return const AgentEmptyView(icon: Icons.search_off_rounded, message: 'This verification request could not be found.');
+            return const AgentEmptyView(icon: Icons.search_off_rounded, message: 'Cette demande de vérification est introuvable.');
           }
           final status = r.effectiveStatus();
           return Center(
@@ -68,27 +68,27 @@ class VerificationDetailsPage extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(color: const Color(0xFFFDECEA), borderRadius: BorderRadius.circular(12)),
-                    child: Text('Reason: ${r.rejectionReason}'),
+                    child: Text('Motif : ${r.rejectionReason}'),
                   ),
                 ],
                 const SectionTitle('Dates'),
-                _line('Submitted', r.submittedAt == null ? '-' : formatShortDate(r.submittedAt!)),
-                if (r.reviewedAt != null) _line('Decision', formatShortDate(r.reviewedAt!)),
-                if (r.expiresAt != null) _line('Valid until', formatShortDate(r.expiresAt!)),
-                _line('Attempt', '${r.attemptNumber}'),
-                const SectionTitle('Submitted information'),
+                _line('Envoyée', r.submittedAt == null ? '-' : formatShortDate(r.submittedAt!)),
+                if (r.reviewedAt != null) _line('Décision', formatShortDate(r.reviewedAt!)),
+                if (r.expiresAt != null) _line('Valable jusqu\'au', formatShortDate(r.expiresAt!)),
+                _line('Tentative', '${r.attemptNumber}'),
+                const SectionTitle('Informations envoyées'),
                 SubmittedDataView(type: r.targetType, data: r.submittedData),
                 const SectionTitle('Documents'),
-                if (r.documents.isEmpty) const Text('No documents.', style: TextStyle(color: AppColors.muted)),
+                if (r.documents.isEmpty) const Text('Aucun document.', style: TextStyle(color: AppColors.muted)),
                 for (final d in r.documents) VerificationDocumentTile(verificationId: r.id, document: d),
-                const SectionTitle('History'),
+                const SectionTitle('Historique'),
                 VerificationHistoryList(verificationId: r.id),
                 if (VerificationStateMachine.canSubmit(status)) ...[
                   const SizedBox(height: 20),
                   FilledButton(
                     onPressed: () => context.push(Routes.verificationForm(r.targetType, r.targetId)),
                     style: FilledButton.styleFrom(padding: const EdgeInsets.all(15)),
-                    child: Text(status == VerificationStatus.rejected ? 'Correct and resubmit' : 'Submit a new request'),
+                    child: Text(status == VerificationStatus.rejected ? 'Corriger et renvoyer' : 'Envoyer une nouvelle demande'),
                   ),
                 ],
               ]),

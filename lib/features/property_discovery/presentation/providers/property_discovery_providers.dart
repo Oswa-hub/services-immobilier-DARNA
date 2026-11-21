@@ -94,20 +94,36 @@ class SelectedLocationNotifier extends Notifier<DiscoveryLocation?> {
   DiscoveryLocation? build() {
     // Reset when the signed-in user changes (logout / account switch).
     ref.watch(currentUserProvider.select((u) => u?.id));
-    // Start from the profile's preferred governorate when there is one; otherwise
-    // nothing is assumed. (Re-runs when the profile value arrives or changes.)
-    final preferred = ref.watch(preferredGovernorateProvider).value;
+    _userChose = false;
+    // I8: start from the profile's preferred governorate, but only while the user
+    // has not picked a zone himself: a late or changed profile value never
+    // replaces a manual choice.
+    ref.listen(preferredGovernorateProvider, (_, next) {
+      final preferred = next.value;
+      if (!_userChose && preferred != null) state = DiscoveryLocation.governorate(preferred);
+    });
+    final preferred = ref.read(preferredGovernorateProvider).value;
     return preferred == null ? null : DiscoveryLocation.governorate(preferred);
   }
 
-  void selectGovernorate(String governorate) => state = DiscoveryLocation.governorate(governorate);
+  /// The user picked (or cleared) a zone in this session.
+  bool _userChose = false;
 
-  void clear() => state = null;
+  void selectGovernorate(String governorate) {
+    _userChose = true;
+    state = DiscoveryLocation.governorate(governorate);
+  }
+
+  void clear() {
+    _userChose = true;
+    state = null;
+  }
 
   Future<DeviceLocationOutcome> useDeviceLocation() async {
     final result = await ref.read(locationServiceProvider).getCurrentPosition();
     switch (result) {
       case DeviceLocationGranted(:final latitude, :final longitude):
+        _userChose = true;
         state = DiscoveryLocation.device(latitude: latitude, longitude: longitude);
         return DeviceLocationOutcome.success;
       case DeviceLocationDenied():

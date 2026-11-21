@@ -27,7 +27,7 @@ class ActiveFilterChips extends StatelessWidget {
   static String _range(double? min, double? max, String unit) {
     if (min != null && max != null) return '${_n(min)} – ${_n(max)} $unit';
     if (min != null) return 'from ${_n(min)} $unit';
-    return 'up to ${_n(max!)} $unit';
+    return 'jusqu\'à ${_n(max!)} $unit';
   }
 
   @override
@@ -56,7 +56,7 @@ class ActiveFilterChips extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           ...chips,
-          TextButton(onPressed: onClearAll, child: const Text('Clear all')),
+          TextButton(onPressed: onClearAll, child: const Text('Tout effacer')),
         ],
       ),
     );
@@ -67,7 +67,7 @@ class ActiveFilterChips extends StatelessWidget {
         child: InputChip(
           label: Text(label, style: const TextStyle(fontSize: 12, color: AppColors.text)),
           onDeleted: onRemove,
-          deleteButtonTooltipMessage: 'Remove filter',
+          deleteButtonTooltipMessage: 'Retirer le filtre',
           visualDensity: VisualDensity.compact,
           backgroundColor: const Color(0xFFE8F0FE),
           side: BorderSide.none,

@@ -14,9 +14,9 @@ class OwnerCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   String get _roleLabel => switch (role) {
-        'agent' => 'Real-estate agent',
-        'agency' => 'Real-estate agency',
-        _ => 'Owner',
+        'agent' => 'Agent immobilier',
+        'agency' => 'Agence immobilière',
+        _ => 'Propriétaire',
       };
 
   @override
@@ -52,7 +52,7 @@ class OwnerCard extends StatelessWidget {
     if (onTap == null) return card;
     return Semantics(
       button: true,
-      label: 'View profile of $name',
+      label: 'Voir le profil de $name',
       child: InkWell(borderRadius: BorderRadius.circular(14), onTap: onTap, child: card),
     );
   }

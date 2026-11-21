@@ -13,8 +13,8 @@ Future<bool> showMapLocationExplainer(BuildContext context) async {
       title: const Text(MapStrings.explainTitle),
       content: const Text(MapStrings.explainBody),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Not now')),
-        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Continue')),
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Plus tard')),
+        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Continuer')),
       ],
     ),
   );
@@ -30,7 +30,7 @@ void showLocateFailure(BuildContext context, WidgetRef ref, LocateOutcome outcom
       content: Text(MapStrings.locationNotice(outcome)),
       action: outcome == LocateOutcome.deniedForever
           ? SnackBarAction(
-              label: 'Settings',
+              label: 'Réglages',
               onPressed: () => ref.read(locationServiceProvider).openSettings(),
             )
           : null,

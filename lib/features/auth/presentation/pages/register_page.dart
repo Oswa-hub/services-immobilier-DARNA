@@ -75,16 +75,16 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             children: [
               const Center(child: AppLogo(size: 48)),
               const SizedBox(height: 20),
-              const Text('Create Your Account',
+              const Text('Créer votre compte',
                   style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.text)),
               const SizedBox(height: 6),
-              const Text('Join ImmoFind and start exploring amazing properties today.',
+              const Text('Rejoignez DARNA et trouvez votre prochain bien en Tunisie.',
                   style: TextStyle(color: AppColors.muted)),
               const SizedBox(height: 22),
               const AuthErrorMessage(),
               AuthTextField(
                 controller: _name,
-                hint: 'Full Name',
+                hint: 'Nom complet',
                 icon: Icons.person_outline,
                 autofillHints: const [AutofillHints.name],
                 validator: Validators.fullName,
@@ -93,7 +93,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               const SizedBox(height: 12),
               AuthTextField(
                 controller: _email,
-                hint: 'Email Address',
+                hint: 'Adresse e-mail',
                 icon: Icons.mail_outline,
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
@@ -103,7 +103,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               const SizedBox(height: 12),
               AuthTextField(
                 controller: _phone,
-                hint: 'Phone Number (e.g. 22 123 456)',
+                hint: 'Téléphone (ex. 22 123 456)',
                 icon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
                 autofillHints: const [AutofillHints.telephoneNumber],
@@ -120,7 +120,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               const SizedBox(height: 12),
               PasswordField(
                 controller: _confirm,
-                hint: 'Confirm Password',
+                hint: 'Confirmer le mot de passe',
                 validator: (v) => Validators.confirmPassword(v, _password.text),
                 newPassword: true,
                 textInputAction: TextInputAction.done,
@@ -128,15 +128,15 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 enabled: !loading,
               ),
               const SizedBox(height: 20),
-              AuthButton(label: 'Create Account', loading: loading, onPressed: _submit),
+              AuthButton(label: 'Créer mon compte', loading: loading, onPressed: _submit),
               const SizedBox(height: 4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Already have an account?', style: TextStyle(color: AppColors.muted)),
+                  const Text('Déjà un compte ?', style: TextStyle(color: AppColors.muted)),
                   TextButton(
                     onPressed: loading ? null : () => context.pushReplacement(Routes.login),
-                    child: const Text('Log In'),
+                    child: const Text('Se connecter'),
                   ),
                 ],
               ),
@@ -147,7 +147,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'By creating an account, you agree to our Terms of Service and Privacy Policy.',
+                'En créant un compte, vous acceptez nos conditions d\'utilisation et notre politique de confidentialité.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 11, color: AppColors.muted),
               ),

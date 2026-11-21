@@ -5,15 +5,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../properties/domain/entities/property.dart';
 
-/// Records analytics EVENTS (spec §14.4: `property_view`). The client never
-/// writes a counter: a Cloud Function validates the event, de-duplicates it
-/// (one view per user per listing per day) and updates `property_stats`.
+/// Records analytics EVENTS (spec §14.4: `property_view`) and, on the Spark plan
+/// (no Cloud Function), bumps the listing's public `views` counter itself: once
+/// per listing per app session (I1; rules: counterBump).
 /// Failures are swallowed: tracking must never break a screen.
 class PropertyEventRecorder {
   PropertyEventRecorder(this._db, this._auth);
 
   final FirebaseFirestore _db;
   final FirebaseAuth _auth;
+
+  /// Listings already counted in this session.
+  static final Set<String> _counted = {};
 
   Future<void> recordView(Property p) async {
     final uid = _auth.currentUser?.uid;
@@ -28,6 +31,12 @@ class PropertyEventRecorder {
         'createdAt': FieldValue.serverTimestamp(),
       });
     } catch (_) {}
+    if (p.status != PropertyStatus.published || !_counted.add(p.id)) return;
+    try {
+      await _db.collection('properties').doc(p.id).update({'views': FieldValue.increment(1)});
+    } catch (_) {
+      _counted.remove(p.id);
+    }
   }
 }
 

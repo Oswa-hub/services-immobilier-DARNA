@@ -50,7 +50,8 @@ service cloud.firestore {
             && (uid != request.auth.uid
                 || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status'])));
 
-      allow delete: if false;
+      // Google Play: the user deletes their own account from the app.
+      allow delete: if isSelf(uid);
 
       // ---- Module 14: users I blocked (they can no longer message me) ---------
       match /blocked/{otherId} {
@@ -158,6 +159,24 @@ service cloud.firestore {
                                 'airConditioning', 'security', 'terrace', 'balcony']);
     }
 
+    // ---- I1: public counters (Spark plan: no server function) ---------------------
+    // `views`: +1 per visit of a published listing (the app counts once per session).
+    // `favoritesCount`: +1 / -1 only together with the reader's favorite being
+    // created / deleted in the same batch, so it cannot be pumped.
+    function counterBump() {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      let fav = /databases/$(database)/documents/favorites/$(request.auth.uid + '_' + resource.id);
+      let before = resource.data.get('favoritesCount', 0);
+      return signedIn()
+        && resource.data.status == 'published'
+        && ((changed.hasOnly(['views'])
+              && request.resource.data.views == resource.data.get('views', 0) + 1)
+          || (changed.hasOnly(['favoritesCount'])
+              && ((request.resource.data.favoritesCount == before + 1 && !exists(fav) && existsAfter(fav))
+                  || (request.resource.data.favoritesCount == before - 1 && before > 0
+                      && exists(fav) && !existsAfter(fav)))));
+    }
+
     // ---- B3: the owner / agent edits the content of their listing ------------
     // Only content fields change; ownership, counters, verification and the admin's
     // dates never do. The listing always goes back to moderation.
@@ -214,7 +233,7 @@ service cloud.firestore {
 
       // Module 09: owner / agent move ONLY status + updatedAt along lifecycleMove().
       // Never published / suspended / expired, never ownerId, agentId, counters.
-      allow update: if isAdmin() || lifecycleMove() || contentEdit();
+      allow update: if isAdmin() || lifecycleMove() || contentEdit() || counterBump();
 
       // Owners may delete only what is not live or under review.
       allow delete: if isAdmin()
@@ -510,7 +529,24 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time
         && (isAdmin()
             || (request.resource.data.userId == request.auth.uid
-                && request.resource.data.type == 'verificationSubmitted'));
+                && request.resource.data.type == 'verificationSubmitted')
+            || newMessageNotice());
+    }
+
+    // I3 (Spark plan): the sender of a message notifies the OTHER participant, in
+    // the same batch as the message (lastSenderId after the batch is the sender).
+    // Never someone outside the conversation, never a user who blocked the sender.
+    function newMessageNotice() {
+      let n = request.resource.data;
+      let convo = /databases/$(database)/documents/conversations/$(n.conversationId);
+      return n.type == 'newMessage'
+        && n.keys().hasOnly(['userId', 'type', 'title', 'body', 'read', 'conversationId', 'createdAt'])
+        && n.conversationId is string
+        && n.userId != request.auth.uid
+        && request.auth.uid in get(convo).data.participants
+        && n.userId in get(convo).data.participants
+        && getAfter(convo).data.lastSenderId == request.auth.uid
+        && !exists(/databases/$(database)/documents/users/$(n.userId)/blocked/$(request.auth.uid));
     }
 
     // ---- Module 15: audit trail (append-only) ----------------------------------

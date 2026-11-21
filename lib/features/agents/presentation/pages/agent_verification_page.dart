@@ -25,7 +25,7 @@ class AgentVerificationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AgentGate(
-        title: 'Verification',
+        title: 'Vérification',
         builder: (context, ref, profile) => _VerificationBody(profile: profile),
       );
 }
@@ -57,7 +57,7 @@ class _VerificationBodyState extends ConsumerState<_VerificationBody> {
     setState(() => _error = null);
     final list = _picked[category] ?? [];
     if (list.length >= AgentVerificationPolicy.maxFilesPerCategory) {
-      setState(() => _error = 'You can add up to ${AgentVerificationPolicy.maxFilesPerCategory} files per document type.');
+      setState(() => _error = 'Vous pouvez ajouter jusqu\'à ${AgentVerificationPolicy.maxFilesPerCategory} fichiers par type de document.');
       return;
     }
     try {
@@ -66,7 +66,7 @@ class _VerificationBodyState extends ConsumerState<_VerificationBody> {
     } on AgentFailure catch (e) {
       if (mounted) setState(() => _error = e.fieldErrors['document'] ?? e.message);
     } catch (_) {
-      if (mounted) setState(() => _error = 'The file could not be loaded.');
+      if (mounted) setState(() => _error = 'Impossible de charger le fichier.');
     }
   }
 
@@ -82,7 +82,7 @@ class _VerificationBodyState extends ConsumerState<_VerificationBody> {
     final messenger = ScaffoldMessenger.of(context);
     if (ok) {
       setState(_picked.clear);
-      messenger.showSnackBar(const SnackBar(content: Text('Your documents were submitted for review.')));
+      messenger.showSnackBar(const SnackBar(content: Text('Vos documents ont été envoyés pour vérification.')));
     } else {
       final f = ref.read(agentProfileFormProvider).failure;
       messenger.showSnackBar(SnackBar(
@@ -100,7 +100,7 @@ class _VerificationBodyState extends ConsumerState<_VerificationBody> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Verification')),
+      appBar: AppBar(title: const Text('Vérification')),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
@@ -112,15 +112,15 @@ class _VerificationBodyState extends ConsumerState<_VerificationBody> {
                 const SizedBox(height: 14),
                 Text(
                   status == VerificationStatus.pending
-                      ? 'An administrator is reviewing your documents. You will be notified of the decision.'
-                      : 'Your professional profile is verified.',
+                      ? 'Un administrateur examine vos documents. Vous serez notifié de la décision.'
+                      : 'Votre profil professionnel est vérifié.',
                   style: const TextStyle(color: AppColors.muted, height: 1.4),
                 ),
               ] else ...[
-                SectionTitle(status == VerificationStatus.notSubmitted ? 'Submit your documents' : 'Resubmit your documents'),
+                SectionTitle(status == VerificationStatus.notSubmitted ? 'Envoyer vos documents' : 'Renvoyer vos documents'),
                 const Text(
-                  'Your documents are stored privately and are only visible to you and ImmoFind administrators. '
-                  'They never appear on your public profile.',
+                  'Vos documents servent uniquement à la vérification par l\'équipe DARNA. '
+                  'Ils n\'apparaissent jamais sur votre profil public.',
                   style: TextStyle(color: AppColors.muted, height: 1.4, fontSize: 13),
                 ),
                 const SizedBox(height: 12),
@@ -144,19 +144,19 @@ class _VerificationBodyState extends ConsumerState<_VerificationBody> {
                       ? const Row(mainAxisSize: MainAxisSize.min, children: [
                           SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
                           SizedBox(width: 10),
-                          Text('Uploading…'),
+                          Text('Envoi en cours…'),
                         ])
-                      : const Text('Submit for review'),
+                      : const Text('Envoyer pour vérification'),
                 ),
                 if (!_complete)
                   const Padding(
                     padding: EdgeInsets.only(top: 8),
-                    child: Text('Add at least one file for every document type above.',
+                    child: Text('Ajoutez au moins un fichier pour chaque type de document ci-dessus.',
                         style: TextStyle(fontSize: 12, color: AppColors.muted)),
                   ),
               ],
               const SizedBox(height: 16),
-              TextButton(onPressed: () => context.pop(), child: const Text('Back')),
+              TextButton(onPressed: () => context.pop(), child: const Text('Retour')),
             ],
           ),
         ),
@@ -212,12 +212,12 @@ class _CategoryPicker extends StatelessWidget {
               TextButton.icon(
                 onPressed: busy ? null : () => onAdd(ImageSource.camera),
                 icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                label: const Text('Take photo'),
+                label: const Text('Prendre une photo'),
               ),
               TextButton.icon(
                 onPressed: busy ? null : () => onAdd(ImageSource.gallery),
                 icon: const Icon(Icons.photo_library_outlined, size: 18),
-                label: const Text('Choose file'),
+                label: const Text('Choisir un fichier'),
               ),
             ]),
           ]),

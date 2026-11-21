@@ -54,14 +54,14 @@ class _VerificationQueuePageState extends ConsumerState<VerificationQueuePage> {
     final queue = ref.watch(verificationQueueProvider(_status));
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Verification requests')),
+      appBar: AppBar(title: const Text('Demandes de vérification')),
       body: Column(children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: TextField(
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.search),
-              hintText: 'Request ID, target ID or applicant ID',
+              hintText: 'ID de la demande, de la cible ou du demandeur',
               filled: true,
               fillColor: Colors.white,
             ),
@@ -82,7 +82,7 @@ class _VerificationQueuePageState extends ConsumerState<VerificationQueuePage> {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(children: [
-            ChoiceChip(label: const Text('All types'), selected: _type == null, onSelected: (_) => setState(() => _type = null)),
+            ChoiceChip(label: const Text('Tous les types'), selected: _type == null, onSelected: (_) => setState(() => _type = null)),
             for (final t in VerificationTargetType.values) ...[
               const SizedBox(width: 8),
               ChoiceChip(label: Text(t.label), selected: _type == t, onSelected: (_) => setState(() => _type = t)),
@@ -100,7 +100,7 @@ class _VerificationQueuePageState extends ConsumerState<VerificationQueuePage> {
             data: (all) {
               final list = _filter(all);
               if (list.isEmpty) {
-                return const AgentEmptyView(icon: Icons.inbox_outlined, message: 'No requests match these filters.');
+                return const AgentEmptyView(icon: Icons.inbox_outlined, message: 'Aucune demande ne correspond à ces filtres.');
               }
               return ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
@@ -132,8 +132,8 @@ class _RequestCard extends StatelessWidget {
           VerificationStatusBadge(status: r.effectiveStatus()),
         ]),
         const SizedBox(height: 6),
-        Text('Target: ${r.targetId}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
-        Text('Applicant: ${r.applicantId}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+        Text('Cible : ${r.targetId}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+        Text('Demandeur : ${r.applicantId}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
         Text(
           'Submitted ${r.submittedAt == null ? '-' : formatShortDate(r.submittedAt!)} · attempt ${r.attemptNumber} · ${r.documents.length} file(s)',
           style: const TextStyle(fontSize: 12),
