@@ -32,13 +32,16 @@ class PropertyTypeStep extends ConsumerWidget {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const StepHeader(title: 'Que publiez-vous ?', subtitle: 'Choisissez le type de bien et le type d\'offre.'),
-      GridView.count(
-        crossAxisCount: 2,
+      GridView(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        childAspectRatio: 3.1,
+        // Height follows the phone's text size (French labels are longer).
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          mainAxisExtent: 56 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.8),
+        ),
         children: [
           for (final t in publishablePropertyTypes)
             ChoiceTile(label: t.label, icon: _icon(t), selected: d.propertyType == t, onTap: () => c.setPropertyType(t)),

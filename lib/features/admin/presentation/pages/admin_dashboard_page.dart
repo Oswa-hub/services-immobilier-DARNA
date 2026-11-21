@@ -33,13 +33,18 @@ class AdminDashboardPage extends ConsumerWidget {
           error: (e, _) => AdminMessage.error(e, onRetry: () => ref.invalidate(adminKpisProvider)),
           data: (k) => LayoutBuilder(builder: (context, c) {
             final cols = c.maxWidth >= 900 ? 4 : (c.maxWidth >= 560 ? 3 : 2);
-            return GridView.count(
-              crossAxisCount: cols,
+            // Fixed card height that grows with the phone's text size, so two-line
+            // French labels never overflow (was a width/height ratio).
+            final scale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.8);
+            return GridView(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: cols == 2 ? 1.9 : 2.5,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: cols,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                mainAxisExtent: 108 * scale,
+              ),
               children: [
                 StatCard(label: 'Utilisateurs', value: k.totalUsers, icon: Icons.people_outline,
                     onTap: () => context.go(Routes.adminUsers)),

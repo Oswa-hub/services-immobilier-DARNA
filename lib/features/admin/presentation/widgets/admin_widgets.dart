@@ -95,22 +95,28 @@ class StatCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(14),
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(children: [
               CircleAvatar(
+                radius: 18,
                 backgroundColor: color.withValues(alpha: 0.12),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(icon, color: color, size: 18),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                  Text(value?.toString() ?? '—',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color)),
-                  Text(label,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12.5, color: AppColors.muted)),
-                ]),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(value?.toString() ?? '—',
+                          maxLines: 1,
+                          style: TextStyle(fontSize: 22, height: 1.1, fontWeight: FontWeight.w900, color: color)),
+                      const SizedBox(height: 2),
+                      Text(label,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12.5, height: 1.2, color: AppColors.muted)),
+                    ]),
               ),
             ]),
           ),
