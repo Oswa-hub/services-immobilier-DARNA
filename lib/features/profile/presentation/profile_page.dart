@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../auth/domain/entities/auth_user.dart' show UserRole;
 import '../../auth/providers/auth_provider.dart';
 import '../data/profile_repository.dart';
 import 'edit_profile_page.dart';
@@ -357,67 +358,21 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                     onTap: _openEditProfile,
                   ),
 
-                  _sectionTitle('Account'),
-
-                  _profileItem(
-                    icon: Icons.notifications_outlined,
-                    title: 'Notifications',
-                    subtitle: _unreadSubtitle(unreadNotifications),
-                    onTap: _openNotifications,
-                  ),
-
-                  _profileItem(
-                    icon: Icons.verified_user_outlined,
-                    title: 'Verification',
-                    subtitle: 'Identity, owner and professional checks',
-                    onTap: () => context.push(Routes.verification),
-                  ),
-
-                  _profileItem(
-                    icon: Icons.security_outlined,
-                    title: 'Security',
-                    onTap: _openSecurity,
-                  ),
-
-                  _profileItem(
-                    icon: Icons.logout_outlined,
-                    title: 'Log Out',
-                    subtitle: 'Sign out of your account',
-                    onTap: _loggingOut ? null : _logout,
-                  ),
-
-                  _sectionTitle('Professional'),
-
-                  _profileItem(
-                    icon: Icons.badge_outlined,
-                    title: 'Agent / Agency space',
-                    subtitle: 'Profile, listings, inquiries and statistics',
-                    onTap: () => context.push(Routes.agentDashboard),
-                  ),
-
-                  _sectionTitle('Activity'),
+                  _sectionTitle('Activité'),
 
                   if (canPublishProperty(authUser))
                     _profileItem(
                       icon: Icons.home_work_outlined,
-                      title: 'My Listings',
-                      subtitle: 'Drafts, pending, published...',
+                      title: 'Mes annonces',
+                      subtitle: 'Brouillons, en attente, publiées…',
                       onTap: () => context.push(Routes.myListings),
                     ),
 
-                  // Destinations that do not exist yet are shown as unavailable
-                  // instead of routing to a blank screen or pretending to work.
                   _profileItem(
                     icon: Icons.favorite_outline,
-                    title: 'Favorites',
-                    subtitle: 'Properties you saved',
+                    title: 'Favoris',
+                    subtitle: 'Les biens que vous avez enregistrés',
                     onTap: () => context.go(Routes.favorites),
-                  ),
-
-                  _profileItem(
-                    icon: Icons.search,
-                    title: 'Saved searches',
-                    unavailable: true,
                   ),
 
                   _profileItem(
@@ -432,6 +387,39 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                     title: 'Signalements et sécurité',
                     subtitle: 'Mes signalements, utilisateurs bloqués',
                     onTap: () => context.push(Routes.myReports), // Module 14
+                  ),
+
+                  _sectionTitle('Compte'),
+
+                  _profileItem(
+                    icon: Icons.notifications_outlined,
+                    title: 'Notifications',
+                    subtitle: _unreadSubtitle(unreadNotifications),
+                    onTap: _openNotifications,
+                  ),
+
+                  _profileItem(
+                    icon: Icons.verified_user_outlined,
+                    title: 'Vérification',
+                    subtitle: 'Identité, propriétaire et professionnel',
+                    onTap: () => context.push(Routes.verification),
+                  ),
+
+                  _profileItem(
+                    icon: Icons.security_outlined,
+                    title: 'Sécurité',
+                    onTap: _openSecurity,
+                  ),
+
+                  _sectionTitle('Professionnel'),
+
+                  _profileItem(
+                    icon: Icons.badge_outlined,
+                    title: authUser.role == UserRole.agent ? 'Espace agent' : 'Devenir agent ou agence',
+                    subtitle: authUser.role == UserRole.agent
+                        ? 'Profil, annonces, demandes et statistiques'
+                        : 'Créez votre profil pro, puis demandez la vérification',
+                    onTap: () => context.push(Routes.agentDashboard),
                   ),
 
                   // ---- Module 17: information pages (texts set by the admin) ----
@@ -453,6 +441,14 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                     icon: Icons.privacy_tip_outlined,
                     title: 'Politique de confidentialité',
                     onTap: () => context.push(Routes.legalPrivacy),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  _profileItem(
+                    icon: Icons.logout_outlined,
+                    title: 'Se déconnecter',
+                    onTap: _loggingOut ? null : _logout,
                   ),
                 ],
               ),

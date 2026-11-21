@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/errors/agent_failure.dart';
-import '../../../../core/services/cloudinary_service.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../properties/data/property_mapper.dart';
 import '../../../properties/domain/entities/property.dart';
@@ -22,9 +21,8 @@ import '../models/agent_misc_models.dart';
 import '../models/agent_profile_model.dart';
 
 class AgentRepositoryImpl implements AgentRepository {
-  AgentRepositoryImpl(this._ds, this._cloudinary);
+  AgentRepositoryImpl(this._ds);
   final AgentRemoteDataSource _ds;
-  final CloudinaryService _cloudinary;
 
   // ---- error mapping ----------------------------------------------------
   static AgentFailure toFailure(Object e, AgentFailureType fallback) {
