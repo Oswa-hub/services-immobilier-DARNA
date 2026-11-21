@@ -36,6 +36,10 @@ class FakeListingRepository implements ListingRepository {
   final created = <Map<String, Object?>>[];
   var createFails = false;
 
+  /// Edit mode (B3).
+  final updated = <Map<String, Object?>>[];
+  final listings = <String, Property>{};
+
   @override
   String newListingId() => 'listing-1';
 
@@ -56,4 +60,16 @@ class FakeListingRepository implements ListingRepository {
     if (createFails) throw const PublishingFailure(PublishingFailureType.network);
     created.add({'id': listingId, 'user': user.id, 'urls': imageUrls});
   }
+
+  @override
+  Future<void> updateListing({
+    required String listingId,
+    required ListingDraft draft,
+    required List<String> imageUrls,
+  }) async {
+    updated.add({'id': listingId, 'urls': imageUrls, 'title': draft.title});
+  }
+
+  @override
+  Future<Property?> loadListing(String listingId) async => listings[listingId];
 }

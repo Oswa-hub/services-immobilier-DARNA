@@ -43,6 +43,8 @@ class PublishingState {
     this.uploadTotal = 0,
     this.listingId,
     this.returnToPreview = false,
+    this.editingId,
+    this.loadingEdit = false,
   });
 
   final ListingDraft draft;
@@ -65,6 +67,14 @@ class PublishingState {
   /// Set when the user jumped back from the preview to fix one thing.
   final bool returnToPreview;
 
+  /// Edit mode (B3): the id of the existing listing being changed, else null.
+  final String? editingId;
+
+  /// The listing to edit is being read.
+  final bool loadingEdit;
+
+  bool get isEdit => editingId != null;
+
   bool get isBusy => phase == PublishPhase.uploading || phase == PublishPhase.submitting;
   bool get isSuccess => phase == PublishPhase.success;
 
@@ -81,6 +91,7 @@ class PublishingState {
     int? uploadTotal,
     String? listingId,
     bool? returnToPreview,
+    bool? loadingEdit,
   }) =>
       PublishingState(
         draft: draft ?? this.draft,
@@ -94,6 +105,8 @@ class PublishingState {
         uploadTotal: uploadTotal ?? this.uploadTotal,
         listingId: listingId ?? this.listingId,
         returnToPreview: returnToPreview ?? this.returnToPreview,
+        editingId: editingId,
+        loadingEdit: loadingEdit ?? this.loadingEdit,
       );
 }
 
@@ -198,6 +211,41 @@ class PublishingController extends Notifier<PublishingState> {
         return d.copyWith(photos: list);
       });
 
+  // ---- edit mode (B3) -------------------------------------------------------------
+  /// Statuses whose content its owner / agent may change (same as the rules).
+  static const editableStatuses = {PropertyStatus.draft, PropertyStatus.rejected, PropertyStatus.published};
+
+  /// Fills the form with the listing [propertyId] and opens the preview, where
+  /// every section has its own "Edit" button. Returns an error message, or null.
+  Future<String?> startEditing(String propertyId) async {
+    if (state.isBusy) return null;
+    if (state.editingId == propertyId && !state.loadingEdit) return null; // already open
+    _uploaded.clear();
+    state = PublishingState(editingId: propertyId, listingId: propertyId, loadingEdit: true);
+    final me = ref.read(currentUserProvider)?.id;
+    final p = await ref.read(listingRepositoryProvider).loadListing(propertyId);
+    if (state.editingId != propertyId) return null; // the user left in the meantime
+    String? problem;
+    if (p == null) {
+      problem = 'Cette annonce est introuvable.';
+    } else if (me == null || (p.ownerId != me && p.agentId != me)) {
+      problem = 'Vous ne pouvez modifier que vos propres annonces.';
+    } else if (!editableStatuses.contains(p.status)) {
+      problem = 'Cette annonce ne peut pas être modifiée dans son état actuel.';
+    }
+    if (problem != null || p == null) {
+      state = const PublishingState();
+      return problem;
+    }
+    state = PublishingState(
+      draft: ListingDraft.fromProperty(p),
+      step: PublishStep.preview,
+      editingId: propertyId,
+      listingId: propertyId,
+    );
+    return null;
+  }
+
   // ---- navigation ----------------------------------------------------------------
   void next() {
     if (state.isBusy) return;
@@ -244,6 +292,7 @@ class PublishingController extends Notifier<PublishingState> {
         user: ref.read(currentUserProvider),
         draft: state.draft,
         uploaded: _uploaded,
+        isEdit: state.isEdit,
         onProgress: (done, total) => state = state.copyWith(
           uploadDone: done,
           uploadTotal: total,

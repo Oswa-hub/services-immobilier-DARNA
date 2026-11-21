@@ -131,8 +131,8 @@ class _GalleryState extends State<_Gallery> {
             PageView.builder(
               itemCount: widget.photos.length,
               onPageChanged: (i) => setState(() => _page = i),
-              itemBuilder: (_, i) => Image.memory(widget.photos[i].bytes,
-                  fit: BoxFit.cover, cacheWidth: 900, semanticLabel: 'Photo ${i + 1}'),
+              itemBuilder: (_, i) =>
+                  ListingPhotoImage(photo: widget.photos[i], cacheWidth: 900, semanticLabel: 'Photo ${i + 1}'),
             ),
             Positioned(
               right: 8,

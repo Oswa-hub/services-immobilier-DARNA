@@ -69,4 +69,42 @@ class PropertyWriteMapper {
       'publishedAt': null, // set by the admin approval (Module 15)
     };
   }
+
+  /// [ListingDraft] -> the fields an owner / agent may change on an EXISTING listing
+  /// (`contentEdit` in firestore.rules). Ownership, counters, verification and the
+  /// dates set by the admin never change here. The listing always goes back to
+  /// moderation: an edited listing is checked again before it is visible.
+  /// Optional fields the user cleared are deleted, not left with their old value.
+  static Map<String, dynamic> editedListing({
+    required ListingDraft draft,
+    required List<String> imageUrls,
+  }) {
+    final type = draft.propertyType!;
+    final studio = type.allowsStudio && draft.isStudio;
+    final area = draft.area.trim();
+    final coords = draft.coordinates;
+    final remove = FieldValue.delete();
+
+    return {
+      'title': draft.title.trim(),
+      'description': draft.description.trim(),
+      'transactionType': draft.transactionType!.name,
+      'propertyType': type.name,
+      'price': ListingValidator.parsePrice(draft.priceText)!,
+      'surface': ListingValidator.parseSurface(draft.surfaceText)!,
+      'bedrooms': (type.usesBedrooms && !studio) ? draft.bedrooms : remove,
+      'bathrooms': type.usesBathrooms ? draft.bathrooms : remove,
+      'isStudio': studio,
+      'isNewBuild': draft.isNewBuild,
+      'governorate': draft.governorate!,
+      'city': draft.city.trim(),
+      'area': area.isNotEmpty ? area : remove,
+      'latitude': coords?.latitude ?? remove,
+      'longitude': coords?.longitude ?? remove,
+      'images': imageUrls,
+      'amenities': draft.amenities.toList()..sort(),
+      'status': PropertyStatus.pendingReview.wire,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+  }
 }

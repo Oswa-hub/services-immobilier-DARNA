@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../domain/entities/listing_draft.dart';
 
 /// Title + helper text at the top of every wizard screen.
 class StepHeader extends StatelessWidget {
@@ -134,4 +135,33 @@ class MessageBanner extends StatelessWidget {
           Expanded(child: Text(message, style: const TextStyle(color: AppColors.text, height: 1.35))),
         ]),
       );
+}
+
+/// A photo of the form: the picked bytes, or the online image of a listing
+/// being edited (`ListingPhoto.remote`).
+class ListingPhotoImage extends StatelessWidget {
+  const ListingPhotoImage({super.key, required this.photo, required this.cacheWidth, this.semanticLabel});
+
+  final ListingPhoto photo;
+  final int cacheWidth;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final url = photo.remoteUrl;
+    if (url != null) {
+      return Image.network(
+        url,
+        fit: BoxFit.cover,
+        cacheWidth: cacheWidth,
+        semanticLabel: semanticLabel,
+        errorBuilder: (_, _, _) => Container(
+          color: AppColors.line,
+          child: const Center(child: Icon(Icons.broken_image_outlined, color: AppColors.muted)),
+        ),
+      );
+    }
+    return Image.memory(photo.bytes,
+        fit: BoxFit.cover, cacheWidth: cacheWidth, gaplessPlayback: true, semanticLabel: semanticLabel);
+  }
 }

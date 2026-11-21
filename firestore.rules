@@ -116,7 +116,13 @@ service cloud.firestore {
         && d.publishedAt == null
         && d.createdAt == request.time
         && d.updatedAt == request.time
+        && validListingContent(d);
+    }
 
+    // Content, location, media and amenities of a listing: shared by a new listing
+    // and an edited one (contentEdit). Mirrors ListingValidator in Flutter.
+    function validListingContent(d) {
+      return true
         // Content.
         && d.title is string && d.title.trim().size() >= 5 && d.title.size() <= 100
         && d.description is string && d.description.trim().size() >= 20 && d.description.size() <= 2000
@@ -150,6 +156,22 @@ service cloud.firestore {
         && d.amenities is list && d.amenities.size() <= 10
         && d.amenities.hasOnly(['parking', 'pool', 'elevator', 'garden', 'seaView', 'centralHeating',
                                 'airConditioning', 'security', 'terrace', 'balcony']);
+    }
+
+    // ---- B3: the owner / agent edits the content of their listing ------------
+    // Only content fields change; ownership, counters, verification and the admin's
+    // dates never do. The listing always goes back to moderation.
+    function contentEdit() {
+      return isListingManager()
+        && canPublish()
+        && resource.data.status in ['draft', 'rejected', 'published']
+        && request.resource.data.status == 'pending_review'
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+             ['title', 'description', 'transactionType', 'propertyType', 'price', 'surface',
+              'bedrooms', 'bathrooms', 'isStudio', 'isNewBuild', 'governorate', 'city', 'area',
+              'latitude', 'longitude', 'images', 'amenities', 'status', 'updatedAt'])
+        && validListingContent(request.resource.data);
     }
 
     // ---- Module 09: lifecycle moves by the listing's owner or its agent ------
@@ -192,7 +214,7 @@ service cloud.firestore {
 
       // Module 09: owner / agent move ONLY status + updatedAt along lifecycleMove().
       // Never published / suspended / expired, never ownerId, agentId, counters.
-      allow update: if isAdmin() || lifecycleMove();
+      allow update: if isAdmin() || lifecycleMove() || contentEdit();
 
       // Owners may delete only what is not live or under review.
       allow delete: if isAdmin()

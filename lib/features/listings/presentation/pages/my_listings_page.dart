@@ -8,6 +8,7 @@ import '../../../../core/widgets/property_image.dart';
 import '../../../properties/domain/entities/property.dart';
 import '../../domain/listing_actions.dart';
 import '../../providers/my_listings_providers.dart';
+import '../../../publishing/presentation/providers/publishing_provider.dart' show PublishingController;
 import '../../../verification/domain/entities/verification_enums.dart';
 
 /// Module 09 — owner / agent dashboard of their own listings, grouped by status.
@@ -169,7 +170,9 @@ class _ActionsMenu extends ConsumerWidget {
       onSelected: (a) => _handle(context, ref, a),
       itemBuilder: (_) => [
         if (property.isPublic) const PopupMenuItem(value: _Action.view, child: Text('View listing')),
-        const PopupMenuItem(value: _Action.edit, enabled: false, child: Text('Edit (coming with Module 08)')),
+        // Edited listings go back to moderation (rules: contentEdit).
+        if (PublishingController.editableStatuses.contains(property.status))
+          const PopupMenuItem(value: _Action.edit, child: Text('Modifier')),
         // Module 13: only a listing that is not removed can ask for verification.
         if (property.status != PropertyStatus.removed && property.status != PropertyStatus.draft)
           PopupMenuItem(
@@ -199,6 +202,12 @@ class _ActionsMenu extends ConsumerWidget {
           context.push(Routes.propertyDetails(id));
           return;
         case _Action.edit:
+          if (property.status == PropertyStatus.published &&
+              !await _confirm(context, 'Modifier cette annonce ?',
+                  'Après vos modifications, elle sera de nouveau vérifiée par notre équipe et masquée jusqu\'à validation.')) {
+            return;
+          }
+          if (context.mounted) context.push(Routes.publishWith(editPropertyId: id));
           return;
         case _Action.verify:
           // Existing request -> its details; otherwise the submit form. The form
