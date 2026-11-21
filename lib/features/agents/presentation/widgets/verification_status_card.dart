@@ -20,36 +20,36 @@ class VerificationStatusCard extends StatelessWidget {
         VerificationStatus.notSubmitted => (
             icon: Icons.shield_outlined,
             color: AppColors.muted,
-            title: 'Not verified',
-            body: 'Submit your documents to earn the verified badge.',
+            title: 'Non vérifié',
+            body: 'Envoyez vos documents pour obtenir le badge vérifié.',
           ),
         VerificationStatus.pending => (
             icon: Icons.hourglass_top_rounded,
             color: const Color(0xFFB7791F),
-            title: 'Verification pending',
+            title: 'Vérification en cours',
             body: request?.submittedAt == null
-                ? 'Your request is being reviewed.'
-                : 'Submitted on ${formatShortDate(request!.submittedAt!)}. We are reviewing it.',
+                ? 'Votre demande est en cours d\'examen.'
+                : 'Envoyée le ${formatShortDate(request!.submittedAt!)}. Nous l\'examinons.',
           ),
         VerificationStatus.approved => (
             icon: Icons.verified_rounded,
             color: AppColors.success,
-            title: 'Verified professional',
-            body: 'Your profile shows the verified badge.',
+            title: 'Professionnel vérifié',
+            body: 'Votre profil affiche le badge vérifié.',
           ),
         VerificationStatus.rejected => (
             icon: Icons.error_outline_rounded,
             color: AppColors.error,
-            title: 'Verification rejected',
+            title: 'Vérification refusée',
             body: (request?.rejectionReason ?? '').isEmpty
-                ? 'Please correct your documents and resubmit.'
+                ? 'Corrigez vos documents puis renvoyez-les.'
                 : request!.rejectionReason!,
           ),
         VerificationStatus.expired => (
             icon: Icons.history_toggle_off_rounded,
             color: AppColors.error,
-            title: 'Verification expired',
-            body: 'Submit updated documents to restore your badge.',
+            title: 'Vérification expirée',
+            body: 'Envoyez des documents à jour pour retrouver votre badge.',
           ),
       };
 

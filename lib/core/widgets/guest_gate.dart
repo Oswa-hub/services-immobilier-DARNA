@@ -72,7 +72,7 @@ class GuestGate extends ConsumerWidget {
                       style: const TextStyle(fontSize: 14, height: 1.4, color: AppColors.muted)),
                   const SizedBox(height: 24),
                   FilledButton(
-                    onPressed: () => context.push(Routes.login),
+                    onPressed: () => context.push(Routes.loginFrom(GoRouterState.of(context).uri.toString())),
                     child: const Text('Se connecter'),
                   ),
                   const SizedBox(height: 10),

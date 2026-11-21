@@ -22,7 +22,7 @@ class VerificationStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = _style;
     return Semantics(
-      label: 'Verification status: ${status.label}',
+      label: 'Statut de vérification : ${status.label}',
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(

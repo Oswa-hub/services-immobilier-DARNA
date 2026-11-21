@@ -28,12 +28,12 @@ class ProfileCompletion {
 
     bool has(String? s) => s != null && s.trim().isNotEmpty;
 
-    item(has(p.profileImageUrl), 15, p.isAgency ? 'Add your logo' : 'Add a profile photo');
-    item(p.serviceAreas.isNotEmpty, 7, 'Add the areas you serve');
-    item(has(p.address), 5, 'Add your office address');
-    item(p.languages.isNotEmpty, 4, 'Add the languages you speak');
-    item(has(p.website), 4, 'Add your website');
-    item(p.yearsOfExperience != null, 5, 'Add your years of experience');
+    item(has(p.profileImageUrl), 15, p.isAgency ? 'Ajoutez votre logo' : 'Ajoutez une photo de profil');
+    item(p.serviceAreas.isNotEmpty, 7, 'Ajoutez vos zones desservies');
+    item(has(p.address), 5, 'Ajoutez l\'adresse de votre bureau');
+    item(p.languages.isNotEmpty, 4, 'Ajoutez les langues parlées');
+    item(has(p.website), 4, 'Ajoutez votre site web');
+    item(p.yearsOfExperience != null, 5, 'Ajoutez vos années d\'expérience');
 
     return ProfileCompletion(score.clamp(0, 100), missing);
   }

@@ -88,13 +88,13 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       case ClosestOutcome.applied:
         break;
       case ClosestOutcome.denied:
-        _snack('Location permission is needed to sort by distance.');
+        _snack('L\'accès à la position est nécessaire pour trier par distance.');
       case ClosestOutcome.deniedForever:
-        _snack('Location is blocked for ImmoFind. Enable it in system settings to sort by distance.');
+        _snack('La position est bloquée pour DARNA. Activez-la dans les réglages pour trier par distance.');
       case ClosestOutcome.serviceDisabled:
-        _snack('Turn on location services to sort by distance.');
+        _snack('Activez la localisation pour trier par distance.');
       case ClosestOutcome.error:
-        _snack("Couldn't get your location. Sorting was not changed.");
+        _snack('Position introuvable. Le tri n\'a pas changé.');
     }
   }
 
@@ -110,7 +110,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
     final count = s.items.length;
     final countLabel = s.isLoading
-        ? 'Searching...'
+        ? 'Recherche…'
         : s.status == SearchStatus.error
             ? ''
             : '$count${s.hasMore ? '+' : ''} ${count == 1 && !s.hasMore ? 'property' : 'properties'}';
@@ -130,14 +130,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   onChanged: c.setQueryText,
                   onSubmitted: (v) => c.setQueryText(v),
                   decoration: InputDecoration(
-                    hintText: 'City, neighborhood or keyword',
+                    hintText: 'Ville, quartier ou mot-clé',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: ValueListenableBuilder<TextEditingValue>(
                       valueListenable: _query,
                       builder: (_, v, _) => v.text.isEmpty
                           ? const SizedBox.shrink()
                           : IconButton(
-                              tooltip: 'Clear search',
+                              tooltip: 'Effacer la recherche',
                               icon: const Icon(Icons.clear),
                               onPressed: () {
                                 _query.clear();
@@ -153,7 +153,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 label: Text('${s.filter.activeFilterCount}'),
                 isLabelVisible: s.filter.activeFilterCount > 0,
                 child: IconButton.filledTonal(
-                  tooltip: 'Filters',
+                  tooltip: 'Filtres',
                   onPressed: _openFilters,
                   icon: const Icon(Icons.tune_rounded),
                 ),
@@ -180,8 +180,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 showSelectedIcon: false,
                 style: const ButtonStyle(visualDensity: VisualDensity.compact),
                 segments: const [
-                  ButtonSegment(value: SearchViewMode.list, icon: Icon(Icons.view_agenda_outlined), tooltip: 'List'),
-                  ButtonSegment(value: SearchViewMode.map, icon: Icon(Icons.map_outlined), tooltip: 'Map'),
+                  ButtonSegment(value: SearchViewMode.list, icon: Icon(Icons.view_agenda_outlined), tooltip: 'Liste'),
+                  ButtonSegment(value: SearchViewMode.map, icon: Icon(Icons.map_outlined), tooltip: 'Carte'),
                 ],
                 selected: {s.viewMode},
                 onSelectionChanged: (v) => c.setViewMode(v.first),
@@ -272,12 +272,12 @@ class _Footer extends StatelessWidget {
         child: TextButton.icon(
           onPressed: onMore,
           icon: const Icon(Icons.refresh),
-          label: const Text("Couldn't load more. Tap to retry"),
+          label: const Text('Chargement impossible. Touchez pour réessayer'),
         ),
       );
     }
     if (state.hasMore) {
-      return Center(child: TextButton(onPressed: onMore, child: const Text('Load more')));
+      return Center(child: TextButton(onPressed: onMore, child: const Text('Voir plus')));
     }
     return const SizedBox(height: 8);
   }

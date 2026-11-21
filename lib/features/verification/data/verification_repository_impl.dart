@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../core/config/env.dart';
 import '../../../core/errors/verification_failure.dart';
 import '../../../core/services/cloudinary_service.dart';
 import '../../properties/domain/entities/property.dart';
@@ -105,8 +106,8 @@ class VerificationRepositoryImpl implements VerificationRepository {
         throw VerificationFailure(
           VerificationFailureType.invalidStatusTransition,
           detail: status == VerificationStatus.pending
-              ? 'A request is already under review.'
-              : 'This target is already verified.',
+              ? 'Une demande est déjà en cours d\'examen.'
+              : 'Déjà vérifié.',
         );
       }
       final attempt = (current?.attemptNumber ?? 0) + 1;
@@ -252,6 +253,18 @@ class VerificationRepositoryImpl implements VerificationRepository {
   Future<void> markExpired(String id) => _decide(id, to: VerificationStatus.expired);
 
   @override
-  Future<Uri> documentLink(String verificationId, String documentId) =>
-      _links.link(verificationId: verificationId, documentId: documentId);
+  Future<Uri> documentLink(String verificationId, String documentId) async {
+    // A signing backend, when one is configured, keeps the documents private.
+    if (Env.verificationDocumentEndpointConfigured) {
+      return _links.link(verificationId: verificationId, documentId: documentId);
+    }
+    // B5 (Spark plan, no backend): the verification preset delivers documents as
+    // public assets with unguessable ids, so the reviewer opens them directly.
+    final record = await getVerification(verificationId);
+    final matches = (record?.documents ?? const <VerificationDocument>[]).where((d) => d.documentId == documentId);
+    if (matches.isEmpty) throw const VerificationFailure(VerificationFailureType.notFound);
+    final doc = matches.first;
+    final ext = (doc.format ?? '').isEmpty ? '' : '.${doc.format}';
+    return Uri.https('res.cloudinary.com', '/${Env.cloudinaryCloudName}/image/upload/${doc.storagePath}$ext');
+  }
 }

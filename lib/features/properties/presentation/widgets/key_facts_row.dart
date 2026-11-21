@@ -17,10 +17,10 @@ class KeyFactsRow extends StatelessWidget {
     final facts = <(IconData, String, String)>[
       (Icons.home_work_outlined, p.propertyType.label, 'Type'),
       if (p.isStudio)
-        (Icons.bed_outlined, 'Studio', 'Bedrooms')
+        (Icons.bed_outlined, 'Studio', 'Chambres')
       else if (p.bedrooms != null)
-        (Icons.bed_outlined, '${p.bedrooms}', 'Bedrooms'),
-      if (p.bathrooms != null) (Icons.bathtub_outlined, '${p.bathrooms}', 'Bathrooms'),
+        (Icons.bed_outlined, '${p.bedrooms}', 'Chambres'),
+      if (p.bathrooms != null) (Icons.bathtub_outlined, '${p.bathrooms}', 'Salles de bain'),
       if (p.surface != null) (Icons.square_foot_rounded, '${p.surface!.round()} m²', 'Surface'),
     ];
 

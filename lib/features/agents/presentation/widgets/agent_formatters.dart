@@ -1,4 +1,4 @@
-const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const _months = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
 
 /// `08 Nov 2026`
 String formatShortDate(DateTime d) {
@@ -9,10 +9,10 @@ String formatShortDate(DateTime d) {
 /// `just now`, `5 min ago`, `3 h ago`, `2 d ago`, else a short date.
 String formatRelative(DateTime d, {DateTime? now}) {
   final diff = (now ?? DateTime.now()).difference(d);
-  if (diff.inSeconds < 60) return 'just now';
-  if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
-  if (diff.inHours < 24) return '${diff.inHours} h ago';
-  if (diff.inDays < 7) return '${diff.inDays} d ago';
+  if (diff.inSeconds < 60) return 'à l\'instant';
+  if (diff.inMinutes < 60) return 'il y a ${diff.inMinutes} min';
+  if (diff.inHours < 24) return 'il y a ${diff.inHours} h';
+  if (diff.inDays < 7) return 'il y a ${diff.inDays} j';
   return formatShortDate(d);
 }
 

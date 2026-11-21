@@ -14,7 +14,7 @@ void main() {
     expect(find.text('Modern Villa'), findsOneWidget);
     expect(find.text('La Marsa, Tunis'), findsOneWidget);
     expect(find.text('350 m²'), findsOneWidget);
-    expect(find.text('Verified'), findsOneWidget);
+    expect(find.text('Vérifié'), findsOneWidget);
     expect(find.byIcon(Icons.home_work_outlined), findsOneWidget); // placeholder
   });
 
@@ -24,7 +24,7 @@ void main() {
     expect(find.byIcon(Icons.bed_outlined), findsNothing);
     expect(find.byIcon(Icons.square_foot_rounded), findsNothing);
     expect(find.text('0'), findsNothing);
-    expect(find.text('Verified'), findsNothing); // badge only when verified by data
+    expect(find.text('Vérifié'), findsNothing); // badge only when verified by data
   });
 
   testWidgets('rent shows per-month price; tap fires callback', (tester) async {
@@ -34,13 +34,13 @@ void main() {
       onTap: () => tapped++,
     )));
     expect(find.text('1,200 TND / month'), findsOneWidget);
-    expect(find.text('For rent'), findsOneWidget);
+    expect(find.text('À louer'), findsOneWidget);
     await tester.tap(find.byType(InkWell).first);
     expect(tapped, 1);
   });
 
   testWidgets('favorite control has a semantic label', (tester) async {
     await tester.pumpWidget(host(PropertyCard(property: makeProperty(), onTap: () {}, onFavoriteTap: () {})));
-    expect(find.bySemanticsLabel('Add to favorites'), findsOneWidget);
+    expect(find.bySemanticsLabel('Ajouter aux favoris'), findsOneWidget);
   });
 }

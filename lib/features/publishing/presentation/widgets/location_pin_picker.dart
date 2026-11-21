@@ -62,13 +62,13 @@ class _LocationPinPickerState extends ConsumerState<LocationPinPicker> {
         _note = null;
       case DeviceLocationDenied():
         _note =
-            'Location permission was not granted. You can tap the map instead.';
+            'Accès à la position refusé. Touchez la carte à la place.';
       case DeviceLocationDeniedForever():
-        _note = 'Location is blocked in your settings. You can tap the map instead.';
+        _note = 'La position est bloquée dans vos réglages. Touchez la carte à la place.';
       case DeviceLocationServiceDisabled():
-        _note = 'Turn on location services, or tap the map instead.';
+        _note = 'Activez la localisation ou touchez la carte.';
       case DeviceLocationError():
-        _note = 'Could not get your position. You can tap the map instead.';
+        _note = 'Position introuvable. Touchez la carte à la place.';
     }
     setState(() => _locating = false);
   }
@@ -80,12 +80,12 @@ class _LocationPinPickerState extends ConsumerState<LocationPinPicker> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Exact position (optional)',
+          'Position exacte (facultatif)',
           style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
         ),
         const SizedBox(height: 4),
         const Text(
-          'Pin the property so it appears on the map. Without a pin the listing is still shown in search, but not on the map.',
+          'Placez le bien sur la carte. Sans repère, l\'annonce apparaît dans la recherche mais pas sur la carte.',
           style: TextStyle(color: AppColors.muted, height: 1.35),
         ),
         const SizedBox(height: 10),
@@ -152,13 +152,13 @@ class _LocationPinPickerState extends ConsumerState<LocationPinPicker> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.my_location, size: 18),
-              label: const Text('Use my location'),
+              label: const Text('Utiliser ma position'),
             ),
             if (c != null)
               TextButton.icon(
                 onPressed: () => widget.onChanged(null),
                 icon: const Icon(Icons.close, size: 18),
-                label: const Text('Remove pin'),
+                label: const Text('Retirer le repère'),
               ),
           ],
         ),
@@ -166,7 +166,7 @@ class _LocationPinPickerState extends ConsumerState<LocationPinPicker> {
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              'Pinned: ${c.latitude.toStringAsFixed(5)}, ${c.longitude.toStringAsFixed(5)}',
+              'Repère : ${c.latitude.toStringAsFixed(5)}, ${c.longitude.toStringAsFixed(5)}',
               style: const TextStyle(color: AppColors.muted, fontSize: 12.5),
             ),
           ),

@@ -27,18 +27,18 @@ class VerificationFailure implements Exception {
   final String? detail;
 
   String get message => switch (type) {
-        VerificationFailureType.unauthenticated => 'Please sign in again.',
-        VerificationFailureType.permissionDenied => 'You do not have permission to perform this action.',
-        VerificationFailureType.notFound => 'This verification request could not be found.',
-        VerificationFailureType.invalidTargetType => 'This type of verification is not supported.',
-        VerificationFailureType.validationFailed => detail ?? 'Please complete all required fields.',
+        VerificationFailureType.unauthenticated => 'Veuillez vous reconnecter.',
+        VerificationFailureType.permissionDenied => 'Vous n\'avez pas le droit de faire cette action.',
+        VerificationFailureType.notFound => 'Cette demande de vérification est introuvable.',
+        VerificationFailureType.invalidTargetType => 'Ce type de vérification n\'est pas pris en charge.',
+        VerificationFailureType.validationFailed => detail ?? 'Veuillez remplir tous les champs obligatoires.',
         VerificationFailureType.invalidStatusTransition =>
-          detail ?? 'This action is not allowed for the current status.',
-        VerificationFailureType.alreadyReviewed => 'This request has already been reviewed. Refresh the page.',
-        VerificationFailureType.documentUploadFailed => 'The document could not be uploaded. Please try again.',
-        VerificationFailureType.documentAccessFailed => 'The document could not be opened. Please try again.',
-        VerificationFailureType.network => 'We could not reach the server. Check your connection and try again.',
-        VerificationFailureType.unknown => 'Something went wrong. Please try again.',
+          detail ?? 'Cette action n\'est pas possible dans le statut actuel.',
+        VerificationFailureType.alreadyReviewed => 'Cette demande a déjà été traitée. Actualisez la page.',
+        VerificationFailureType.documentUploadFailed => 'Le document n\'a pas pu être envoyé. Réessayez.',
+        VerificationFailureType.documentAccessFailed => 'Impossible d\'ouvrir le document. Réessayez.',
+        VerificationFailureType.network => 'Serveur injoignable. Vérifiez votre connexion et réessayez.',
+        VerificationFailureType.unknown => 'Une erreur est survenue. Réessayez.',
       };
 
   @override

@@ -15,10 +15,10 @@ class FavoriteFailure implements Exception {
   final FavoriteFailureType type;
 
   String get message => switch (type) {
-        FavoriteFailureType.permissionDenied => "You can't change favorites right now. Please sign in again.",
-        FavoriteFailureType.network => "Couldn't reach the server. Check your connection and try again.",
-        FavoriteFailureType.invalidInput => 'This property cannot be saved.',
-        FavoriteFailureType.unknown => 'Something went wrong with your favorites.',
+        FavoriteFailureType.permissionDenied => 'Impossible de modifier les favoris. Reconnectez-vous.',
+        FavoriteFailureType.network => 'Serveur injoignable. Vérifiez votre connexion et réessayez.',
+        FavoriteFailureType.invalidInput => 'Ce bien ne peut pas être enregistré.',
+        FavoriteFailureType.unknown => 'Une erreur est survenue avec vos favoris.',
       };
 
   @override

@@ -100,7 +100,7 @@ void main() {
     final ds = FakeSearchDataSource([for (var i = 0; i < 1000; i++) rawDoc('p$i')]);
     final page = await repoOf(ds).search(newest.copyWith(propertyType: PropertyType.land), pageSize: 20);
     expect(page.items, isEmpty);
-    expect(page.hasMore, isTrue); // more exists: the UI offers "Load more"
+    expect(page.hasMore, isTrue); // more exists: the UI offers 'Voir plus'
     expect(ds.calls, lessThanOrEqualTo(8));
     // continuing from the cursor keeps going
     final next = await repoOf(ds).search(newest.copyWith(propertyType: PropertyType.land),

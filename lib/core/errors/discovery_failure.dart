@@ -6,9 +6,9 @@ class DiscoveryFailure implements Exception {
   final DiscoveryFailureType type;
 
   String get message => switch (type) {
-        DiscoveryFailureType.network => "Couldn't load properties. Check your connection and try again.",
-        DiscoveryFailureType.permissionDenied => "You don't have access to these listings right now.",
-        DiscoveryFailureType.unknown => 'Something went wrong while loading properties.',
+        DiscoveryFailureType.network => 'Impossible de charger les biens. Vérifiez votre connexion et réessayez.',
+        DiscoveryFailureType.permissionDenied => 'Vous n\'avez pas accès à ces annonces pour le moment.',
+        DiscoveryFailureType.unknown => 'Une erreur est survenue pendant le chargement des biens.',
       };
 
   @override

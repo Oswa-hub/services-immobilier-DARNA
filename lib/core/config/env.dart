@@ -41,7 +41,7 @@ class Env {
   /// Identifies the app to the tile server (OSM policy): use your applicationId.
   static String get mapUserAgentPackage {
     final v = _get('MAP_USER_AGENT_PACKAGE');
-    return _isSet(v) ? v : 'com.example.teamApp';
+    return _isSet(v) ? v : 'com.darna.app';
   }
 
   // ---- Firebase (public client identifiers, see firebase_options.dart) ------

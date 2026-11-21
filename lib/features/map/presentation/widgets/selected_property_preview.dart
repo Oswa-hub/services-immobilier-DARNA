@@ -23,7 +23,7 @@ class SelectedPropertyPreview extends StatelessWidget {
       if (p.bathrooms != null) (Icons.bathtub_outlined, '${p.bathrooms}'),
       if (p.surface != null) (Icons.square_foot_rounded, '${p.surface!.round()} m²'),
     ];
-    final tx = p.transactionType == TransactionType.rent ? 'For rent' : 'For sale';
+    final tx = p.transactionType == TransactionType.rent ? 'À louer' : 'À vendre';
 
     return Card(
       margin: EdgeInsets.zero,
@@ -77,7 +77,7 @@ class SelectedPropertyPreview extends StatelessWidget {
                             const Row(mainAxisSize: MainAxisSize.min, children: [
                               Icon(Icons.verified_rounded, size: 14, color: AppColors.success),
                               SizedBox(width: 2),
-                              Text('Verified', style: TextStyle(fontSize: 12, color: AppColors.success)),
+                              Text('Vérifié', style: TextStyle(fontSize: 12, color: AppColors.success)),
                             ]),
                           for (final f in facts)
                             Row(mainAxisSize: MainAxisSize.min, children: [
@@ -92,14 +92,14 @@ class SelectedPropertyPreview extends StatelessWidget {
                 ]),
               ),
             ),
-            IconButton(tooltip: 'Close preview', onPressed: onClose, icon: const Icon(Icons.close, size: 20)),
+            IconButton(tooltip: 'Fermer l\'aperçu', onPressed: onClose, icon: const Icon(Icons.close, size: 20)),
           ]),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.only(right: 6),
             child: SizedBox(
               width: double.infinity,
-              child: FilledButton(onPressed: onOpen, child: const Text('View details')),
+              child: FilledButton(onPressed: onOpen, child: const Text('Voir le détail')),
             ),
           ),
         ]),

@@ -82,7 +82,7 @@ class SearchResultsController extends Notifier<SearchState> {
       );
     } on InvalidSearchFilter {
       if (seq != _seq) return;
-      state = state.copyWith(status: SearchStatus.error, errorMessage: 'Please check the filter values.');
+      state = state.copyWith(status: SearchStatus.error, errorMessage: 'Vérifiez les valeurs des filtres.');
     } on DiscoveryFailure catch (e) {
       if (seq != _seq) return;
       state = state.copyWith(status: SearchStatus.error, errorMessage: e.message);

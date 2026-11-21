@@ -57,18 +57,18 @@ class PropertyCard extends StatelessWidget {
                   children: [
                     PropertyImage(url: p.mainImage),
                     if (p.isVerified)
-                      const Positioned(left: 8, top: 8, child: _Badge(icon: Icons.verified_rounded, label: 'Verified')),
+                      const Positioned(left: 8, top: 8, child: _Badge(icon: Icons.verified_rounded, label: 'Vérifié')),
                     if (p.isNewBuild)
                       Positioned(
                         left: 8,
                         top: p.isVerified ? 36 : 8,
-                        child: const _Badge(label: 'New build'),
+                        child: const _Badge(label: 'Neuf'),
                       ),
                     Positioned(
                       left: 8,
                       bottom: 8,
                       child: _Badge(
-                        label: p.transactionType == TransactionType.rent ? 'For rent' : 'For sale',
+                        label: p.transactionType == TransactionType.rent ? 'À louer' : 'À vendre',
                         dark: true,
                       ),
                     ),
@@ -81,7 +81,7 @@ class PropertyCard extends StatelessWidget {
                         child: Semantics(
                           container: true,
                           button: true,
-                          label: isFavorite ? 'Remove from favorites' : 'Add to favorites',
+                          label: isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris',
                           child: IconButton(
                             onPressed: onFavoriteTap,
                             style: IconButton.styleFrom(backgroundColor: Colors.white, minimumSize: const Size(40, 40)),

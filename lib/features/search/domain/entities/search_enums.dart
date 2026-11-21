@@ -1,11 +1,11 @@
 /// Sort modes (spec §3.3).
 enum SortOption {
-  recommended('Recommended'),
-  newest('Newest'),
-  lowestPrice('Lowest price'),
-  highestPrice('Highest price'),
-  largestSurface('Largest surface'),
-  closest('Closest');
+  recommended('Recommandés'),
+  newest('Plus récents'),
+  lowestPrice('Prix croissant'),
+  highestPrice('Prix décroissant'),
+  largestSurface('Plus grande surface'),
+  closest('Plus proches');
 
   const SortOption(this.label);
   final String label;

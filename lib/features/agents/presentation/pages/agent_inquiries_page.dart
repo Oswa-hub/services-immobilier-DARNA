@@ -17,20 +17,20 @@ class AgentInquiriesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AgentGate(
-        title: 'Inquiries',
+        title: 'Demandes',
         builder: (context, ref, profile) {
           final inquiries = ref.watch(agentInquiriesProvider);
           final me = ref.watch(currentUserProvider)?.id ?? '';
           return Scaffold(
             backgroundColor: AppColors.background,
-            appBar: AppBar(title: const Text('Inquiries')),
+            appBar: AppBar(title: const Text('Demandes')),
             body: inquiries.when(
               loading: () => ListView(
                 padding: const EdgeInsets.all(20),
                 children: const [SkeletonBox(height: 84), SizedBox(height: 10), SkeletonBox(height: 84), SizedBox(height: 10), SkeletonBox(height: 84)],
               ),
               error: (_, _) => AgentErrorView(
-                message: 'We could not load your inquiries. Please try again.',
+                message: 'Impossible de charger vos demandes. Réessayez.',
                 onRetry: () => ref.invalidate(agentInquiriesProvider),
               ),
               data: (items) => RefreshIndicator(
@@ -41,7 +41,7 @@ class AgentInquiriesPage extends StatelessWidget {
                           height: 380,
                           child: AgentEmptyView(
                             icon: Icons.chat_bubble_outline_rounded,
-                            message: 'You do not have any inquiries yet. New messages about your properties will appear here.',
+                            message: 'Vous n\'avez encore aucune demande. Les nouveaux messages sur vos biens apparaîtront ici.',
                           ),
                         ),
                       ])

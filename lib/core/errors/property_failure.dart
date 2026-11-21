@@ -15,9 +15,9 @@ class PropertyFailure implements Exception {
   String get message => switch (type) {
         PropertyFailureType.notFound ||
         PropertyFailureType.unavailable =>
-          'This property is no longer available.',
-        PropertyFailureType.network => "Couldn't load this property. Check your connection and try again.",
-        PropertyFailureType.unknown => 'Something went wrong while loading this property.',
+          'Ce bien n\'est plus disponible.',
+        PropertyFailureType.network => 'Impossible de charger ce bien. Vérifiez votre connexion et réessayez.',
+        PropertyFailureType.unknown => 'Impossible de charger ce bien.',
       };
 
   @override

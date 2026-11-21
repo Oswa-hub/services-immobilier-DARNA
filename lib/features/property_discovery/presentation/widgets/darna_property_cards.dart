@@ -152,7 +152,7 @@ class FeaturedPropertyCard extends StatelessWidget {
                       child: Wrap(spacing: 6, runSpacing: 6, children: [
                         if (p.isVerified) const _Chip(label: 'Vérifié', icon: Icons.verified_rounded),
                         if (p.isNewBuild) const _Chip(label: 'Neuf'),
-                        _Chip(label: p.transactionType == TransactionType.rent ? 'Location' : 'Vente', filled: true),
+                        _Chip(label: p.transactionType == TransactionType.rent ? 'Localisation' : 'Vente', filled: true),
                       ]),
                     ),
                     if (onFavoriteTap != null)

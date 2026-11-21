@@ -49,7 +49,7 @@ void main() {
     expect(find.text('Flat B'), findsOneWidget);
     expect(find.byType(PropertyCard), findsNWidgets(2));
     expect(find.text('2 properties'), findsOneWidget);
-    expect(find.text('Recommended'), findsOneWidget); // current sort label
+    expect(find.text('Recommandés'), findsOneWidget); // current sort label
   });
 
   testWidgets('tabs filter for real; empty state offers Clear filters', (tester) async {
@@ -59,12 +59,12 @@ void main() {
     });
     await pumpSearch(tester, repo);
 
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Rent'));
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Louer'));
     await tester.pumpAndSettle();
     expect(repo.calls.last.filter.transactionType, TransactionType.rent);
-    expect(find.text('No properties match your search'), findsOneWidget);
+    expect(find.text('Aucun bien ne correspond à votre recherche'), findsOneWidget);
 
-    await tester.tap(find.text('Clear filters'));
+    await tester.tap(find.text('Effacer les filtres'));
     await tester.pumpAndSettle();
     expect(find.text('Villa A'), findsOneWidget);
     expect(repo.calls.last.filter.transactionType, isNull);
@@ -78,9 +78,9 @@ void main() {
     });
     final c = await pumpSearch(tester, repo);
 
-    expect(find.text("The search couldn't be loaded"), findsOneWidget);
+    expect(find.text('Impossible de charger la recherche'), findsOneWidget);
     fail = false;
-    await tester.tap(find.text('Retry'));
+    await tester.tap(find.text('Réessayer'));
     await tester.pumpAndSettle();
     expect(find.text('Back again'), findsOneWidget);
     expect(c.read(searchResultsProvider).status.name, 'success');
@@ -90,9 +90,9 @@ void main() {
     final repo = FakeSearchRepository((_, _) async => pageOf([makeProperty()]));
     await pumpSearch(tester, repo);
 
-    await tester.tap(find.byTooltip('Filters'));
+    await tester.tap(find.byTooltip('Filtres'));
     await tester.pumpAndSettle();
-    expect(find.text('Apply filters'), findsOneWidget);
+    expect(find.text('Appliquer'), findsOneWidget);
 
     final minField = find.widgetWithText(TextField, 'Min').first;
     final maxField = find.widgetWithText(TextField, 'Max').first;
@@ -100,15 +100,15 @@ void main() {
     await tester.enterText(maxField, '100000');
     await tester.pump();
 
-    expect(find.text('Minimum price must not exceed maximum'), findsOneWidget);
-    expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Apply filters')).onPressed, isNull);
+    expect(find.text('Prix minimum supérieur au maximum'), findsOneWidget);
+    expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Appliquer')).onPressed, isNull);
 
     await tester.enterText(maxField, '900000');
     await tester.pump();
-    expect(find.text('Minimum price must not exceed maximum'), findsNothing);
+    expect(find.text('Prix minimum supérieur au maximum'), findsNothing);
 
     final before = repo.calls.length;
-    await tester.tap(find.widgetWithText(FilledButton, 'Apply filters'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Appliquer'));
     await tester.pumpAndSettle();
     expect(repo.calls.length, before + 1);
     expect(repo.calls.last.filter.minPrice, 500000);
@@ -126,19 +126,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Villa'), findsOneWidget); // chip label
 
-    await tester.tap(find.byTooltip('Remove filter'));
+    await tester.tap(find.byTooltip('Retirer le filtre'));
     await tester.pumpAndSettle();
     expect(c.read(searchResultsProvider).filter.propertyType, isNull);
-    expect(find.byTooltip('Remove filter'), findsNothing);
+    expect(find.byTooltip('Retirer le filtre'), findsNothing);
   });
 
   testWidgets('sort sheet changes the sort', (tester) async {
     final repo = FakeSearchRepository((_, _) async => pageOf([makeProperty()]));
     await pumpSearch(tester, repo);
 
-    await tester.tap(find.text('Recommended'));
+    await tester.tap(find.text('Recommandés'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Lowest price'));
+    await tester.tap(find.text('Prix croissant'));
     await tester.pumpAndSettle();
     expect(repo.calls.last.filter.sort, SortOption.lowestPrice);
   });
@@ -149,11 +149,11 @@ void main() {
     await pumpSearch(tester, repo);
     final callsBefore = repo.calls.length;
 
-    await tester.tap(find.byTooltip('Map'));
+    await tester.tap(find.byTooltip('Carte'));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byType(MapCanvas), findsOneWidget);
 
-    await tester.tap(find.byTooltip('List'));
+    await tester.tap(find.byTooltip('Liste'));
     await tester.pumpAndSettle();
     expect(find.text('Villa A'), findsOneWidget);
     expect(repo.calls.length, callsBefore); // switching views never re-queries

@@ -4,26 +4,26 @@ import '../../domain/usecases/get_current_location.dart';
 class MapStrings {
   MapStrings._();
 
-  static const loading = 'Loading properties…';
-  static const searchArea = 'Search this area';
-  static const emptyTitle = 'No properties found in this area';
-  static const emptyMessage = 'Move the map or change your filters.';
-  static const errorTitle = "We couldn't load properties for this area";
-  static const noCoordsTitle = 'None of these results has a map location';
-  static const noCoordsMessage = 'They are still available in the list.';
+  static const loading = 'Chargement des biens…';
+  static const searchArea = 'Rechercher dans cette zone';
+  static const emptyTitle = 'Aucun bien dans cette zone';
+  static const emptyMessage = 'Déplacez la carte ou modifiez vos filtres.';
+  static const errorTitle = 'Impossible de charger les biens de cette zone';
+  static const noCoordsTitle = 'Aucun de ces résultats n\'est placé sur la carte';
+  static const noCoordsMessage = 'Ils restent disponibles dans la liste.';
 
-  static const explainTitle = 'Show listings near you?';
+  static const explainTitle = 'Afficher les biens près de vous ?';
   static const explainBody =
-      'ImmoFind uses your location only to center the map around you. It is not saved or shared, '
-      'and you can keep exploring the map without it.';
+      'DARNA utilise votre position uniquement pour centrer la carte. Elle n\'est ni enregistrée ni partagée, '
+      'et vous pouvez explorer la carte sans elle.';
 
   static String locationNotice(LocateOutcome o) => switch (o) {
-        LocateOutcome.denied => 'Location permission was declined. You can still explore the map manually.',
+        LocateOutcome.denied => 'Accès à la position refusé. Vous pouvez explorer la carte vous-même.',
         LocateOutcome.deniedForever =>
-          'Location is blocked for ImmoFind. Enable it in system settings, or keep exploring manually.',
+          'La position est bloquée pour DARNA. Activez-la dans les réglages, ou explorez la carte vous-même.',
         LocateOutcome.serviceDisabled =>
-          'Your location is unavailable. Turn on location services, or explore the map manually.',
-        LocateOutcome.error => "Couldn't get your location. Try again, or explore the map manually.",
+          'Position indisponible. Activez la localisation, ou explorez la carte vous-même.',
+        LocateOutcome.error => 'Position introuvable. Réessayez, ou explorez la carte vous-même.',
         LocateOutcome.located => '',
       };
 }

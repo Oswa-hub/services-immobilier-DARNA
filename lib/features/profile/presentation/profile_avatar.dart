@@ -49,11 +49,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       );
       await widget.repository.updatePhotoUrl(url);
 
-      messenger.showSnackBar(const SnackBar(content: Text('Profile photo updated.')));
+      messenger.showSnackBar(const SnackBar(content: Text('Photo de profil mise à jour.')));
     } on CloudinaryUploadException catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(e.message)));
     } catch (_) {
-      messenger.showSnackBar(const SnackBar(content: Text('Could not update your photo. Please try again.')));
+      messenger.showSnackBar(const SnackBar(content: Text('Impossible de changer votre photo. Réessayez.')));
     } finally {
       if (mounted) setState(() => _uploading = false);
     }
@@ -82,7 +82,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               color: _blue,
               shape: const CircleBorder(),
               child: IconButton(
-                tooltip: 'Change photo',
+                tooltip: 'Changer la photo',
                 visualDensity: VisualDensity.compact,
                 onPressed: _uploading ? null : _changePhoto,
                 icon: const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 18),

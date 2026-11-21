@@ -16,7 +16,7 @@ class GoogleSignInButton extends StatelessWidget {
           // Swap for the official multicolor "G" asset before release (Google branding rules).
           Text('G', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF4285F4))),
           SizedBox(width: 10),
-          Text('Continue with Google'),
+          Text('Continuer avec Google'),
         ],
       ),
     );

@@ -31,7 +31,7 @@ Map<String, dynamic> doc({
   String governorate = 'Tunis',
 }) =>
     {
-      'title': 'Apartment',
+      'title': 'Appartement',
       'price': 1200,
       'ownerId': 'owner',
       'transactionType': tx,

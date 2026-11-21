@@ -7,7 +7,7 @@ class DiscoveryLocation {
 
   /// Device position. Properties are matched by distance.
   const DiscoveryLocation.device({required double latitude, required double longitude})
-      : this._(label: 'Near you', latitude: latitude, longitude: longitude);
+      : this._(label: 'Près de vous', latitude: latitude, longitude: longitude);
 
   final String label;
   final String? governorate;

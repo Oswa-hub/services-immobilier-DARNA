@@ -16,7 +16,7 @@ class FavoriteButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(isFavoriteProvider(propertyId));
     return IconButton(
-      tooltip: isFavorite ? 'Remove from favorites' : 'Add to favorites',
+      tooltip: isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris',
       onPressed: () => toggleFavoriteWithFeedback(context, ref, propertyId),
       icon: Icon(
         isFavorite ? Icons.favorite : Icons.favorite_border,

@@ -19,14 +19,14 @@ class AppLogo extends StatelessWidget {
         const SizedBox(height: 4),
         Text.rich(
           TextSpan(children: [
-            TextSpan(text: 'Immo', style: TextStyle(color: immo)),
-            const TextSpan(text: 'Find', style: TextStyle(color: AppColors.primary)),
+            TextSpan(text: 'DAR', style: TextStyle(color: immo)),
+            const TextSpan(text: 'NA', style: TextStyle(color: AppColors.primary)),
           ]),
           style: TextStyle(fontSize: size * 0.55, fontWeight: FontWeight.w800),
         ),
         if (showTagline)
           Text(
-            'Find Your Next Home',
+            'Votre prochain chez-vous',
             style: TextStyle(
               fontSize: 11,
               letterSpacing: 1.2,

@@ -20,11 +20,11 @@ void main() {
     ));
     await tester.pump();
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Login'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Se connecter'));
     await tester.pump();
 
-    expect(find.text('Email is required'), findsOneWidget);
-    expect(find.text('Password is required'), findsOneWidget);
+    expect(find.text('L\'e-mail est obligatoire'), findsOneWidget);
+    expect(find.text('Le mot de passe est obligatoire'), findsOneWidget);
     expect(repo.loginCalls, 0);
   });
 

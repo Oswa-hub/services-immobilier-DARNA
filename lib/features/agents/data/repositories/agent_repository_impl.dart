@@ -133,7 +133,7 @@ class AgentRepositoryImpl implements AgentRepository {
         _requireOwnListing(listing);
         if (!ListingPolicy.canSubmit(listing.status)) {
           throw const AgentFailure(AgentFailureType.listingNotAllowed,
-              detail: 'Only drafts and rejected listings can be submitted.');
+              detail: 'Seuls les brouillons et les annonces refusées peuvent être envoyés.');
         }
         final problems = ListingSubmissionCheck.problems(listing);
         if (problems.isNotEmpty) {
@@ -147,7 +147,7 @@ class AgentRepositoryImpl implements AgentRepository {
         _requireOwnListing(listing);
         if (!ListingPolicy.canWithdraw(listing.status)) {
           throw const AgentFailure(AgentFailureType.listingNotAllowed,
-              detail: 'This listing cannot be withdrawn in its current status.');
+              detail: 'Cette annonce ne peut pas être retirée dans son statut actuel.');
         }
         await _ds.updateListingStatus(listing.id, PropertyStatus.removed.wire);
       });
@@ -167,7 +167,7 @@ class AgentRepositoryImpl implements AgentRepository {
     required List<VerificationUpload> documents,
   }) async {
     throw const AgentFailure(AgentFailureType.verificationNotAllowed,
-        detail: 'Verification is now handled by the Verification Center.');
+        detail: 'La vérification se fait maintenant depuis l\'espace Vérification.');
   }
 
   // ---- notifications ----------------------------------------------------

@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../app/routes.dart';
 import '../../../../core/errors/auth_failure.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
@@ -60,7 +62,7 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
     if (!mounted) return; // verified -> router already left this page
     if (!silent) {
       setState(() {});
-      _snack('Your email is not verified yet.');
+      _snack('Votre e-mail n\'est pas encore vérifié.');
     }
   }
 
@@ -70,7 +72,7 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
       await ref.read(authControllerProvider.notifier).sendVerificationEmail();
       if (!mounted) return;
       setState(_startCooldown);
-      _snack('Verification email sent. Please check your inbox and spam folder.');
+      _snack('E-mail envoyé. Vérifiez votre boîte de réception et vos spams.');
     } on AuthFailure catch (e) {
       if (mounted) _snack(e.message);
     } finally {
@@ -80,7 +82,7 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
 
   Future<void> _openMailApp() async {
     final ok = await launchUrl(Uri(scheme: 'mailto'));
-    if (!ok && mounted) _snack('No email app found on this device.');
+    if (!ok && mounted) _snack('Aucune application de messagerie trouvée.');
   }
 
   void _snack(String msg) =>
@@ -104,40 +106,45 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
           const SizedBox(height: 24),
           const Icon(Icons.mark_email_read_outlined, size: 96, color: AppColors.primary),
           const SizedBox(height: 20),
-          const Text('Check Your Email',
+          const Text('Vérifiez votre e-mail',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.text)),
           const SizedBox(height: 12),
-          const Text("We've sent a verification link to",
+          const Text('Nous avons envoyé un lien de vérification à',
               textAlign: TextAlign.center, style: TextStyle(color: AppColors.muted)),
           const SizedBox(height: 4),
           Text(email,
               textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
-          const Text('Please check your inbox and click the link to verify your account.',
+          const Text('Ouvrez votre boîte de réception et cliquez sur le lien pour vérifier votre compte.',
               textAlign: TextAlign.center, style: TextStyle(color: AppColors.muted)),
           const SizedBox(height: 28),
-          AuthButton(label: 'Open Email App', onPressed: _openMailApp),
+          AuthButton(label: 'Ouvrir ma messagerie', onPressed: _openMailApp),
           const SizedBox(height: 10),
           OutlinedButton(
             onPressed: _checking ? null : () => _check(),
-            child: Text(_checking ? 'Checking...' : "I've verified my email"),
+            child: Text(_checking ? 'Vérification…' : "J'ai vérifié mon e-mail"),
           ),
           const SizedBox(height: 20),
-          const Text("Didn't receive the email?",
+          const Text("Vous n'avez pas reçu l'e-mail ?",
               textAlign: TextAlign.center, style: TextStyle(color: AppColors.muted)),
           TextButton(
             onPressed: (_cooldown > 0 || _sending) ? null : _resend,
             child: Text(_sending
-                ? 'Sending...'
+                ? 'Envoi…'
                 : _cooldown > 0
-                    ? 'Resend ($_timer)'
-                    : 'Resend'),
+                    ? 'Renvoyer ($_timer)'
+                    : 'Renvoyer'),
+          ),
+          // I5: the account can browse while the e-mail is not verified yet.
+          TextButton(
+            onPressed: () => context.go(Routes.home),
+            child: const Text('Continuer sans vérifier'),
           ),
           TextButton(
             onPressed: () => ref.read(authControllerProvider.notifier).logout(),
             style: TextButton.styleFrom(foregroundColor: AppColors.muted),
-            child: const Text('Use a different account (log out)'),
+            child: const Text('Utiliser un autre compte (se déconnecter)'),
           ),
         ],
       ),

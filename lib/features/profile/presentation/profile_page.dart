@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../auth/domain/entities/auth_user.dart' show UserRole;
 import '../../auth/providers/auth_provider.dart';
+import '../data/account_deletion_service.dart';
 import '../data/profile_repository.dart';
 import 'edit_profile_page.dart';
 import 'security_page.dart';
@@ -57,26 +58,88 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
   // Module 12: notification center (preferences are one tap away from there).
   void _openNotifications() => context.push(Routes.notifications);
 
+  /// Google Play: an account can be deleted from inside the app.
+  Future<void> _deleteAccount() async {
+    final service = ref.read(accountDeletionServiceProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    if (!service.signedInRecently) {
+      final relog = await showDialog<bool>(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: const Text('Reconnexion nécessaire'),
+          content: const Text(
+            'Pour votre sécurité, reconnectez-vous avant de supprimer votre compte, '
+            'puis revenez ici dans les 4 minutes.',
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(c).pop(false), child: const Text('Annuler')),
+            FilledButton(onPressed: () => Navigator.of(c).pop(true), child: const Text('Se reconnecter')),
+          ],
+        ),
+      );
+      if (relog == true && mounted) {
+        await ref.read(pushRegistrarProvider).unregister();
+        await ref.read(authControllerProvider.notifier).logout();
+      }
+      return;
+    }
+    if (!mounted) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text('Supprimer mon compte ?'),
+        content: const Text(
+          'Votre profil, vos favoris et votre profil professionnel seront supprimés, '
+          'et vos annonces retirées. Cette action est définitive.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(c).pop(false), child: const Text('Annuler')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.of(c).pop(true),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    setState(() => _loggingOut = true);
+    await ref.read(pushRegistrarProvider).unregister();
+    final problem = await service.deleteAccount();
+    if (!mounted) return;
+    setState(() => _loggingOut = false);
+    switch (problem) {
+      case null:
+        messenger.showSnackBar(const SnackBar(content: Text('Votre compte a été supprimé.')));
+        await ref.read(authControllerProvider.notifier).logout();
+      case AccountDeletionProblem.recentLoginRequired:
+        messenger.showSnackBar(const SnackBar(
+            content: Text('Reconnectez-vous puis recommencez dans les 4 minutes.')));
+      case AccountDeletionProblem.failed:
+        messenger.showSnackBar(const SnackBar(content: Text('Suppression impossible. Réessayez.')));
+    }
+  }
+
   Future<void> _logout() async {
     if (_loggingOut) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Log Out'),
+        title: const Text('Se déconnecter'),
         content: const Text(
-          'Are you sure you want to log out of ImmoFind?',
+          'Voulez-vous vraiment vous déconnecter de DARNA ?',
         ),
         actions: [
           TextButton(
             onPressed: () =>
                 Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: const Text('Annuler'),
           ),
           FilledButton(
             onPressed: () =>
                 Navigator.of(dialogContext).pop(true),
-            child: const Text('Log Out'),
+            child: const Text('Se déconnecter'),
           ),
         ],
       ),
@@ -97,7 +160,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Unable to log out. Please try again.',
+            'Déconnexion impossible. Réessayez.',
           ),
         ),
       );
@@ -107,7 +170,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Something went wrong. Please try again.',
+            'Une erreur est survenue. Réessayez.',
           ),
         ),
       );
@@ -168,7 +231,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
         leading: Icon(icon, color: unavailable ? Colors.grey : blue),
         title: Text(title),
         subtitle: unavailable
-            ? const Text('Coming soon')
+            ? const Text('Bientôt disponible')
             : subtitle == null
             ? null
             : Text(
@@ -193,7 +256,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
       return const Scaffold(
         body: Center(
           child: Text(
-            'Please log in to view your profile.',
+            'Connectez-vous pour voir votre profil.',
           ),
         ),
       );
@@ -202,7 +265,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
-        title: const Text('My Profile'),
+        title: const Text('Mon profil'),
         backgroundColor: Colors.white,
         foregroundColor: navy,
         elevation: 0,
@@ -215,11 +278,11 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Unable to load profile information.'),
+                  const Text('Impossible de charger les informations du profil.'),
                   const SizedBox(height: 12),
                   FilledButton(
                     onPressed: () => setState(() => _profileStream = null), // re-subscribes
-                    child: const Text('Try again'),
+                    child: const Text('Réessayer'),
                   ),
                 ],
               ),
@@ -238,13 +301,13 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
 
           if (data == null) {
             return const Center(
-              child: Text('Profile not found.'),
+              child: Text('Profil introuvable.'),
             );
           }
 
           final name = (data['name'] ??
                   authUser.name ??
-                  'ImmoFind User')
+                  'Utilisateur DARNA')
               .toString();
 
           final email = (data['email'] ??
@@ -305,7 +368,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        authUser.emailVerified ? 'Email verified' : 'Email not verified',
+                        authUser.emailVerified ? 'E-mail vérifié' : 'E-mail non vérifié',
                         style: const TextStyle(color: Colors.grey),
                       ),
                     ],
@@ -318,18 +381,18 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                     icon: const Icon(
                       Icons.edit_outlined,
                     ),
-                    label: const Text('Edit Profile'),
+                    label: const Text('Modifier le profil'),
                     style: FilledButton.styleFrom(
                       backgroundColor: blue,
                       padding: const EdgeInsets.all(15),
                     ),
                   ),
 
-                  _sectionTitle('Personal Information'),
+                  _sectionTitle('Informations personnelles'),
 
                   _profileItem(
                     icon: Icons.person_outline,
-                    title: 'Full Name',
+                    title: 'Nom complet',
                     subtitle: name,
                     onTap: _openEditProfile,
                   ),
@@ -342,18 +405,18 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
 
                   _profileItem(
                     icon: Icons.phone_outlined,
-                    title: 'Phone Number',
+                    title: 'Numéro de téléphone',
                     subtitle: phone.isEmpty
-                        ? 'Not provided'
+                        ? 'Non renseigné'
                         : phone,
                     onTap: _openEditProfile,
                   ),
 
                   _profileItem(
                     icon: Icons.location_on_outlined,
-                    title: 'Preferred Governorate',
+                    title: 'Gouvernorat préféré',
                     subtitle: governorate.isEmpty
-                        ? 'Not provided'
+                        ? 'Non renseigné'
                         : governorate,
                     onTap: _openEditProfile,
                   ),
@@ -391,6 +454,14 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
 
                   _sectionTitle('Compte'),
 
+                  if (authUser.isAdmin)
+                    _profileItem(
+                      icon: Icons.admin_panel_settings_outlined,
+                      title: 'Espace admin',
+                      subtitle: 'Vous êtes administrateur : annonces, utilisateurs, vérifications',
+                      onTap: () => context.go(Routes.adminDashboard),
+                    ),
+
                   _profileItem(
                     icon: Icons.notifications_outlined,
                     title: 'Notifications',
@@ -411,6 +482,13 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                     onTap: _openSecurity,
                   ),
 
+                  _profileItem(
+                    icon: Icons.delete_forever_outlined,
+                    title: 'Supprimer mon compte',
+                    subtitle: 'Définitif : profil, favoris et annonces',
+                    onTap: _loggingOut ? null : _deleteAccount,
+                  ),
+
                   _sectionTitle('Professionnel'),
 
                   _profileItem(
@@ -423,7 +501,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                   ),
 
                   // ---- Module 17: information pages (texts set by the admin) ----
-                  _sectionTitle('Information'),
+                  _sectionTitle('Informations'),
 
                   _profileItem(
                     icon: Icons.support_agent_outlined,

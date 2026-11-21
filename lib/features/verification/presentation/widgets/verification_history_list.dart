@@ -14,11 +14,11 @@ class VerificationHistoryList extends ConsumerWidget {
   final String verificationId;
 
   static String _label(VerificationHistoryEntry e) => switch (e.action) {
-        VerificationAction.submitted => 'Submitted',
-        VerificationAction.resubmitted => 'Resubmitted',
-        VerificationAction.approved => 'Approved',
-        VerificationAction.rejected => 'Changes required',
-        VerificationAction.expired => 'Marked expired',
+        VerificationAction.submitted => 'Envoyée',
+        VerificationAction.resubmitted => 'Renvoyée',
+        VerificationAction.approved => 'Acceptée',
+        VerificationAction.rejected => 'Corrections demandées',
+        VerificationAction.expired => 'Marquée expirée',
       };
 
   @override
@@ -26,16 +26,16 @@ class VerificationHistoryList extends ConsumerWidget {
     final history = ref.watch(verificationHistoryProvider(verificationId));
     return history.when(
       loading: () => const Padding(padding: EdgeInsets.all(12), child: LinearProgressIndicator()),
-      error: (_, _) => const Text('The history could not be loaded.', style: TextStyle(color: AppColors.muted)),
+      error: (_, _) => const Text('Impossible de charger l\'historique.', style: TextStyle(color: AppColors.muted)),
       data: (items) {
-        if (items.isEmpty) return const Text('No history yet.', style: TextStyle(color: AppColors.muted));
+        if (items.isEmpty) return const Text('Pas encore d\'historique.', style: TextStyle(color: AppColors.muted));
         return Column(children: [
           for (final e in items)
             ListTile(
               contentPadding: EdgeInsets.zero,
               dense: true,
               leading: const Icon(Icons.history, size: 20, color: AppColors.muted),
-              title: Text('Attempt ${e.attemptNumber} · ${_label(e)}', style: const TextStyle(fontWeight: FontWeight.w700)),
+              title: Text('Tentative ${e.attemptNumber} · ${_label(e)}', style: const TextStyle(fontWeight: FontWeight.w700)),
               subtitle: Text([
                 if (e.createdAt != null) formatShortDate(e.createdAt!),
                 if (e.reason != null) e.reason!,

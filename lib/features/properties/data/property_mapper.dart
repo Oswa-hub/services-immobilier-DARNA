@@ -59,6 +59,7 @@ class PropertyMapper {
       createdAt: _date(d['createdAt']),
       updatedAt: _date(d['updatedAt']),
       publishedAt: _date(d['publishedAt']),
+      expiresAt: _date(d['expiresAt']),
     );
   }
 

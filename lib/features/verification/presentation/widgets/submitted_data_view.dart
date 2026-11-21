@@ -12,24 +12,24 @@ class SubmittedDataView extends StatelessWidget {
   final Map<String, dynamic> data;
 
   static const _labels = <String, String>{
-    'fullName': 'Full name',
-    'phone': 'Phone number',
-    'propertyReference': 'Property concerned',
-    'agencyName': 'Agency name',
-    'agencyAddress': 'Agency address',
-    'propertyTitle': 'Listing',
-    'city': 'City',
-    'locationProvided': 'Location provided',
-    'listingInformationProvided': 'Listing information provided',
+    'fullName': 'Nom complet',
+    'phone': 'Numéro de téléphone',
+    'propertyReference': 'Bien concerné',
+    'agencyName': 'Nom de l\'agence',
+    'agencyAddress': 'Adresse de l\'agence',
+    'propertyTitle': 'Annonce',
+    'city': 'Ville',
+    'locationProvided': 'Localisation fournie',
+    'listingInformationProvided': 'Informations de l\'annonce fournies',
     'photoCount': 'Photos',
-    'emailConfirmed': 'Email confirmed',
+    'emailConfirmed': 'E-mail confirmé',
     // Honest wording: no phone code is sent yet (spec §2.2).
-    'phoneConfirmed': 'Phone confirmed by code',
+    'phoneConfirmed': 'Téléphone confirmé par code',
   };
 
   static String _value(Object? v) => switch (v) {
-        true => 'Yes',
-        false => 'No',
+        true => 'Oui',
+        false => 'Non',
         null => '-',
         _ => v.toString(),
       };
@@ -40,7 +40,7 @@ class SubmittedDataView extends StatelessWidget {
       for (final e in _labels.entries)
         if (data.containsKey(e.key)) (e.value, _value(data[e.key])),
     ];
-    if (rows.isEmpty) return const Text('No information.', style: TextStyle(color: AppColors.muted));
+    if (rows.isEmpty) return const Text('Aucune information.', style: TextStyle(color: AppColors.muted));
     return Column(children: [
       for (final r in rows)
         Padding(

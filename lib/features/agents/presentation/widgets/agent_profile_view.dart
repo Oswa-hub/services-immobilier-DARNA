@@ -25,7 +25,7 @@ class AgentProfileView extends ConsumerWidget {
     try {
       ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (_) {}
-    if (!ok) messenger.showSnackBar(const SnackBar(content: Text('Could not open this link.')));
+    if (!ok) messenger.showSnackBar(const SnackBar(content: Text('Impossible d\'ouvrir ce lien.')));
   }
 
   @override
@@ -55,13 +55,13 @@ class AgentProfileView extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
           children: [
             AgentHeader(profile: p),
-            const SectionTitle('About'),
+            const SectionTitle('À propos'),
             Text(p.description, style: const TextStyle(height: 1.45, color: AppColors.text)),
             if (contacts.isNotEmpty) ...[
               const SectionTitle('Contact'),
               AgentCard(padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6), child: Column(children: contacts)),
             ],
-            const SectionTitle('Location'),
+            const SectionTitle('Localisation'),
             AgentCard(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
@@ -76,7 +76,7 @@ class AgentProfileView extends ConsumerWidget {
                 ]),
                 if (p.serviceAreas.isNotEmpty) ...[
                   const SizedBox(height: 10),
-                  const Text('Areas served', style: TextStyle(fontSize: 12, color: AppColors.muted)),
+                  const Text('Zones desservies', style: TextStyle(fontSize: 12, color: AppColors.muted)),
                   const SizedBox(height: 6),
                   Wrap(spacing: 6, runSpacing: 6, children: [for (final a in p.serviceAreas) Chip(label: Text(a))]),
                 ],
@@ -87,17 +87,17 @@ class AgentProfileView extends ConsumerWidget {
                 ],
               ]),
             ),
-            const SectionTitle('Published listings'),
+            const SectionTitle('Annonces publiées'),
             listings.when(
               loading: () => const Column(children: [SkeletonBox(height: 110), SizedBox(height: 10), SkeletonBox(height: 110)]),
               error: (_, _) => AgentErrorView(
-                message: 'We could not load the listings of this professional.',
+                message: 'Impossible de charger les annonces de ce professionnel.',
                 onRetry: () => ref.invalidate(agentPublishedListingsProvider(p.userId)),
               ),
               data: (items) => items.isEmpty
                   ? const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Text('No published listings yet.', style: TextStyle(color: AppColors.muted)),
+                      child: Text('Aucune annonce publiée pour le moment.', style: TextStyle(color: AppColors.muted)),
                     )
                   : SizedBox(
                       height: 330,

@@ -14,15 +14,15 @@ Future<SortOption?> showSearchSortSheet(BuildContext context, SortOption current
           padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
           child: Align(
             alignment: Alignment.centerLeft,
-            child: Text('Sort by', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            child: Text('Trier par', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
           ),
         ),
         for (final s in SortOption.values)
           ListTile(
             title: Text(s.label),
             subtitle: switch (s) {
-              SortOption.closest => const Text('Uses your location'),
-              SortOption.recommended => const Text('Recent, verified and popular'),
+              SortOption.closest => const Text('Utilise votre position'),
+              SortOption.recommended => const Text('Récents, vérifiés et populaires'),
               _ => null,
             },
             trailing: s == current ? const Icon(Icons.check, color: AppColors.primary) : null,

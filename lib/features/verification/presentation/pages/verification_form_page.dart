@@ -73,11 +73,11 @@ class _VerificationFormPageState extends ConsumerState<VerificationFormPage> {
       final ext = f.name.contains('.') ? f.name.split('.').last.toLowerCase() : '';
       String? error;
       if (!VerificationPolicy.allowedExtensions.contains(ext)) {
-        error = 'This file format is not supported. Use JPG, PNG or WebP.';
+        error = 'Format non pris en charge. Utilisez JPG, PNG ou WebP.';
       } else if (bytes.isEmpty) {
-        error = 'The selected file is empty.';
+        error = 'Le fichier choisi est vide.';
       } else if (bytes.length > VerificationPolicy.maxFileBytes) {
-        error = 'This file is too large. Choose a smaller file.';
+        error = 'Ce fichier est trop volumineux. Choisissez un fichier plus petit.';
       }
       if (error != null) {
         if (mounted) setState(() => _localErrors[type.wire] = error!);
@@ -92,7 +92,7 @@ class _VerificationFormPageState extends ConsumerState<VerificationFormPage> {
             ]);
       }
     } catch (_) {
-      if (mounted) setState(() => _localErrors[type.wire] = 'The file could not be loaded.');
+      if (mounted) setState(() => _localErrors[type.wire] = 'Impossible de charger le fichier.');
     }
   }
 
@@ -131,7 +131,7 @@ class _VerificationFormPageState extends ConsumerState<VerificationFormPage> {
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     if (ok) {
-      messenger.showSnackBar(const SnackBar(content: Text('Your request was submitted for review.')));
+      messenger.showSnackBar(const SnackBar(content: Text('Votre demande a été envoyée pour examen.')));
       context.pop();
     } else {
       final f = ref.read(verificationFormProvider).failure;
@@ -162,7 +162,7 @@ class _VerificationFormPageState extends ConsumerState<VerificationFormPage> {
 
     final title = '${type.label} verification';
     if (uid == null) {
-      return Scaffold(appBar: AppBar(title: Text(title)), body: const AgentEmptyView(icon: Icons.lock_outline, message: 'Please sign in.'));
+      return Scaffold(appBar: AppBar(title: Text(title)), body: const AgentEmptyView(icon: Icons.lock_outline, message: 'Veuillez vous connecter.'));
     }
     if (type != VerificationTargetType.property && widget.targetId != uid) {
       return Scaffold(
@@ -195,7 +195,7 @@ class _VerificationFormPageState extends ConsumerState<VerificationFormPage> {
                 ? const AgentLoading()
                 : AgentEmptyView(
                     icon: Icons.home_work_outlined,
-                    message: 'Only the publisher of a listing can request its verification.',
+                    message: 'Seul l\'auteur d\'une annonce peut demander sa vérification.',
                   ),
           );
         }
@@ -212,7 +212,7 @@ class _VerificationFormPageState extends ConsumerState<VerificationFormPage> {
                   VerificationStatusBadge(status: status),
                   if (record != null) ...[
                     const SizedBox(width: 10),
-                    Text('Attempt ${record.attemptNumber + 1}', style: const TextStyle(color: AppColors.muted, fontSize: 12)),
+                    Text('Tentative ${record.attemptNumber + 1}', style: const TextStyle(color: AppColors.muted, fontSize: 12)),
                   ],
                 ]),
                 if (record?.rejectionReason != null) ...[
@@ -223,7 +223,7 @@ class _VerificationFormPageState extends ConsumerState<VerificationFormPage> {
                     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 20),
                       const SizedBox(width: 8),
-                      Expanded(child: Text('Your request needs changes: ${record!.rejectionReason}')),
+                      Expanded(child: Text('Votre demande doit être corrigée : ${record!.rejectionReason}')),
                     ]),
                   ),
                 ],
@@ -231,19 +231,19 @@ class _VerificationFormPageState extends ConsumerState<VerificationFormPage> {
                 Text(VerificationPolicy.intro(type), style: const TextStyle(color: AppColors.muted, height: 1.4, fontSize: 13)),
                 const SizedBox(height: 4),
                 const Text(
-                  'Your documents are stored privately and are only visible to you and ImmoFind reviewers.',
+                  'Vos documents ne servent qu\'à la vérification par l\'équipe DARNA.',
                   style: TextStyle(color: AppColors.muted, height: 1.4, fontSize: 13),
                 ),
                 if (type == VerificationTargetType.property) _PropertyChecklist(property: property!, error: errors['property']),
                 if (type != VerificationTargetType.property) ...[
-                  const SectionTitle('Your information'),
-                  _field(_name, 'Full name', errors['fullName'], busy),
-                  _field(_phone, 'Phone number', errors['phone'], busy, keyboard: TextInputType.phone),
+                  const SectionTitle('Vos informations'),
+                  _field(_name, 'Nom complet', errors['fullName'], busy),
+                  _field(_phone, 'Numéro de téléphone', errors['phone'], busy, keyboard: TextInputType.phone),
                   if (type == VerificationTargetType.owner)
-                    _field(_propertyRef, 'Property concerned (optional)', errors['propertyReference'], busy),
+                    _field(_propertyRef, 'Bien concerné (facultatif)', errors['propertyReference'], busy),
                   if (isAgency) ...[
-                    _field(_agencyName, 'Agency name', errors['agencyName'], busy),
-                    _field(_agencyAddress, 'Agency address', errors['agencyAddress'], busy),
+                    _field(_agencyName, 'Nom de l\'agence', errors['agencyName'], busy),
+                    _field(_agencyAddress, 'Adresse de l\'agence', errors['agencyAddress'], busy),
                   ],
                 ],
                 const SectionTitle('Documents'),
@@ -267,16 +267,16 @@ class _VerificationFormPageState extends ConsumerState<VerificationFormPage> {
                       ? const Row(mainAxisSize: MainAxisSize.min, children: [
                           SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
                           SizedBox(width: 10),
-                          Text('Uploading…'),
+                          Text('Envoi en cours…'),
                         ])
-                      : Text(record == null ? 'Submit for review' : 'Resubmit for review'),
+                      : Text(record == null ? 'Envoyer pour vérification' : 'Renvoyer pour vérification'),
                 ),
                 if (form.phase == VerificationFormPhase.failed && form.fieldErrors.isNotEmpty)
                   const Padding(
                     padding: EdgeInsets.only(top: 8),
-                    child: Text('Please complete all required fields.', style: TextStyle(color: AppColors.error, fontSize: 12)),
+                    child: Text('Veuillez remplir tous les champs obligatoires.', style: TextStyle(color: AppColors.error, fontSize: 12)),
                   ),
-                TextButton(onPressed: () => context.pop(), child: const Text('Back')),
+                TextButton(onPressed: () => context.pop(), child: const Text('Retour')),
               ]),
             ),
           ),
@@ -307,12 +307,12 @@ class _PropertyChecklist extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = property;
     final rows = <(String, bool)>[
-      ('Complete location', p.hasCoordinates),
-      ('Listing information', p.title.trim().isNotEmpty && p.description.trim().isNotEmpty && p.price > 0),
-      ('At least one photo (${p.images.length})', p.images.isNotEmpty),
+      ('Localisation complète', p.hasCoordinates),
+      ('Informations de l\'annonce', p.title.trim().isNotEmpty && p.description.trim().isNotEmpty && p.price > 0),
+      ('Au moins une photo (${p.images.length})', p.images.isNotEmpty),
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      SectionTitle('Listing: ${p.title}'),
+      SectionTitle('Annonce : ${p.title}'),
       for (final r in rows)
         Padding(
           padding: const EdgeInsets.only(bottom: 4),
@@ -325,7 +325,7 @@ class _PropertyChecklist extends StatelessWidget {
       if (error != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(error!, style: const TextStyle(color: AppColors.error, fontSize: 12))),
       const SizedBox(height: 4),
       const Text(
-        'Property verification applies to this listing and the checks actually completed. Material changes may need a new review.',
+        'La vérification porte sur cette annonce et les contrôles effectués. Une modification importante peut demander une nouvelle vérification.',
         style: TextStyle(fontSize: 12, color: AppColors.muted, height: 1.35),
       ),
     ]);

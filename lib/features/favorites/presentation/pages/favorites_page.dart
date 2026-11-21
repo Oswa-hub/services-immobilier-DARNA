@@ -26,7 +26,7 @@ class FavoritesPage extends ConsumerWidget {
     final favorites = ref.watch(favoritesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Favorites')),
+      appBar: AppBar(title: const Text('Favoris')),
       body: favorites.when(
         loading: () => const _LoadingList(),
         error: (_, _) => _LoadFailed(onRetry: () => ref.invalidate(favoritesProvider)),
@@ -36,9 +36,9 @@ class FavoritesPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(24),
                   child: DiscoveryEmptyState(
                     icon: Icons.favorite_border_rounded,
-                    title: 'No favorites yet',
-                    message: 'Tap the heart on a property to save it here.',
-                    actionLabel: 'Browse properties',
+                    title: 'Aucun favori',
+                    message: 'Touchez le cœur d\'un bien pour l\'enregistrer ici.',
+                    actionLabel: 'Explorer les biens',
                     onAction: () => context.go(Routes.search),
                   ),
                 ),
@@ -111,7 +111,7 @@ class _FavoriteTile extends ConsumerWidget {
     return load.when(
       loading: () => const PropertyCardSkeleton(width: double.infinity),
       error: (_, _) => _UnavailableTile(
-        message: 'Something went wrong while loading this property.',
+        message: 'Impossible de charger ce bien.',
         onRetry: () => ref.invalidate(propertyDetailsProvider(id)),
         onRemove: () => toggleFavoriteWithFeedback(context, ref, id),
       ),
@@ -124,7 +124,7 @@ class _FavoriteTile extends ConsumerWidget {
         final retryable =
             failure != null && (failure.type == PropertyFailureType.network || failure.type == PropertyFailureType.unknown);
         return _UnavailableTile(
-          message: failure?.message ?? 'This property is no longer available.',
+          message: failure?.message ?? 'Ce bien n\'est plus disponible.',
           onRetry: retryable ? () => ref.invalidate(propertyDetailsProvider(id)) : null,
           onRemove: () => toggleFavoriteWithFeedback(context, ref, id),
         );
@@ -170,8 +170,8 @@ class _UnavailableTile extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if (onRetry != null) TextButton(onPressed: onRetry, child: const Text('Retry')),
-                TextButton(onPressed: onRemove, child: const Text('Remove from favorites')),
+                if (onRetry != null) TextButton(onPressed: onRetry, child: const Text('Réessayer')),
+                TextButton(onPressed: onRemove, child: const Text('Retirer des favoris')),
               ],
             ),
           ],
@@ -216,9 +216,9 @@ class _LoadFailed extends StatelessWidget {
           children: [
             const Icon(Icons.cloud_off_rounded, size: 56, color: AppColors.error),
             const SizedBox(height: 14),
-            const Text("Couldn't load your favorites.", textAlign: TextAlign.center),
+            const Text('Impossible de charger vos favoris.', textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Retry')),
+            FilledButton(onPressed: onRetry, child: const Text('Réessayer')),
           ],
         ),
       ),

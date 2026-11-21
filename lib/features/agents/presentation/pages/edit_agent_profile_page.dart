@@ -27,16 +27,16 @@ class EditAgentProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (!setup) {
       return AgentGate(
-        title: 'Edit profile',
+        title: 'Modifier le profil',
         builder: (_, _, profile) => _AgentProfileForm(initial: profile, isCreate: false),
       );
     }
 
     final existing = ref.watch(agentProfileStreamProvider);
     return existing.when(
-      loading: () => Scaffold(appBar: AppBar(title: const Text('Professional profile')), body: const AgentLoading()),
+      loading: () => Scaffold(appBar: AppBar(title: const Text('Profil professionnel')), body: const AgentLoading()),
       error: (e, _) => Scaffold(
-        appBar: AppBar(title: const Text('Professional profile')),
+        appBar: AppBar(title: const Text('Profil professionnel')),
         body: AgentErrorView(
           message: e is AgentFailure ? e.message : const AgentFailure(AgentFailureType.unknown).message,
           onRetry: () => ref.invalidate(agentProfileStreamProvider),
@@ -137,7 +137,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
     } on AgentFailure catch (e) {
       if (mounted) setState(() => _imageError = e.fieldErrors['image'] ?? e.message);
     } catch (_) {
-      if (mounted) setState(() => _imageError = 'The image could not be loaded.');
+      if (mounted) setState(() => _imageError = 'Impossible de charger l\'image.');
     }
   }
 
@@ -175,7 +175,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
     final messenger = ScaffoldMessenger.of(context);
     if (ok) {
       messenger.showSnackBar(SnackBar(
-        content: Text(widget.isCreate ? 'Your professional profile is ready.' : 'Profile updated.'),
+        content: Text(widget.isCreate ? 'Votre profil professionnel est prêt.' : 'Profil mis à jour.'),
       ));
       if (widget.isCreate) {
         context.go(Routes.agentDashboard);
@@ -195,7 +195,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
   Widget build(BuildContext context) {
     final form = ref.watch(agentProfileFormProvider);
     final busy = form.isBusy;
-    final title = widget.isCreate ? 'Create professional profile' : 'Edit profile';
+    final title = widget.isCreate ? 'Créer mon profil professionnel' : 'Modifier le profil';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -212,7 +212,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                   const Padding(
                     padding: EdgeInsets.only(bottom: 16),
                     child: Text(
-                      'Tell visitors who you are. Creating a profile does not verify it: verification is a separate step.',
+                      'Présentez-vous aux visiteurs. Créer un profil ne le vérifie pas : la vérification est une étape à part.',
                       style: TextStyle(color: AppColors.muted, height: 1.4),
                     ),
                   ),
@@ -220,8 +220,8 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                 const SizedBox(height: 18),
                 SegmentedButton<AgentProfileKind>(
                   segments: const [
-                    ButtonSegment(value: AgentProfileKind.agent, icon: Icon(Icons.person_outline), label: Text('Individual agent')),
-                    ButtonSegment(value: AgentProfileKind.agency, icon: Icon(Icons.apartment_outlined), label: Text('Agency')),
+                    ButtonSegment(value: AgentProfileKind.agent, icon: Icon(Icons.person_outline), label: Text('Agent indépendant')),
+                    ButtonSegment(value: AgentProfileKind.agency, icon: Icon(Icons.apartment_outlined), label: Text('Agence')),
                   ],
                   selected: {_kind},
                   onSelectionChanged: busy ? null : (s) => setState(() => _kind = s.first),
@@ -229,7 +229,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                 const SizedBox(height: 16),
                 _field(
                   controller: _name,
-                  label: 'Professional name',
+                  label: 'Nom professionnel',
                   validator: AgentProfileValidator.name,
                   action: TextInputAction.next,
                   maxLength: AgentProfileValidator.nameMax,
@@ -238,7 +238,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                 if (_isAgency)
                   _field(
                     controller: _agencyName,
-                    label: 'Agency name',
+                    label: 'Nom de l\'agence',
                     validator: (v) => AgentProfileValidator.agencyName(v, isAgency: true),
                     action: TextInputAction.next,
                     maxLength: AgentProfileValidator.nameMax,
@@ -246,7 +246,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                   ),
                 _field(
                   controller: _phone,
-                  label: 'Phone',
+                  label: 'Téléphone',
                   hint: '+216 XX XXX XXX',
                   keyboard: TextInputType.phone,
                   validator: AgentProfileValidator.phone,
@@ -255,7 +255,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                 ),
                 _field(
                   controller: _email,
-                  label: 'Public email',
+                  label: 'E-mail public',
                   keyboard: TextInputType.emailAddress,
                   validator: AgentProfileValidator.email,
                   action: TextInputAction.next,
@@ -266,7 +266,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                   child: DropdownButtonFormField<String>(
                     initialValue: _city,
                     isExpanded: true,
-                    decoration: const InputDecoration(labelText: 'City', border: OutlineInputBorder()),
+                    decoration: const InputDecoration(labelText: 'Ville', border: OutlineInputBorder()),
                     items: [for (final g in tunisiaGovernorates) DropdownMenuItem(value: g, child: Text(g))],
                     onChanged: busy ? null : (v) => setState(() => _city = v),
                     validator: AgentProfileValidator.city,
@@ -274,8 +274,8 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                 ),
                 _field(
                   controller: _description,
-                  label: 'Short description',
-                  hint: 'Who you are and which properties you handle',
+                  label: 'Description courte',
+                  hint: 'Qui vous êtes et quels biens vous gérez',
                   validator: AgentProfileValidator.description,
                   maxLines: 5,
                   maxLength: AgentProfileValidator.descriptionMax,
@@ -283,14 +283,14 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                 ),
                 _field(
                   controller: _address,
-                  label: _isAgency ? 'Office address (optional)' : 'Business address (optional)',
+                  label: _isAgency ? 'Adresse du bureau (facultatif)' : 'Adresse professionnelle (facultatif)',
                   validator: AgentProfileValidator.address,
                   maxLength: AgentProfileValidator.addressMax,
                   enabled: !busy,
                 ),
                 _field(
                   controller: _website,
-                  label: 'Website (optional)',
+                  label: 'Site web (facultatif)',
                   hint: 'https://',
                   keyboard: TextInputType.url,
                   validator: AgentProfileValidator.website,
@@ -298,13 +298,13 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                 ),
                 _field(
                   controller: _years,
-                  label: 'Years of experience (optional)',
+                  label: 'Années d\'expérience (facultatif)',
                   keyboard: TextInputType.number,
                   formatters: [FilteringTextInputFormatter.digitsOnly],
                   validator: AgentProfileValidator.years,
                   enabled: !busy,
                 ),
-                const SectionTitle('Languages spoken'),
+                const SectionTitle('Langues parlées'),
                 Wrap(spacing: 8, runSpacing: 4, children: [
                   for (final l in AgentProfileValidator.supportedLanguages)
                     FilterChip(
@@ -318,8 +318,8 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                               }),
                     ),
                 ]),
-                const SectionTitle('Areas served'),
-                Text('Choose up to ${AgentProfileValidator.maxServiceAreas}. Selected: ${_areas.length}',
+                const SectionTitle('Zones desservies'),
+                Text('Jusqu\'à ${AgentProfileValidator.maxServiceAreas}. Sélectionnées : ${_areas.length}',
                     style: const TextStyle(fontSize: 12, color: AppColors.muted)),
                 const SizedBox(height: 8),
                 Wrap(spacing: 8, runSpacing: 4, children: [
@@ -335,16 +335,16 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                               }),
                     ),
                 ]),
-                const SectionTitle('Privacy'),
+                const SectionTitle('Confidentialité'),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Show my phone on my public profile'),
+                  title: const Text('Afficher mon téléphone sur mon profil public'),
                   value: _showPhone,
                   onChanged: busy ? null : (v) => setState(() => _showPhone = v),
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Show my email on my public profile'),
+                  title: const Text('Afficher mon e-mail sur mon profil public'),
                   value: _showEmail,
                   onChanged: busy ? null : (v) => setState(() => _showEmail = v),
                 ),
@@ -357,9 +357,9 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
                           const SizedBox(
                               width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
                           const SizedBox(width: 10),
-                          Text(form.phase == AgentSavePhase.uploading ? 'Uploading image…' : 'Saving…'),
+                          Text(form.phase == AgentSavePhase.uploading ? 'Envoi de l\'image…' : 'Enregistrement…'),
                         ])
-                      : Text(widget.isCreate ? 'Create profile' : 'Save changes'),
+                      : Text(widget.isCreate ? 'Créer le profil' : 'Enregistrer'),
                 ),
               ],
             ),
@@ -386,7 +386,7 @@ class _AgentProfileFormState extends ConsumerState<_AgentProfileForm> {
             color: AppColors.primary,
             shape: const CircleBorder(),
             child: IconButton(
-              tooltip: _isAgency ? 'Choose logo' : 'Choose photo',
+              tooltip: _isAgency ? 'Choisir un logo' : 'Choisir une photo',
               onPressed: busy ? null : _pickImage,
               icon: const Icon(Icons.photo_camera_outlined, color: Colors.white, size: 20),
             ),

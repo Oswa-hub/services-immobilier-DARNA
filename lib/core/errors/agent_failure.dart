@@ -28,20 +28,20 @@ class AgentFailure implements Exception {
   final String? detail;
 
   String get message => switch (type) {
-        AgentFailureType.notSignedIn => 'Please sign in again.',
-        AgentFailureType.profileNotFound => 'Your professional profile could not be found.',
-        AgentFailureType.profileAlreadyExists => 'You already have a professional profile.',
-        AgentFailureType.validation => 'Please correct the highlighted fields.',
-        AgentFailureType.saveFailed => 'We could not save your changes. Please try again.',
-        AgentFailureType.imageUploadFailed => 'The image could not be uploaded. Check your connection and retry.',
-        AgentFailureType.permissionDenied => 'You are not allowed to perform this action.',
-        AgentFailureType.listingsFailed => 'We could not load your listings. Please try again.',
-        AgentFailureType.listingNotAllowed => detail ?? 'This action is not available for this listing.',
-        AgentFailureType.verificationUploadFailed => 'Your documents were not submitted. Please retry.',
+        AgentFailureType.notSignedIn => 'Veuillez vous reconnecter.',
+        AgentFailureType.profileNotFound => 'Profil professionnel introuvable.',
+        AgentFailureType.profileAlreadyExists => 'Vous avez déjà un profil professionnel.',
+        AgentFailureType.validation => 'Corrigez les champs indiqués.',
+        AgentFailureType.saveFailed => 'Impossible d\'enregistrer vos modifications. Réessayez.',
+        AgentFailureType.imageUploadFailed => 'L\'image n\'a pas pu être envoyée. Vérifiez votre connexion et réessayez.',
+        AgentFailureType.permissionDenied => 'Vous n\'avez pas le droit de faire cette action.',
+        AgentFailureType.listingsFailed => 'Impossible de charger vos annonces. Réessayez.',
+        AgentFailureType.listingNotAllowed => detail ?? 'Cette action n\'est pas disponible pour cette annonce.',
+        AgentFailureType.verificationUploadFailed => 'Vos documents n\'ont pas été envoyés. Réessayez.',
         AgentFailureType.verificationNotAllowed =>
-          detail ?? 'A verification request cannot be submitted right now.',
-        AgentFailureType.network => 'Network problem. Check your connection and try again.',
-        AgentFailureType.unknown => 'Something went wrong. Please try again.',
+          detail ?? 'Impossible d\'envoyer une demande de vérification pour le moment.',
+        AgentFailureType.network => 'Problème de réseau. Vérifiez votre connexion et réessayez.',
+        AgentFailureType.unknown => 'Une erreur est survenue. Réessayez.',
       };
 
   @override

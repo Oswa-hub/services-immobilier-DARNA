@@ -18,13 +18,13 @@ class AgentProfileValidator {
   static const maxServiceAreas = 10;
   static const maxLanguages = 6;
 
-  static const supportedLanguages = ['Arabic', 'French', 'English', 'Italian', 'German', 'Spanish'];
+  static const supportedLanguages = ['Arabe', 'Français', 'Anglais', 'Italien', 'Allemand', 'Espagnol'];
 
   static String? name(String? v) {
     final t = v?.trim() ?? '';
-    if (t.isEmpty) return 'Professional name is required';
-    if (t.length < nameMin) return 'Name is too short';
-    if (t.length > nameMax) return 'Name must be at most $nameMax characters';
+    if (t.isEmpty) return 'Le nom professionnel est obligatoire';
+    if (t.length < nameMin) return 'Nom trop court';
+    if (t.length > nameMax) return '$nameMax caractères maximum';
     return null;
   }
 
@@ -32,8 +32,8 @@ class AgentProfileValidator {
   static String? agencyName(String? v, {required bool isAgency}) {
     final t = v?.trim() ?? '';
     if (!isAgency) return null;
-    if (t.isEmpty) return 'Agency name is required';
-    if (t.length > nameMax) return 'Agency name must be at most $nameMax characters';
+    if (t.isEmpty) return 'Le nom de l\'agence est obligatoire';
+    if (t.length > nameMax) return 'Nom de l\'agence : $nameMax caractères maximum';
     return null;
   }
 
@@ -42,23 +42,23 @@ class AgentProfileValidator {
 
   static String? description(String? v) {
     final t = v?.trim() ?? '';
-    if (t.isEmpty) return 'A short description is required';
-    if (t.length < descriptionMin) return 'Write at least $descriptionMin characters';
-    if (t.length > descriptionMax) return 'Description must be at most $descriptionMax characters';
+    if (t.isEmpty) return 'Une description courte est obligatoire';
+    if (t.length < descriptionMin) return 'Au moins $descriptionMin caractères';
+    if (t.length > descriptionMax) return 'Description : $descriptionMax caractères maximum';
     return null;
   }
 
   /// Must be one of the supported locations, never free text.
   static String? city(String? v) {
     final t = v?.trim() ?? '';
-    if (t.isEmpty) return 'Select your city';
-    if (!tunisiaGovernorates.contains(t)) return 'Select a supported location';
+    if (t.isEmpty) return 'Choisissez votre ville';
+    if (!tunisiaGovernorates.contains(t)) return 'Choisissez une localisation proposée';
     return null;
   }
 
   static String? address(String? v) {
     final t = v?.trim() ?? '';
-    if (t.length > addressMax) return 'Address must be at most $addressMax characters';
+    if (t.length > addressMax) return 'Adresse : $addressMax caractères maximum';
     return null;
   }
 
@@ -66,17 +66,17 @@ class AgentProfileValidator {
   static String? website(String? v) {
     final t = v?.trim() ?? '';
     if (t.isEmpty) return null;
-    if (t.length > websiteMax) return 'Website address is too long';
+    if (t.length > websiteMax) return 'Adresse du site trop longue';
     final uri = Uri.tryParse(t);
     final ok = uri != null && (uri.scheme == 'http' || uri.scheme == 'https') && uri.host.contains('.');
-    return ok ? null : 'Enter a valid URL (https://...)';
+    return ok ? null : 'Saisissez une adresse valide (https://...)';
   }
 
   static String? years(String? v) {
     final t = v?.trim() ?? '';
     if (t.isEmpty) return null;
     final n = int.tryParse(t);
-    if (n == null || n < 0 || n > maxYears) return 'Enter a number between 0 and $maxYears';
+    if (n == null || n < 0 || n > maxYears) return 'Saisissez un nombre entre 0 et $maxYears';
     return null;
   }
 
@@ -86,9 +86,9 @@ class AgentProfileValidator {
 
   static String? image({required String fileName, required int bytes}) {
     final ext = fileName.contains('.') ? fileName.split('.').last.toLowerCase() : '';
-    if (!allowedImageExtensions.contains(ext)) return 'Only JPG, PNG and WebP images are allowed.';
-    if (bytes <= 0) return 'The selected image is empty.';
-    if (bytes > maxImageBytes) return 'Image must be smaller than 2 MB.';
+    if (!allowedImageExtensions.contains(ext)) return 'Seules les images JPG, PNG et WebP sont acceptées.';
+    if (bytes <= 0) return 'L\'image choisie est vide.';
+    if (bytes > maxImageBytes) return 'L\'image doit faire moins de 2 Mo.';
     return null;
   }
 
@@ -104,10 +104,10 @@ class AgentProfileValidator {
       'address': ?address(p.address),
       'website': ?website(p.website),
       if (p.yearsOfExperience != null && (p.yearsOfExperience! < 0 || p.yearsOfExperience! > maxYears))
-        'yearsOfExperience': 'Enter a number between 0 and $maxYears',
+        'yearsOfExperience': 'Saisissez un nombre entre 0 et $maxYears',
       if (p.serviceAreas.length > maxServiceAreas || p.serviceAreas.any((a) => !tunisiaGovernorates.contains(a)))
-        'serviceAreas': 'Choose up to $maxServiceAreas supported locations',
-      if (p.languages.length > maxLanguages) 'languages': 'Choose at most $maxLanguages languages',
+        'serviceAreas': 'Choisissez jusqu\'à $maxServiceAreas zones',
+      if (p.languages.length > maxLanguages) 'languages': '$maxLanguages langues maximum',
     };
     return errors;
   }

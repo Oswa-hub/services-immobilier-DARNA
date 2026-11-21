@@ -49,7 +49,7 @@ class PropertyDetailsPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Property details'),
+        title: const Text('Détail du bien'),
         // Heart only once the property is loaded (nothing to favorite otherwise).
         actions: [
           if (property != null) FavoriteButton(propertyId: propertyId),
@@ -108,8 +108,8 @@ class _Content extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Wrap(spacing: 6, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                  _Tag(p.transactionType == TransactionType.rent ? 'For rent' : 'For sale'),
-                  if (p.isNewBuild) const _Tag('New build'),
+                  _Tag(p.transactionType == TransactionType.rent ? 'À louer' : 'À vendre'),
+                  if (p.isNewBuild) const _Tag('Neuf'),
                   VerificationBadge(status: p.verificationStatus),
                 ]),
                 const SizedBox(height: 12),
@@ -128,7 +128,7 @@ class _Content extends StatelessWidget {
                 const SizedBox(height: 18),
                 KeyFactsRow(property: p),
                 if (p.ownerName != null) ...[
-                  const _SectionTitle('Listed by'),
+                  const _SectionTitle('Publié par'),
                   OwnerCard(
                     name: p.ownerName!,
                     role: p.ownerRole,
@@ -140,10 +140,10 @@ class _Content extends StatelessWidget {
                 const _SectionTitle('Description'),
                 ExpandableDescription(text: p.description),
                 if (p.amenities.isNotEmpty) ...[
-                  const _SectionTitle('Amenities'),
+                  const _SectionTitle('Équipements'),
                   AmenitiesSection(amenityIds: p.amenities),
                 ],
-                const _SectionTitle('Location'),
+                const _SectionTitle('Localisation'),
                 _LocationCard(property: p),
                 SimilarProperties(propertyId: p.id),
               ]),
@@ -191,10 +191,10 @@ class _LocationCard extends StatelessWidget {
               location: DiscoveryLocation.device(latitude: p.latitude!, longitude: p.longitude!),
             )),
             icon: const Icon(Icons.map_outlined),
-            label: const Text('View on map'),
+            label: const Text('Voir sur la carte'),
           )
         else
-          const Text('The exact location was not provided for this listing.',
+          const Text('La localisation exacte n\'a pas été indiquée pour cette annonce.',
               style: TextStyle(fontSize: 12, color: AppColors.muted)),
       ]),
     );
@@ -226,7 +226,7 @@ class _ActionBarState extends ConsumerState<_ActionBar> {
     } on ConversationFailure catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(e.message)));
     } catch (_) {
-      messenger.showSnackBar(const SnackBar(content: Text('Something went wrong. Please try again.')));
+      messenger.showSnackBar(const SnackBar(content: Text('Une erreur est survenue. Réessayez.')));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -246,9 +246,9 @@ class _ActionBarState extends ConsumerState<_ActionBar> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => context.push(Routes.login),
-                icon: const Icon(Icons.event_available_outlined),
-                label: const Text('Se connecter pour voir la disponibilité'),
+                onPressed: () => context.push(Routes.loginFrom(GoRouterState.of(context).uri.toString())),
+                icon: const Icon(Icons.chat_bubble_outline_rounded),
+                label: const Text('Se connecter pour contacter'),
               ),
             ),
             Padding(
@@ -279,14 +279,14 @@ class _ActionBarState extends ConsumerState<_ActionBar> {
                   ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.chat_bubble_outline_rounded),
               label: Text(widget.property.ownerRole == 'owner' || widget.property.ownerRole == null
-                  ? 'Contact the advertiser'
-                  : 'Contact the agent'),
+                  ? 'Contacter l\'annonceur'
+                  : 'Contacter l\'agent'),
             ),
           ),
           if (isOwn)
             const Padding(
               padding: EdgeInsets.only(top: 6),
-              child: Text('This is your own listing.', style: TextStyle(fontSize: 12, color: AppColors.muted)),
+              child: Text('C\'est votre propre annonce.', style: TextStyle(fontSize: 12, color: AppColors.muted)),
             ),
         ]),
       ),
@@ -354,8 +354,8 @@ class _StateMessage extends StatelessWidget {
             const SizedBox(height: 14),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            if (onRetry != null) FilledButton(onPressed: onRetry, child: const Text('Try again')),
-            if (onBack != null) FilledButton(onPressed: onBack, child: const Text('Go back')),
+            if (onRetry != null) FilledButton(onPressed: onRetry, child: const Text('Réessayer')),
+            if (onBack != null) FilledButton(onPressed: onBack, child: const Text('Retour')),
           ]),
         ),
       );

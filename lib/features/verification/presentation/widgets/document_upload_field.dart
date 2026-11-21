@@ -63,7 +63,7 @@ class DocumentUploadField extends StatelessWidget {
                   top: 0,
                   child: Semantics(
                     button: true,
-                    label: 'Remove file ${i + 1}',
+                    label: 'Retirer le fichier ${i + 1}',
                     child: InkWell(
                       onTap: busy ? null : () => onRemove(i),
                       child: const CircleAvatar(
@@ -81,12 +81,12 @@ class DocumentUploadField extends StatelessWidget {
           TextButton.icon(
             onPressed: (busy || full) ? null : () => onAdd(ImageSource.camera),
             icon: const Icon(Icons.photo_camera_outlined, size: 18),
-            label: const Text('Take photo'),
+            label: const Text('Prendre une photo'),
           ),
           TextButton.icon(
             onPressed: (busy || full) ? null : () => onAdd(ImageSource.gallery),
             icon: const Icon(Icons.photo_library_outlined, size: 18),
-            label: const Text('Choose file'),
+            label: const Text('Choisir un fichier'),
           ),
         ]),
         if (error != null)

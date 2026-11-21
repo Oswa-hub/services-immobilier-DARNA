@@ -53,7 +53,7 @@ class HomeHeader extends ConsumerWidget {
             label: 'Se connecter',
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: () => context.push(Routes.login),
+              onTap: () => context.push(Routes.loginFrom(Routes.home)),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(color: AppColors.navy, borderRadius: BorderRadius.circular(20)),

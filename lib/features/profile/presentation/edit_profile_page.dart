@@ -75,7 +75,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
       setState(() {
         _error =
-            'Unable to load your profile. Please try again.';
+            'Impossible de charger votre profil. Réessayez.';
       });
     } finally {
       if (mounted) {
@@ -111,7 +111,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Profile updated successfully!'),
+          content: Text('Profil mis à jour !'),
           backgroundColor: Colors.green,
         ),
       );
@@ -123,7 +123,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Unable to save your changes. Please try again.',
+            'Impossible d\'enregistrer vos modifications. Réessayez.',
           ),
           backgroundColor: Colors.red,
         ),
@@ -175,7 +175,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: const Text('Modifier le profil'),
         backgroundColor: Colors.white,
         foregroundColor: navy,
       ),
@@ -200,7 +200,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                             });
                             _loadProfile();
                           },
-                          child: const Text('Try again'),
+                          child: const Text('Réessayer'),
                         ),
                       ],
                     ),
@@ -232,7 +232,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                             const SizedBox(height: 28),
 
                             _input(
-                              label: 'Full Name',
+                              label: 'Nom complet',
                               controller: _nameController,
                               icon: Icons.person_outline,
                               validator: Validators.fullName,
@@ -241,7 +241,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                             const SizedBox(height: 16),
 
                             _input(
-                              label: 'Email Address',
+                              label: 'Adresse e-mail',
                               controller: _emailController,
                               icon: Icons.email_outlined,
                               readOnly: true,
@@ -250,7 +250,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                             const SizedBox(height: 16),
 
                             _input(
-                              label: 'Phone Number',
+                              label: 'Numéro de téléphone',
                               controller: _phoneController,
                               icon: Icons.phone_outlined,
                               keyboardType: TextInputType.phone,
@@ -263,7 +263,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                               initialValue: _selectedGovernorate,
                               isExpanded: true,
                               decoration: InputDecoration(
-                                labelText: 'Preferred Governorate',
+                                labelText: 'Gouvernorat préféré',
                                 prefixIcon: const Icon(
                                   Icons.location_on_outlined,
                                   color: blue,
@@ -276,7 +276,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                                 ),
                               ),
                               hint: const Text(
-                                'Select your governorate',
+                                'Choisissez votre gouvernorat',
                               ),
                               items: tunisianGovernorates
                                   .map(
@@ -297,7 +297,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                               validator: (value) {
                                 if (value == null ||
                                     value.isEmpty) {
-                                  return 'Please select a governorate';
+                                  return 'Choisissez un gouvernorat';
                                 }
                                 return null;
                               },
@@ -328,8 +328,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                                     ),
                               label: Text(
                                 _saving
-                                    ? 'Saving...'
-                                    : 'Save Changes',
+                                    ? 'Enregistrement…'
+                                    : 'Enregistrer',
                               ),
                             ),
                           ],

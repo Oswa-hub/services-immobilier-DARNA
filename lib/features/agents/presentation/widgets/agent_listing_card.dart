@@ -70,19 +70,19 @@ class AgentListingCard extends StatelessWidget {
     final favorites = stats?.favorites ?? p.favoritesCount;
     final hint = ListingPolicy.statusHint(p.status);
     final actions = <Widget>[
-      if (onViewPublic != null) TextButton.icon(onPressed: onViewPublic, icon: const Icon(Icons.visibility_outlined, size: 18), label: const Text('View')),
-      if (onEdit != null) TextButton.icon(onPressed: onEdit, icon: const Icon(Icons.edit_outlined, size: 18), label: const Text('Edit')),
+      if (onViewPublic != null) TextButton.icon(onPressed: onViewPublic, icon: const Icon(Icons.visibility_outlined, size: 18), label: const Text('Voir')),
+      if (onEdit != null) TextButton.icon(onPressed: onEdit, icon: const Icon(Icons.edit_outlined, size: 18), label: const Text('Modifier')),
       if (onSubmit != null)
         TextButton.icon(
           onPressed: onSubmit,
           icon: const Icon(Icons.send_outlined, size: 18),
-          label: Text(p.status == PropertyStatus.rejected ? 'Resubmit' : 'Submit'),
+          label: Text(p.status == PropertyStatus.rejected ? 'Renvoyer' : 'Envoyer'),
         ),
       if (onWithdraw != null)
         TextButton.icon(
           onPressed: onWithdraw,
           icon: const Icon(Icons.archive_outlined, size: 18),
-          label: const Text('Withdraw'),
+          label: const Text('Retirer'),
           style: TextButton.styleFrom(foregroundColor: AppColors.error),
         ),
     ];
@@ -114,8 +114,8 @@ class AgentListingCard extends StatelessWidget {
               const SizedBox(height: 6),
               Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
                 ListingStatusChip(status: p.status),
-                _Metric(Icons.visibility_outlined, formatCount(views), 'views'),
-                _Metric(Icons.favorite_border, formatCount(favorites), 'favorites'),
+                _Metric(Icons.visibility_outlined, formatCount(views), 'vues'),
+                _Metric(Icons.favorite_border, formatCount(favorites), 'favoris'),
               ]),
             ]),
           ),
@@ -126,7 +126,7 @@ class AgentListingCard extends StatelessWidget {
         ],
         if (p.updatedAt != null) ...[
           const SizedBox(height: 4),
-          Text('Updated ${formatShortDate(p.updatedAt!)}', style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+          Text('Mise à jour ${formatShortDate(p.updatedAt!)}', style: const TextStyle(fontSize: 11, color: AppColors.muted)),
         ],
         if (actions.isNotEmpty) ...[
           const SizedBox(height: 4),

@@ -15,16 +15,16 @@ const publishablePropertyTypes = [
 
 extension PublishPropertyType on PropertyType {
   String get label => switch (this) {
-        PropertyType.apartment => 'Apartment',
+        PropertyType.apartment => 'Appartement',
         PropertyType.villa => 'Villa',
-        PropertyType.house => 'House',
+        PropertyType.house => 'Maison',
         PropertyType.duplex => 'Duplex',
         PropertyType.triplex => 'Triplex',
-        PropertyType.land => 'Land',
-        PropertyType.office => 'Office',
-        PropertyType.commercial => 'Commercial space',
-        PropertyType.industrial => 'Industrial property',
-        PropertyType.other => 'Other',
+        PropertyType.land => 'Terrain',
+        PropertyType.office => 'Bureau',
+        PropertyType.commercial => 'Local commercial',
+        PropertyType.industrial => 'Local industriel',
+        PropertyType.other => 'Autre',
       };
 
   /// Residential types have bedrooms; land / office / shops do not (spec §3 step 6:
@@ -49,5 +49,5 @@ extension PublishPropertyType on PropertyType {
 }
 
 extension PublishTransactionType on TransactionType {
-  String get label => this == TransactionType.buy ? 'For sale' : 'For rent';
+  String get label => this == TransactionType.buy ? 'À vendre' : 'À louer';
 }

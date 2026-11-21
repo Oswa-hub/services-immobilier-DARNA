@@ -20,21 +20,21 @@ class MapControls extends StatelessWidget {
     return Column(mainAxisSize: MainAxisSize.min, children: [
       FloatingActionButton.small(
         heroTag: null,
-        tooltip: 'Zoom in',
+        tooltip: 'Zoom avant',
         onPressed: onZoomIn,
         child: const Icon(Icons.add),
       ),
       const SizedBox(height: 8),
       FloatingActionButton.small(
         heroTag: null,
-        tooltip: 'Zoom out',
+        tooltip: 'Zoom arrière',
         onPressed: onZoomOut,
         child: const Icon(Icons.remove),
       ),
       const SizedBox(height: 8),
       FloatingActionButton.small(
         heroTag: null,
-        tooltip: 'My location',
+        tooltip: 'Ma position',
         onPressed: isLocating ? null : onMyLocation,
         child: isLocating
             ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))

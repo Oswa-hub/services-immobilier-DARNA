@@ -111,7 +111,7 @@ class _MapPageState extends ConsumerState<MapPage> {
   }
 
   void _zoomBy(double delta) {
-    _byUser = true; // button zoom is a user action: may offer "Search this area"
+    _byUser = true; // button zoom is a user action: may offer 'Rechercher dans cette zone'
     final c = _map.camera;
     _map.move(c.center, (c.zoom + delta).clamp(5.0, 19.0).toDouble());
   }
@@ -222,8 +222,8 @@ class _MapPageState extends ConsumerState<MapPage> {
                       icon: Icons.cloud_off_rounded,
                       isError: true,
                       title: MapStrings.errorTitle,
-                      message: s.errorMessage ?? 'Check your connection and try again.',
-                      actionLabel: 'Retry',
+                      message: s.errorMessage ?? 'Vérifiez votre connexion et réessayez.',
+                      actionLabel: 'Réessayer',
                       onAction: ctl.retry,
                     ),
                   )
@@ -268,7 +268,7 @@ class _MapPageState extends ConsumerState<MapPage> {
               icon: Icons.search_off_rounded,
               title: MapStrings.emptyTitle,
               message: MapStrings.emptyMessage,
-              actionLabel: hasCriteria ? 'Clear filters' : null,
+              actionLabel: hasCriteria ? 'Effacer les filtres' : null,
               onAction: ctl.clearFilters,
             ),
           ),
@@ -300,7 +300,7 @@ class _TopCard extends StatelessWidget {
     final noun = n == 1 && !state.truncated ? 'property' : 'properties';
     return switch (state.status) {
       MapLoadStatus.idle || MapLoadStatus.loading => state.properties.isEmpty ? MapStrings.loading : '$n$plus $noun',
-      MapLoadStatus.empty => 'No properties here',
+      MapLoadStatus.empty => 'Aucun bien ici',
       MapLoadStatus.error => state.properties.isEmpty ? '' : '$n$plus $noun',
       MapLoadStatus.ready => state.truncated ? '$n+ $noun · zoom in for more' : '$n $noun on the map',
     };
@@ -325,11 +325,11 @@ class _TopCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.text)),
               ),
-              IconButton(tooltip: 'Show as list', onPressed: onList, icon: const Icon(Icons.view_agenda_outlined)),
+              IconButton(tooltip: 'Voir en liste', onPressed: onList, icon: const Icon(Icons.view_agenda_outlined)),
               Badge(
                 label: Text('${f.activeFilterCount}'),
                 isLabelVisible: f.activeFilterCount > 0,
-                child: IconButton(tooltip: 'Filters', onPressed: onFilters, icon: const Icon(Icons.tune_rounded)),
+                child: IconButton(tooltip: 'Filtres', onPressed: onFilters, icon: const Icon(Icons.tune_rounded)),
               ),
             ]),
           ),
@@ -342,7 +342,7 @@ class _TopCard extends StatelessWidget {
                 child: InputChip(
                   label: Text('“${f.queryText!.trim()}”', style: const TextStyle(fontSize: 12)),
                   onDeleted: () => onChanged(f.copyWith(queryText: null)),
-                  deleteButtonTooltipMessage: 'Remove search text',
+                  deleteButtonTooltipMessage: 'Effacer la recherche',
                   visualDensity: VisualDensity.compact,
                   backgroundColor: const Color(0xFFE8F0FE),
                   side: BorderSide.none,

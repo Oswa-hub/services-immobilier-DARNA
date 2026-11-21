@@ -164,7 +164,7 @@ class _SearchMapViewState extends ConsumerState<SearchMapView> {
           ElevatedButton.icon(
             onPressed: () => context.go(Routes.mapFromSearch()),
             icon: const Icon(Icons.travel_explore, size: 18),
-            label: const Text('Search by area'),
+            label: const Text('Rechercher dans cette zone'),
             style: ElevatedButton.styleFrom(elevation: 4, shape: const StadiumBorder()),
           ),
         ]),
@@ -200,7 +200,7 @@ class _SearchMapViewState extends ConsumerState<SearchMapView> {
             icon: Icons.location_off_outlined,
             title: MapStrings.noCoordsTitle,
             message: MapStrings.noCoordsMessage,
-            actionLabel: 'Back to list',
+            actionLabel: 'Retour à la liste',
             onAction: widget.onShowList,
           ),
         ),

@@ -24,18 +24,18 @@ class AgentListingDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AgentGate(
-        title: 'Listing',
+        title: 'Annonce',
         builder: (context, ref, profile) {
           final listings = ref.watch(agentListingsProvider);
           final me = ref.watch(currentUserProvider)?.id ?? '';
 
           return Scaffold(
             backgroundColor: AppColors.background,
-            appBar: AppBar(title: const Text('Manage listing')),
+            appBar: AppBar(title: const Text('Gérer l\'annonce')),
             body: listings.when(
               loading: () => const AgentLoading(),
               error: (_, _) => AgentErrorView(
-                message: 'We could not load your listings. Please try again.',
+                message: 'Impossible de charger vos annonces. Réessayez.',
                 onRetry: () => ref.invalidate(agentListingsProvider),
               ),
               data: (all) {
@@ -46,8 +46,8 @@ class AgentListingDetailPage extends StatelessWidget {
                 if (p == null) {
                   return AgentEmptyView(
                     icon: Icons.search_off_rounded,
-                    message: 'This listing could not be found among your listings.',
-                    actionLabel: 'Back to my listings',
+                    message: 'Cette annonce est introuvable parmi vos annonces.',
+                    actionLabel: 'Retour à mes annonces',
                     onAction: () => context.go(Routes.agentListings),
                   );
                 }
@@ -63,15 +63,15 @@ class AgentListingDetailPage extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
                       children: [
                         ListingActions.card(context, ref, p, stats: stats, detail: true),
-                        const SectionTitle('Performance'),
+                        const SectionTitle('Performances'),
                         AgentStatGrid(cards: [
-                          AgentStatCard(icon: Icons.visibility_outlined, label: 'Views', value: stats?.views ?? p.views),
-                          AgentStatCard(icon: Icons.favorite_border, label: 'Favorites', value: stats?.favorites ?? p.favoritesCount),
-                          AgentStatCard(icon: Icons.chat_bubble_outline_rounded, label: 'Inquiries', value: stats?.contacts ?? 0),
+                          AgentStatCard(icon: Icons.visibility_outlined, label: 'Vues', value: stats?.views ?? p.views),
+                          AgentStatCard(icon: Icons.favorite_border, label: 'Favoris', value: stats?.favorites ?? p.favoritesCount),
+                          AgentStatCard(icon: Icons.chat_bubble_outline_rounded, label: 'Demandes', value: stats?.contacts ?? 0),
                         ]),
-                        const SectionTitle('Inquiries about this listing'),
+                        const SectionTitle('Demandes sur cette annonce'),
                         if (inquiries.isEmpty)
-                          const Text('No inquiries about this listing yet.', style: TextStyle(color: AppColors.muted))
+                          const Text('Aucune demande sur cette annonce pour le moment.', style: TextStyle(color: AppColors.muted))
                         else
                           for (final c in inquiries)
                             Padding(
@@ -80,7 +80,7 @@ class AgentListingDetailPage extends StatelessWidget {
                             ),
                         const SizedBox(height: 8),
                         Row(children: [
-                          const Text('Status: ', style: TextStyle(color: AppColors.muted)),
+                          const Text('Statut : ', style: TextStyle(color: AppColors.muted)),
                           ListingStatusChip(status: p.status),
                         ]),
                       ],

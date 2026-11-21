@@ -178,11 +178,11 @@ class PublishingController extends Notifier<PublishingState> {
         if (p.bytes.length <= settings.effectiveMaxImageBytes) p,
     ];
     if (sized.length < picked.photos.length) {
-      problems.add('Some photos are larger than ${settings.maxImageSizeMb} MB and were ignored.');
+      problems.add('Certaines photos dépassent ${settings.maxImageSizeMb} Mo et ont été ignorées.');
     }
     final accepted = sized.take(room < 0 ? 0 : room).toList();
     if (accepted.length < sized.length) {
-      problems.add('Only ${settings.effectiveMaxImages} photos are allowed: extra photos were ignored.');
+      problems.add('${settings.effectiveMaxImages} photos maximum : les photos en trop ont été ignorées.');
     }
     final draft = state.draft.copyWith(photos: [...state.draft.photos, ...accepted]);
     state = state.copyWith(

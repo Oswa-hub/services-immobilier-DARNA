@@ -68,7 +68,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: Routes.splash,
     refreshListenable: refresh,
     redirect: (context, state) =>
-        authRedirect(ref.read(authControllerProvider), state.matchedLocation),
+        authRedirect(ref.read(authControllerProvider), state.matchedLocation,
+            from: state.uri.queryParameters['from']),
     routes: [
       // ---- Module 01 -------------------------------------------------------
       GoRoute(path: Routes.splash, builder: (_, _) => const SplashPage()),

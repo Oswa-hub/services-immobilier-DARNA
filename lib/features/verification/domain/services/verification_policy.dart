@@ -42,28 +42,28 @@ class VerificationPolicy {
 
   /// Why each document is requested (spec §14.3: explain it to the applicant).
   static String whyRequested(VerificationDocumentType t) => switch (t) {
-        VerificationDocumentType.identity => 'Lets a reviewer match your name with the information you entered.',
+        VerificationDocumentType.identity => 'Permet de rapprocher votre nom des informations saisies.',
         VerificationDocumentType.ownershipDocument =>
-          'Lets a reviewer see that you present yourself as the owner of the property.',
-        VerificationDocumentType.professionalDocument => 'Shows your professional activity.',
-        VerificationDocumentType.agencyDocument => 'Shows the agency you represent.',
+          'Montre que vous vous présentez comme propriétaire du bien.',
+        VerificationDocumentType.professionalDocument => 'Montre votre activité professionnelle.',
+        VerificationDocumentType.agencyDocument => 'Montre l\'agence que vous représentez.',
       };
 
   static String intro(VerificationTargetType t) => switch (t) {
         VerificationTargetType.user =>
-          'Confirms your identity with a document. Your email is confirmed separately; your phone number is not yet confirmed by a code.',
-        VerificationTargetType.owner => 'Confirms who you are and that you present yourself as the property owner.',
-        VerificationTargetType.agent => 'Confirms your identity and professional information.',
+          'Confirme votre identité par un document. Votre e-mail est confirmé à part ; votre téléphone n\'est pas encore confirmé par code.',
+        VerificationTargetType.owner => 'Confirme votre identité et que vous vous présentez comme propriétaire.',
+        VerificationTargetType.agent => 'Confirme votre identité et vos informations professionnelles.',
         VerificationTargetType.property =>
-          'A reviewer checks the listing information, its location, its photos and your ownership evidence.',
+          'Notre équipe contrôle les informations de l\'annonce, sa localisation, ses photos et vos justificatifs de propriété.',
       };
 
   /// What an approved badge honestly says (spec §14.4).
   static String badgeText(VerificationTargetType t) => switch (t) {
-        VerificationTargetType.user => 'Identity reviewed',
-        VerificationTargetType.owner => 'Owner documents reviewed',
-        VerificationTargetType.agent => 'Verified professional',
-        VerificationTargetType.property => 'Verified listing',
+        VerificationTargetType.user => 'Identité vérifiée',
+        VerificationTargetType.owner => 'Propriétaire vérifié',
+        VerificationTargetType.agent => 'Professionnel vérifié',
+        VerificationTargetType.property => 'Annonce vérifiée',
       };
 
   // ---- validity (spec §5.3) --------------------------------------------------

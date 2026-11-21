@@ -100,6 +100,7 @@ class Property {
     this.createdAt,
     this.updatedAt,
     this.publishedAt,
+    this.expiresAt,
   });
 
   final String id;
@@ -151,10 +152,14 @@ class Property {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? publishedAt;
+  final DateTime? expiresAt;
 
   /// Only an approved verification shows the badge (spec §8.9).
   bool get isVerified => verificationStatus == VerificationStatus.approved;
-  bool get isPublic => status == PropertyStatus.published;
+  /// I2: a published listing past its `expiresAt` (set when the admin approves
+  /// it) is hidden from everyone but its owner, who can renew it.
+  bool get isExpired => status == PropertyStatus.published && expiresAt != null && expiresAt!.isBefore(DateTime.now());
+  bool get isPublic => status == PropertyStatus.published && !isExpired;
   bool get hasCoordinates => latitude != null && longitude != null;
   String? get mainImage => images.isEmpty ? null : images.first;
 

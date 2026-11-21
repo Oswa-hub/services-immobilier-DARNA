@@ -23,7 +23,7 @@ class PublicAgentProfilePage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Professional profile'),
+        title: const Text('Profil professionnel'),
         actions: [
           // Module 14: report a professional (not yourself).
           if (profile.value case final p? when ref.watch(currentUserProvider)?.id != agentId)
@@ -38,12 +38,12 @@ class PublicAgentProfilePage extends ConsumerWidget {
         error: (e, _) => AgentErrorView(
           // Rules deny reading a private / suspended profile -> "not available".
           message: e is AgentFailure && e.type == AgentFailureType.permissionDenied
-              ? 'This profile is not available.'
-              : 'We could not load this profile. Please try again.',
+              ? 'Ce profil n\'est pas disponible.'
+              : 'Impossible de charger ce profil. Réessayez.',
           onRetry: () => ref.invalidate(publicAgentProfileProvider(agentId)),
         ),
         data: (p) => (p == null || !p.isPublic)
-            ? const AgentEmptyView(icon: Icons.person_off_outlined, message: 'This profile is not available.')
+            ? const AgentEmptyView(icon: Icons.person_off_outlined, message: 'Ce profil n\'est pas disponible.')
             : AgentProfileView(profile: p),
       ),
     );

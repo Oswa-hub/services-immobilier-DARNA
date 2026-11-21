@@ -20,7 +20,7 @@ class AgentStatisticsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AgentGate(
-        title: 'Statistics',
+        title: 'Statistiques',
         builder: (context, ref, profile) {
           final stats = ref.watch(agentDashboardStatsProvider);
           final listings = ref.watch(agentListingsProvider).value ?? const <Property>[];
@@ -28,7 +28,7 @@ class AgentStatisticsPage extends StatelessWidget {
 
           return Scaffold(
             backgroundColor: AppColors.background,
-            appBar: AppBar(title: const Text('Statistics')),
+            appBar: AppBar(title: const Text('Statistiques')),
             body: stats.when(
               loading: () => const AgentLoading(),
               error: (e, _) => AgentErrorView(
@@ -39,7 +39,7 @@ class AgentStatisticsPage extends StatelessWidget {
                 if (!s.hasListings || !s.hasActivity) {
                   return const AgentEmptyView(
                     icon: Icons.bar_chart_rounded,
-                    message: 'Statistics will appear when users start viewing and interacting with your published properties.',
+                    message: 'Les statistiques apparaîtront quand des utilisateurs consulteront vos biens publiés.',
                   );
                 }
                 final ranked = [
@@ -54,24 +54,24 @@ class AgentStatisticsPage extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
                       children: [
                         AgentStatGrid(cards: [
-                          AgentStatCard(icon: Icons.visibility_outlined, label: 'Total views', value: s.views),
-                          AgentStatCard(icon: Icons.favorite_border, label: 'Total favorites', value: s.favorites),
-                          AgentStatCard(icon: Icons.chat_bubble_outline_rounded, label: 'Total inquiries', value: s.contacts),
-                          AgentStatCard(icon: Icons.check_circle_outline, label: 'Published listings', value: s.published),
-                          if (s.shares > 0) AgentStatCard(icon: Icons.share_outlined, label: 'Shares', value: s.shares),
+                          AgentStatCard(icon: Icons.visibility_outlined, label: 'Vues', value: s.views),
+                          AgentStatCard(icon: Icons.favorite_border, label: 'Favoris', value: s.favorites),
+                          AgentStatCard(icon: Icons.chat_bubble_outline_rounded, label: 'Demandes', value: s.contacts),
+                          AgentStatCard(icon: Icons.check_circle_outline, label: 'Annonces publiées', value: s.published),
+                          if (s.shares > 0) AgentStatCard(icon: Icons.share_outlined, label: 'Partages', value: s.shares),
                         ]),
-                        const SectionTitle('Properties by status'),
+                        const SectionTitle('Biens par statut'),
                         AgentCard(
                           child: Column(children: [
-                            _StatusBar('Published', s.published, s.totalListings),
-                            _StatusBar('Pending review', s.pending, s.totalListings),
-                            _StatusBar('Drafts', s.drafts, s.totalListings),
-                            _StatusBar('Rejected', s.rejected, s.totalListings),
-                            _StatusBar('Suspended', s.suspended, s.totalListings),
-                            _StatusBar('Expired', s.expired, s.totalListings),
+                            _StatusBar('Publiées', s.published, s.totalListings),
+                            _StatusBar('En attente', s.pending, s.totalListings),
+                            _StatusBar('Brouillons', s.drafts, s.totalListings),
+                            _StatusBar('Refusées', s.rejected, s.totalListings),
+                            _StatusBar('Suspendues', s.suspended, s.totalListings),
+                            _StatusBar('Expirées', s.expired, s.totalListings),
                           ]),
                         ),
-                        const SectionTitle('Listing performance'),
+                        const SectionTitle('Performances des annonces'),
                         for (final p in ranked)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8),

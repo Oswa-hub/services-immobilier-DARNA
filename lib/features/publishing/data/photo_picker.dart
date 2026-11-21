@@ -28,7 +28,7 @@ class ImagePickerPhotoPicker implements PhotoPicker {
   @override
   Future<PickedPhotos> pick({required int remainingSlots}) async {
     if (remainingSlots <= 0) {
-      return PickedPhotos(problems: ['You can add up to ${PublishingConfig.maxPhotos} photos.']);
+      return PickedPhotos(problems: ['Vous pouvez ajouter jusqu\'à ${PublishingConfig.maxPhotos} photos.']);
     }
     final List<XFile> files;
     try {
@@ -39,14 +39,14 @@ class ImagePickerPhotoPicker implements PhotoPicker {
       );
     } catch (e) {
       debugPrint('Photo picker failed: $e');
-      return const PickedPhotos(problems: ['Could not open your photo library.']);
+      return const PickedPhotos(problems: ['Impossible d\'ouvrir vos photos.']);
     }
 
     final photos = <ListingPhoto>[];
     final problems = <String>[];
     for (final f in files) {
       if (photos.length >= remainingSlots) {
-        problems.add('Only ${PublishingConfig.maxPhotos} photos are allowed: extra photos were ignored.');
+        problems.add('${PublishingConfig.maxPhotos} photos maximum : les photos en trop ont été ignorées.');
         break;
       }
       try {

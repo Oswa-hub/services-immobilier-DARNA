@@ -19,9 +19,9 @@ class InquiryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = conversation;
     final unread = c.isUnreadFor(me);
-    final who = c.userName ?? 'Interested user';
+    final who = c.userName ?? 'Utilisateur intéressé';
     return Semantics(
-      label: '${unread ? 'Unread. ' : ''}$who about ${c.propertyTitle ?? 'a property'}',
+      label: '${unread ? 'Non lu. ' : ''}$who, au sujet de ${c.propertyTitle ?? 'un bien'}',
       button: true,
       child: AgentCard(
         onTap: onTap,

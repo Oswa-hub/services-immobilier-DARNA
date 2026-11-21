@@ -172,8 +172,8 @@ class VerificationRemoteDataSource {
         _notification(
             userId: uid,
             type: 'verificationSubmitted',
-            title: 'Verification request received',
-            body: 'Your request is waiting for review.',
+            title: 'Demande de vérification reçue',
+            body: 'Votre demande est en attente de vérification.',
             verificationId: id),
       );
     return batch.commit();
@@ -215,8 +215,8 @@ class VerificationRemoteDataSource {
         _notification(
             userId: uid,
             type: 'verificationSubmitted',
-            title: 'Verification request received',
-            body: 'Your corrected request is waiting for review.',
+            title: 'Demande de vérification reçue',
+            body: 'Votre demande corrigée est en attente de vérification.',
             verificationId: id),
       );
     return batch.commit();
@@ -252,15 +252,15 @@ class VerificationRemoteDataSource {
 
     final (mirrorRef, mirrorData) = _mirror(type, targetId, newStatus);
     final (title, body, notifType) = switch (newStatus) {
-      'approved' => ('Verification approved', 'Your verification request was approved.', 'verificationApproved'),
+      'approved' => ('Vérification acceptée', 'Votre demande de vérification a été acceptée.', 'verificationApproved'),
       'rejected' => (
-          'Verification needs changes',
-          'Your verification request needs changes. Open the app to read the review reason.',
+          'Vérification à corriger',
+          'Votre demande de vérification doit être corrigée. Ouvrez l\'application pour lire le motif.',
           'verificationRejected'
         ),
       _ => (
-          'Verification expired',
-          'One of your verifications is no longer current. Open the app to submit a new request.',
+          'Vérification expirée',
+          'Une de vos vérifications n\'est plus valable. Ouvrez l\'application pour envoyer une nouvelle demande.',
           'verificationExpired'
         ),
     };
@@ -294,6 +294,11 @@ class VerificationRemoteDataSource {
         _notification(userId: applicantId, type: notifType, title: title, body: body, verificationId: id),
       )
       ..update(mirrorRef, mirrorData);
+    // B2: there is no server function to grant the agent role (Spark plan), so an
+    // approved agent verification makes the account an agent in the same batch.
+    if (type == VerificationTargetType.agent && newStatus == 'approved') {
+      batch.update(_db.collection('users').doc(targetId), {'role': 'agent'});
+    }
     return batch.commit();
   }
 }

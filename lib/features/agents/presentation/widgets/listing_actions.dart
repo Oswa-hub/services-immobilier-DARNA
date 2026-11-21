@@ -19,7 +19,7 @@ class ListingActions {
     final messenger = ScaffoldMessenger.of(context);
     try {
       await ref.read(submitAgentListingProvider)(p);
-      messenger.showSnackBar(const SnackBar(content: Text('Listing submitted for review.')));
+      messenger.showSnackBar(const SnackBar(content: Text('Annonce envoyée pour vérification.')));
     } on AgentFailure catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(e.message)));
     } catch (_) {
@@ -31,14 +31,14 @@ class ListingActions {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Withdraw this listing?'),
+        title: const Text('Retirer cette annonce ?'),
         content: Text(
           '"${p.title}" will no longer be visible to users. '
-          'You can create a new listing later.',
+          'Vous pourrez créer une nouvelle annonce plus tard.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Withdraw')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Annuler')),
+          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Retirer')),
         ],
       ),
     );
@@ -46,7 +46,7 @@ class ListingActions {
     final messenger = ScaffoldMessenger.of(context);
     try {
       await ref.read(withdrawAgentListingProvider)(p);
-      messenger.showSnackBar(const SnackBar(content: Text('Listing withdrawn.')));
+      messenger.showSnackBar(const SnackBar(content: Text('Annonce retirée.')));
     } on AgentFailure catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(e.message)));
     } catch (_) {

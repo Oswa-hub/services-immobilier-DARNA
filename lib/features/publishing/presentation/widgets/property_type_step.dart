@@ -31,7 +31,7 @@ class PropertyTypeStep extends ConsumerWidget {
     final d = s.draft;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const StepHeader(title: 'What are you listing?', subtitle: 'Choose the type of property and the type of offer.'),
+      const StepHeader(title: 'Que publiez-vous ?', subtitle: 'Choisissez le type de bien et le type d\'offre.'),
       GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
@@ -46,7 +46,7 @@ class PropertyTypeStep extends ConsumerWidget {
       ),
       FieldError(s.errors[ListingField.propertyType]),
       const SizedBox(height: 24),
-      const Text('Offer', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+      const Text('Offre', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       const SizedBox(height: 10),
       Row(children: [
         for (final t in TransactionType.values) ...[

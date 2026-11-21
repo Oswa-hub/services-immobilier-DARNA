@@ -12,14 +12,14 @@ class AgentProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AgentGate(
-        title: 'My professional profile',
+        title: 'Mon profil professionnel',
         builder: (context, ref, profile) => Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            title: const Text('My professional profile'),
+            title: const Text('Mon profil professionnel'),
             actions: [
               IconButton(
-                tooltip: 'Edit profile',
+                tooltip: 'Modifier le profil',
                 icon: const Icon(Icons.edit_outlined),
                 onPressed: () => context.push(Routes.agentProfileEdit),
               ),

@@ -75,7 +75,7 @@ class SearchEmptyState extends StatelessWidget {
             FilledButton(
               onPressed: onClear,
               style: FilledButton.styleFrom(minimumSize: const Size(180, 48)),
-              child: const Text('Clear filters'),
+              child: const Text('Effacer les filtres'),
             ),
         ],
       );
@@ -98,7 +98,7 @@ class SearchErrorState extends StatelessWidget {
           FilledButton(
             onPressed: onRetry,
             style: FilledButton.styleFrom(minimumSize: const Size(180, 48)),
-            child: const Text('Retry'),
+            child: const Text('Réessayer'),
           ),
         ],
       );

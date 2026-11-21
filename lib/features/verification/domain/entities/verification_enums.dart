@@ -11,10 +11,10 @@ enum VerificationTargetType {
   String get wire => name;
 
   String get label => switch (this) {
-        VerificationTargetType.user => 'Identity',
-        VerificationTargetType.owner => 'Owner',
-        VerificationTargetType.agent => 'Professional',
-        VerificationTargetType.property => 'Property',
+        VerificationTargetType.user => 'Identité',
+        VerificationTargetType.owner => 'Propriétaire',
+        VerificationTargetType.agent => 'Professionnel',
+        VerificationTargetType.property => 'Bien',
       };
 
   /// Deterministic request id: one request per target and type. A duplicate
@@ -40,10 +40,10 @@ enum VerificationDocumentType {
   final String wire;
 
   String get label => switch (this) {
-        VerificationDocumentType.identity => 'Identity document',
-        VerificationDocumentType.ownershipDocument => 'Ownership document',
-        VerificationDocumentType.professionalDocument => 'Professional document',
-        VerificationDocumentType.agencyDocument => 'Agency document',
+        VerificationDocumentType.identity => 'Pièce d\'identité',
+        VerificationDocumentType.ownershipDocument => 'Justificatif de propriété',
+        VerificationDocumentType.professionalDocument => 'Justificatif professionnel',
+        VerificationDocumentType.agencyDocument => 'Document de l\'agence',
       };
 
   static VerificationDocumentType? tryParse(String? v) {
@@ -83,19 +83,19 @@ extension VerificationStatusX on VerificationStatus {
 
   /// Spec §12.3 user-facing labels.
   String get label => switch (this) {
-        VerificationStatus.notSubmitted => 'Not submitted',
-        VerificationStatus.pending => 'Under review',
-        VerificationStatus.approved => 'Verified',
-        VerificationStatus.rejected => 'Changes required',
-        VerificationStatus.expired => 'Verification expired',
+        VerificationStatus.notSubmitted => 'Non envoyée',
+        VerificationStatus.pending => 'En cours d\'examen',
+        VerificationStatus.approved => 'Vérifié',
+        VerificationStatus.rejected => 'Corrections demandées',
+        VerificationStatus.expired => 'Vérification expirée',
       };
 
   /// What the applicant should do next, not just a technical status.
   String get nextStep => switch (this) {
-        VerificationStatus.notSubmitted => 'Submit the requested information to start.',
-        VerificationStatus.pending => 'An administrator is reviewing your request. You will be notified.',
-        VerificationStatus.approved => 'This verification is current.',
-        VerificationStatus.rejected => 'Read the review reason, correct the information and submit again.',
-        VerificationStatus.expired => 'This verification is no longer current. Submit a new request.',
+        VerificationStatus.notSubmitted => 'Envoyez les informations demandées pour commencer.',
+        VerificationStatus.pending => 'Un administrateur examine votre demande. Vous serez notifié.',
+        VerificationStatus.approved => 'Cette vérification est valable.',
+        VerificationStatus.rejected => 'Lisez le motif, corrigez les informations et renvoyez.',
+        VerificationStatus.expired => 'Cette vérification n\'est plus valable. Envoyez une nouvelle demande.',
       };
 }

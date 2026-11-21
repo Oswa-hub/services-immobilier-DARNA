@@ -8,6 +8,8 @@ class Routes {
   static const splash = '/splash';
   static const welcome = '/welcome';
   static const login = '/login';
+  /// Login that comes back to [from] once signed in (I4).
+  static String loginFrom(String from) => '$login?from=${Uri.encodeComponent(from)}';
   static const register = '/register';
   static const forgotPassword = '/forgot-password';
   static const resetPassword = '/reset-password';

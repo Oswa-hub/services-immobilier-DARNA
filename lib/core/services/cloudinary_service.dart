@@ -86,7 +86,7 @@ class CloudinaryService {
       throw const CloudinaryUploadException('Cloudinary is not configured yet.');
     }
     if (bytes.isEmpty) {
-      throw const CloudinaryUploadException('The selected image is empty.');
+      throw const CloudinaryUploadException('L\'image choisie est vide.');
     }
     if (bytes.length > maxBytes) {
       throw const CloudinaryUploadException('The image is too large (max 5 MB).');
@@ -111,7 +111,7 @@ class CloudinaryService {
       }
       final apiMessage = body is Map && body['error'] is Map ? (body['error']['message'] ?? '') : '';
       throw CloudinaryUploadException(
-        apiMessage.toString().isEmpty ? 'Upload failed (${response.statusCode}).' : apiMessage.toString(),
+        apiMessage.toString().isEmpty ? 'Échec de l\'envoi (${response.statusCode}).' : apiMessage.toString(),
       );
     } on CloudinaryUploadException {
       rethrow;

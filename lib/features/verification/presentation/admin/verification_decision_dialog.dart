@@ -37,20 +37,20 @@ class _ReasonDialogState extends State<_ReasonDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text('Request changes'),
+        title: const Text('Demander des corrections'),
         content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('The applicant will read this reason. Do not include document numbers or other sensitive details.'),
+          const Text('Le demandeur lira ce motif. N\'indiquez pas de numéros de document ni d\'autres informations sensibles.'),
           const SizedBox(height: 12),
           TextField(
             controller: _controller,
             maxLines: 4,
             maxLength: 500,
-            decoration: InputDecoration(labelText: 'Reason', errorText: _error, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: 'Motif', errorText: _error, border: const OutlineInputBorder()),
           ),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-          FilledButton(onPressed: _confirm, child: const Text('Reject')),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Annuler')),
+          FilledButton(onPressed: _confirm, child: const Text('Refuser')),
         ],
       );
 }
@@ -62,7 +62,7 @@ Future<bool> confirmAction(BuildContext context, {required String title, require
       title: Text(title),
       content: Text(message),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Annuler')),
         FilledButton(onPressed: () => Navigator.of(context).pop(true), child: Text(confirmLabel)),
       ],
     ),

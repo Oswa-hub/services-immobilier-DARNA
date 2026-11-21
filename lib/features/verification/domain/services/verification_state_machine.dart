@@ -45,10 +45,10 @@ class VerificationStateMachine {
   static String? validateRejectionReason(String? reason) {
     final r = reason?.trim() ?? '';
     if (r.length < VerificationPolicy.rejectionReasonMin) {
-      return 'Please explain what must be corrected (at least ${VerificationPolicy.rejectionReasonMin} characters).';
+      return 'Expliquez ce qui doit être corrigé (au moins ${VerificationPolicy.rejectionReasonMin} caractères).';
     }
     if (r.length > VerificationPolicy.rejectionReasonMax) {
-      return 'The reason is too long (max ${VerificationPolicy.rejectionReasonMax} characters).';
+      return 'Le motif est trop long (${VerificationPolicy.rejectionReasonMax} caractères maximum).';
     }
     return null;
   }

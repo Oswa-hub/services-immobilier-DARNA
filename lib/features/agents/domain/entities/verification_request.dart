@@ -7,9 +7,9 @@ enum VerificationCategory {
   agency;
 
   String get label => switch (this) {
-        VerificationCategory.identity => 'Identity document',
-        VerificationCategory.professional => 'Professional document',
-        VerificationCategory.agency => 'Agency information',
+        VerificationCategory.identity => 'Pièce d\'identité',
+        VerificationCategory.professional => 'Justificatif professionnel',
+        VerificationCategory.agency => 'Informations de l\'agence',
       };
 }
 

@@ -44,7 +44,7 @@ class AgentHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = profile;
     final meta = <String>[
-      p.isAgency ? 'Real-estate agency' : 'Real-estate agent',
+      p.isAgency ? 'Agence immobilière' : 'Agent immobilier',
       p.city,
       if (p.yearsOfExperience != null && p.yearsOfExperience! > 0) '${p.yearsOfExperience} yrs experience',
     ];
@@ -63,7 +63,7 @@ class AgentHeader extends StatelessWidget {
           Text(meta.join(' · '), style: const TextStyle(fontSize: 12, color: AppColors.muted)),
           const SizedBox(height: 8),
           // Only an APPROVED verification shows the badge (spec §5.3).
-          VerificationBadge(status: p.verificationStatus, label: 'Verified professional'),
+          VerificationBadge(status: p.verificationStatus, label: 'Professionnel vérifié'),
         ]),
       ),
     ]);

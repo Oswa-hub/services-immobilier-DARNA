@@ -34,7 +34,7 @@ void main() {
     await c.read(authControllerProvider.notifier).login('a@b.co', 'bad');
     final s = c.read(authControllerProvider);
     expect(s, isA<AuthError>());
-    expect((s as AuthError).message, 'The email or password is incorrect.');
+    expect((s as AuthError).message, 'E-mail ou mot de passe incorrect.');
   });
 
   test('unverified account -> emailVerificationRequired', () async {

@@ -98,13 +98,13 @@ class CounterField extends StatelessWidget {
           child: Row(children: [
             Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700))),
             IconButton(
-              tooltip: 'Remove one $label',
+              tooltip: 'Retirer : $label',
               onPressed: value > 0 ? () => onChanged(value - 1) : null,
               icon: const Icon(Icons.remove_circle_outline),
             ),
             SizedBox(width: 28, child: Text('$value', textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800))),
             IconButton(
-              tooltip: 'Add one $label',
+              tooltip: 'Ajouter : $label',
               onPressed: value < max ? () => onChanged(value + 1) : null,
               icon: const Icon(Icons.add_circle_outline),
             ),
